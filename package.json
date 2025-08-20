@@ -1,0 +1,12 @@
+{
+  "name": "construmax-admin",
+  "version": "1.0.0",
+  "description": "Painel administrativo da Construmax - gerenciado por Caique Eduardo Godoy da Silva",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Caique Eduardo Godoy da Silva",
+  "license": "MIT",
+  "dependencies": {
+    "pg": "^8.11.0"
+  }
+}
