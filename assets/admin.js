@@ -4,182 +4,169 @@
 // ==========================
 // ELEMENTOS DO DOM
 // ==========================
-const loginForm = document.getElementById("login-form");
-const loginMsg = document.getElementById("login-msg");
-const loginContainer = document.getElementById("login-container");
-const adminPanel = document.getElementById("admin-panel");
+import { Client } from 'pg';
 
-const adForm = document.getElementById("ad-form");
-const adsList = document.getElementById("ads-list");
+// Variáveis de estado
+let loggedInUser = null;
 
-const userForm = document.getElementById("user-form");
-const userMsg = document.getElementById("user-msg");
-
-// ==========================
-// LOGIN
-// ==========================
-loginForm.addEventListener("submit", async function (e) {
-  e.preventDefault();
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-
-  try {
-    const res = await fetch("/.netlify/functions/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      loginContainer.style.display = "none";
-      adminPanel.style.display = "block";
-      carregarAnunciosAdmin();
-    } else {
-      loginMsg.textContent = data.message || "Usuário ou senha incorretos";
-    }
-  } catch (err) {
-    console.error(err);
-    loginMsg.textContent = "Erro ao conectar com o servidor";
-  }
-});
-
-// ==========================
-// CARREGAR ANÚNCIOS
-// ==========================
-async function carregarAnunciosAdmin() {
-  try {
-    const res = await fetch("/.netlify/functions/anuncios");
-    const data = await res.json();
-    renderizarAnunciosAdmin(data);
-  } catch (err) {
-    console.error("Erro ao carregar anúncios:", err);
-    adsList.innerHTML = "<p>Erro ao carregar anúncios.</p>";
-  }
-}
-
-// ==========================
-// RENDERIZAÇÃO
-// ==========================
-function renderizarAnunciosAdmin(anuncios) {
-  adsList.innerHTML = "";
-  if (!anuncios || anuncios.length === 0) {
-    adsList.innerHTML = "<p>Nenhum anúncio cadastrado.</p>";
-    return;
-  }
-
-  anuncios.forEach((ad) => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <h4>${ad.title}</h4>
-      <p><strong>Preço de venda:</strong> R$ ${ad.price}</p>
-      <p><strong>Aluguel/mês:</strong> R$ ${ad.rent}</p>
-      <p>${ad.description}</p>
-      <p><strong>Imagens:</strong> ${ad.images.join(", ")}</p>
-      <button onclick="editarAnuncio(${ad.id})">Editar</button>
-      <button onclick="excluirAnuncio(${ad.id})">Excluir</button>
-    `;
-    adsList.appendChild(div);
+// Função para criar cliente e conectar ao Neon
+function getClient() {
+  return new Client({
+    connectionString: process.env.NEON_DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
   });
 }
 
-// ==========================
-// ADICIONAR / EDITAR ANÚNCIO
-// ==========================
-adForm.addEventListener("submit", async function (e) {
-  e.preventDefault();
+// LOGIN
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const msg = document.getElementById('login-msg');
 
-  const id = document.getElementById("ad-id").value;
-  const title = document.getElementById("ad-title").value;
-  const price = Number(document.getElementById("ad-price").value);
-  const rent = Number(document.getElementById("ad-rent").value);
-  const description = document.getElementById("ad-description").value;
-  const images = document.getElementById("ad-images").value
-    .split(",")
-    .map((img) => img.trim());
-
+  const client = getClient();
   try {
-    await fetch("/.netlify/functions/anuncios", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: id || null, title, price, rent, description, images })
-    });
-
-    adForm.reset();
-    document.getElementById("ad-id").value = "";
-    carregarAnunciosAdmin();
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao salvar anúncio");
-  }
-});
-
-// ==========================
-// EDITAR / EXCLUIR ANÚNCIO
-// ==========================
-async function excluirAnuncio(id) {
-  if (!confirm("Deseja realmente excluir este anúncio?")) return;
-
-  try {
-    await fetch("/.netlify/functions/anuncios", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id })
-    });
-    carregarAnunciosAdmin();
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao excluir anúncio");
-  }
-}
-
-async function editarAnuncio(id) {
-  try {
-    const res = await fetch("/.netlify/functions/anuncios");
-    const anuncios = await res.json();
-    const ad = anuncios.find((a) => a.id == id);
-    if (!ad) return;
-
-    document.getElementById("ad-id").value = ad.id;
-    document.getElementById("ad-title").value = ad.title;
-    document.getElementById("ad-price").value = ad.price;
-    document.getElementById("ad-rent").value = ad.rent;
-    document.getElementById("ad-description").value = ad.description;
-    document.getElementById("ad-images").value = ad.images.join(", ");
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao carregar anúncio para edição");
-  }
-}
-
-// ==========================
-// ALTERAR USUÁRIO/SENHA
-// ==========================
-userForm.addEventListener("submit", async function (e) {
-  e.preventDefault();
-  const oldUsername = document.getElementById("old-username").value;
-  const oldPassword = document.getElementById("old-password").value;
-  const newUsername = document.getElementById("new-username").value;
-  const newPassword = document.getElementById("new-password").value;
-
-  try {
-    const res = await fetch("/.netlify/functions/user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ oldUsername, oldPassword, newUsername, newPassword })
-    });
-    const data = await res.json();
-
-    if (data.success) {
-      userMsg.textContent = "Usuário/senha atualizados com sucesso!";
-      userForm.reset();
+    await client.connect();
+    const res = await client.query(
+      'SELECT * FROM admin_user WHERE username=$1 AND password=$2',
+      [username, password]
+    );
+    if (res.rows.length > 0) {
+      loggedInUser = res.rows[0];
+      document.getElementById('login-section').style.display = 'none';
+      document.getElementById('admin-section').style.display = 'block';
+      loadAds();
     } else {
-      userMsg.textContent = data.message || "Erro ao atualizar usuário/senha";
+      msg.textContent = 'Usuário ou senha incorretos.';
     }
   } catch (err) {
     console.error(err);
-    userMsg.textContent = "Erro de conexão com o servidor";
+    msg.textContent = 'Erro de conexão.';
+  } finally {
+    await client.end();
+  }
+});
+
+// CARREGAR ANÚNCIOS
+async function loadAds() {
+  const client = getClient();
+  try {
+    await client.connect();
+    const res = await client.query('SELECT * FROM anuncios ORDER BY id DESC');
+    const ul = document.getElementById('ads-ul');
+    ul.innerHTML = '';
+    res.rows.forEach(ad => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <strong>${ad.title}</strong> - R$${ad.price} / Aluguel: R$${ad.rent} <br>
+        ${ad.description} <br>
+        Imagens: ${ad.images.join(', ')} <br>
+        <button onclick="editAd(${ad.id})">Editar</button>
+        <button onclick="deleteAd(${ad.id})">Excluir</button>
+      `;
+      ul.appendChild(li);
+    });
+  } catch (err) {
+    console.error(err);
+  } finally {
+    await client.end();
+  }
+}
+
+// SALVAR / ATUALIZAR ANÚNCIO
+document.getElementById('save-ad').addEventListener('click', async () => {
+  const id = document.getElementById('ad-id').value;
+  const title = document.getElementById('ad-title').value.trim();
+  const price = parseFloat(document.getElementById('ad-price').value);
+  const rent = parseFloat(document.getElementById('ad-rent').value);
+  const description = document.getElementById('ad-description').value.trim();
+  const images = document.getElementById('ad-images').value.split(',').map(i => i.trim());
+
+  const client = getClient();
+  try {
+    await client.connect();
+    if (id) {
+      // Atualizar
+      await client.query(
+        'UPDATE anuncios SET title=$1, price=$2, rent=$3, description=$4, images=$5 WHERE id=$6',
+        [title, price, rent, description, images, id]
+      );
+    } else {
+      // Inserir novo
+      await client.query(
+        'INSERT INTO anuncios(title, price, rent, description, images) VALUES($1,$2,$3,$4,$5)',
+        [title, price, rent, description, images]
+      );
+    }
+    clearForm();
+    loadAds();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    await client.end();
+  }
+});
+
+// LIMPAR FORMULÁRIO
+document.getElementById('clear-ad').addEventListener('click', clearForm);
+function clearForm() {
+  document.getElementById('ad-id').value = '';
+  document.getElementById('ad-title').value = '';
+  document.getElementById('ad-price').value = '';
+  document.getElementById('ad-rent').value = '';
+  document.getElementById('ad-description').value = '';
+  document.getElementById('ad-images').value = '';
+}
+
+// EDITAR ANÚNCIO
+window.editAd = async function(id) {
+  const client = getClient();
+  try {
+    await client.connect();
+    const res = await client.query('SELECT * FROM anuncios WHERE id=$1', [id]);
+    if (res.rows.length > 0) {
+      const ad = res.rows[0];
+      document.getElementById('ad-id').value = ad.id;
+      document.getElementById('ad-title').value = ad.title;
+      document.getElementById('ad-price').value = ad.price;
+      document.getElementById('ad-rent').value = ad.rent;
+      document.getElementById('ad-description').value = ad.description;
+      document.getElementById('ad-images').value = ad.images.join(', ');
+    }
+  } catch (err) {
+    console.error(err);
+  } finally {
+    await client.end();
+  }
+}
+
+// EXCLUIR ANÚNCIO
+window.deleteAd = async function(id) {
+  if (!confirm('Deseja realmente excluir este anúncio?')) return;
+  const client = getClient();
+  try {
+    await client.connect();
+    await client.query('DELETE FROM anuncios WHERE id=$1', [id]);
+    loadAds();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    await client.end();
+  }
+}
+
+// ALTERAR USUÁRIO E SENHA
+document.getElementById('change-credentials').addEventListener('click', async () => {
+  const newUser = document.getElementById('new-username').value.trim();
+  const newPass = document.getElementById('new-password').value.trim();
+  const msg = document.getElementById('cred-msg');
+
+  if (!newUser || !newPass) {
+    msg.style.color = 'red';
+    msg.textContent = 'Preencha usuário e senha.';
+    return;
+  }
+
+  const client = getClient();
+
   }
 });
