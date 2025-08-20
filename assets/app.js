@@ -16,7 +16,7 @@ async function carregarAnuncios() {
     console.warn("Sem banco, carregando do JSON local:", err.message);
 
     // Se não houver DB, carrega do arquivo JSON local
-    const resp = await fetch("data/machines.json");
+    const resp = await fetch("/.netlify/functions/anuncios"););
     const anuncios = await resp.json();
     renderizarAnuncios(anuncios);
   }
