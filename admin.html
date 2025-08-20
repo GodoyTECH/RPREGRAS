@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Construmax</title>
+  <meta name="description" content="Painel administrativo da Construmax para gerenciar anúncios de máquinas.">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Construmax</h1>
+
+    <!-- Login -->
+    <div id="login-container">
+      <h2>Login</h2>
+      <form id="login-form">
+        <input type="text" id="username" placeholder="Usuário" required>
+        <input type="password" id="password" placeholder="Senha" required>
+        <button type="submit">Entrar</button>
+      </form>
+      <p id="login-msg" style="color:red;"></p>
+    </div>
+
+    <!-- Painel de anúncios (escondido até login) -->
+    <div id="admin-panel" style="display:none;">
+      <h2>Gerenciar Anúncios</h2>
+      <form id="ad-form">
+        <input type="hidden" id="ad-id">
+        <input type="text" id="ad-title" placeholder="Título da máquina" required>
+        <input type="number" id="ad-price" placeholder="Preço de venda" required>
+        <input type="number" id="ad-rent" placeholder="Aluguel por mês" required>
+        <textarea id="ad-description" placeholder="Descrição curta" required></textarea>
+        <input type="text" id="ad-images" placeholder="URLs das imagens (separadas por vírgula)" required>
+        <button type="submit">Salvar</button>
+      </form>
+      <h3>Anúncios existentes</h3>
+      <div id="ads-list"></div>
+    </div>
+  </div>
+
+  <script src="assets/admin.js"></script>
+</body>
+</html>
