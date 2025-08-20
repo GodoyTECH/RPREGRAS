@@ -6,8 +6,8 @@ async function carregarAnuncios() {
   lista.innerHTML = "<p>Carregando anúncios...</p>";
 
   try {
-    // Tenta buscar da função Netlify (Neon DB)
-    const resp = await fetch("/.netlify/functions/machines");
+    // Busca do banco via Netlify Function
+    const resp = await fetch("/.netlify/functions/getAds");
     if (!resp.ok) throw new Error("Erro no servidor");
     const anuncios = await resp.json();
 
@@ -35,7 +35,7 @@ function renderizarAnuncios(anuncios) {
     const card = document.createElement("div");
     card.className = "card";
 
-    // Carrossel simples de imagens
+    // Carrossel de imagens
     let imagensHTML = "";
     if (anuncio.images && anuncio.images.length > 0) {
       imagensHTML = `
@@ -48,8 +48,20 @@ function renderizarAnuncios(anuncios) {
                 }" alt="${anuncio.title}">`
             )
             .join("")}
-          <button class="prev">&#10094;</button>
-          <button class="next">&#10095;</button>
+          ${
+            anuncio.images.length > 1
+              ? `<button class="prev">&#10094;</button>
+                 <button class="next">&#10095;</button>
+                 <div class="dots">
+                   ${anuncio.images
+                     .map(
+                       (_, i) =>
+                         `<span class="dot ${i === 0 ? "active" : ""}"></span>`
+                     )
+                     .join("")}
+                 </div>`
+              : ""
+          }
         </div>
       `;
     }
@@ -64,9 +76,10 @@ function renderizarAnuncios(anuncios) {
 
     lista.appendChild(card);
 
-    // Ativa os botões do carrossel
+    // Ativa carrossel se tiver mais de 1 imagem
     const slides = card.querySelectorAll(".slide");
-    if (slides.length > 0) {
+    const dots = card.querySelectorAll(".dot");
+    if (slides.length > 1) {
       let index = 0;
       const prevBtn = card.querySelector(".prev");
       const nextBtn = card.querySelector(".next");
@@ -75,8 +88,12 @@ function renderizarAnuncios(anuncios) {
         slides.forEach((s, idx) => {
           s.classList.toggle("active", idx === i);
         });
+        dots.forEach((d, idx) => {
+          d.classList.toggle("active", idx === i);
+        });
       }
 
+      // Botões manuais
       prevBtn.addEventListener("click", () => {
         index = (index - 1 + slides.length) % slides.length;
         showSlide(index);
@@ -86,9 +103,24 @@ function renderizarAnuncios(anuncios) {
         index = (index + 1) % slides.length;
         showSlide(index);
       });
+
+      // Clique nos dots
+      dots.forEach((dot, i) => {
+        dot.addEventListener("click", () => {
+          index = i;
+          showSlide(index);
+        });
+      });
+
+      // Troca automática a cada 5s
+      setInterval(() => {
+        index = (index + 1) % slides.length;
+        showSlide(index);
+      }, 5000);
     }
   });
 }
 
 // Executa quando a página carrega
 document.addEventListener("DOMContentLoaded", carregarAnuncios);
+
