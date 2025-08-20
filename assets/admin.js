@@ -1,3 +1,4 @@
+
 // admin.js - Painel administrativo completo (Front-end)
 
 // ==========================
@@ -61,7 +62,9 @@ async function loadAds() {
       li.innerHTML = `
         <strong>${ad.title}</strong> - R$${ad.price} / Aluguel: R$${ad.rent} <br>
         ${ad.description} <br>
-        Imagens: ${ad.images.join(', ')} <br>
+        Imagens:<br>
+        ${ad.images.map(img => `<img src="${img}" style="max-width:100px;margin:2px;">`).join('')}
+        <br>
         <button onclick="editAd(${ad.id})">Editar</button>
         <button onclick="deleteAd(${ad.id})">Excluir</button>
       `;
@@ -73,7 +76,7 @@ async function loadAds() {
 }
 
 // ==========================
-// SALVAR / ATUALIZAR ANÚNCIO
+// SALVAR / ATUALIZAR ANÚNCIO COM UPLOAD DE IMAGEM
 // ==========================
 document.getElementById('save-ad').addEventListener('click', async () => {
   const id = document.getElementById('ad-id').value;
@@ -81,7 +84,20 @@ document.getElementById('save-ad').addEventListener('click', async () => {
   const price = parseFloat(document.getElementById('ad-price').value);
   const rent = parseFloat(document.getElementById('ad-rent').value);
   const description = document.getElementById('ad-description').value.trim();
-  const images = document.getElementById('ad-images').value.split(',').map(i => i.trim());
+
+  // Pegar arquivos selecionados
+  const fileInput = document.getElementById('ad-images-file');
+  const files = fileInput ? Array.from(fileInput.files) : [];
+  const imagesBase64 = [];
+
+  for (let file of files) {
+    const base64 = await fileToBase64(file);
+    imagesBase64.push(base64);
+  }
+
+  // Caso tenha URLs já preenchidas (compatibilidade com campo antigo)
+  const imagesText = document.getElementById('ad-images').value.split(',').map(i => i.trim()).filter(i => i);
+  const images = [...imagesBase64, ...imagesText];
 
   const payload = { id, title, price, rent, description, images };
 
@@ -100,6 +116,18 @@ document.getElementById('save-ad').addEventListener('click', async () => {
 });
 
 // ==========================
+// FUNÇÃO PARA CONVERTER ARQUIVO EM BASE64
+// ==========================
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file); // Retorna 'data:image/png;base64,...'
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
+
+// ==========================
 // LIMPAR FORMULÁRIO
 // ==========================
 document.getElementById('clear-ad').addEventListener('click', clearForm);
@@ -110,6 +138,8 @@ function clearForm() {
   document.getElementById('ad-rent').value = '';
   document.getElementById('ad-description').value = '';
   document.getElementById('ad-images').value = '';
+  const fileInput = document.getElementById('ad-images-file');
+  if (fileInput) fileInput.value = '';
 }
 
 // ==========================
@@ -179,4 +209,3 @@ document.getElementById('change-credentials').addEventListener('click', async ()
     msg.textContent = 'Erro de conexão';
   }
 });
-
