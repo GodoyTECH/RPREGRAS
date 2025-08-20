@@ -16,7 +16,7 @@ async function carregarAnuncios() {
     console.warn("Sem banco, carregando do JSON local:", err.message);
 
     // Se não houver DB, carrega do arquivo JSON local
-    const resp = await fetch("/.netlify/functions/anuncios");
+    const resp = await fetch("data/machines.json");
     const anuncios = await resp.json();
     renderizarAnuncios(anuncios);
   }
@@ -43,9 +43,7 @@ function renderizarAnuncios(anuncios) {
           ${anuncio.images
             .map(
               (src, i) =>
-                `<img src="${src}" class="slide ${
-                  i === 0 ? "active" : ""
-                }" alt="${anuncio.title}">`
+                `<img src="${src}" class="slide ${i === 0 ? "active" : ""}" alt="${anuncio.title}">`
             )
             .join("")}
           ${
@@ -54,10 +52,7 @@ function renderizarAnuncios(anuncios) {
                  <button class="next">&#10095;</button>
                  <div class="dots">
                    ${anuncio.images
-                     .map(
-                       (_, i) =>
-                         `<span class="dot ${i === 0 ? "active" : ""}"></span>`
-                     )
+                     .map((_, i) => `<span class="dot ${i === 0 ? "active" : ""}"></span>`)
                      .join("")}
                  </div>`
               : ""
@@ -85,12 +80,8 @@ function renderizarAnuncios(anuncios) {
       const nextBtn = card.querySelector(".next");
 
       function showSlide(i) {
-        slides.forEach((s, idx) => {
-          s.classList.toggle("active", idx === i);
-        });
-        dots.forEach((d, idx) => {
-          d.classList.toggle("active", idx === i);
-        });
+        slides.forEach((s, idx) => s.classList.toggle("active", idx === i));
+        dots.forEach((d, idx) => d.classList.toggle("active", idx === i));
       }
 
       // Botões manuais
@@ -120,6 +111,9 @@ function renderizarAnuncios(anuncios) {
     }
   });
 }
+
+// Executa quando a página carrega
+document.addEventListener("DOMContentLoaded", carregarAnuncios);
 
 // Executa quando a página carrega
 document.addEventListener("DOMContentLoaded", carregarAnuncios);
