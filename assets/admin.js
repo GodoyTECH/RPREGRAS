@@ -1,28 +1,20 @@
+// Painel administrativo - Construmax
 // ==========================
-// Painel Administrativo Construmax
+// ELEMENTOS DO DOM
 // ==========================
 
-// Elementos do DOM
-const loginForm = document.getElementById("loginForm");
-const loginMsg = document.getElementById("login-msg");
-const adminSection = document.getElementById("admin-section");
-const adsList = document.getElementById("ads-ul");
-const saveAdBtn = document.getElementById("save-ad");
-const clearAdBtn = document.getElementById("clear-ad");
-const changeCredBtn = document.getElementById("change-credentials");
-const credMsg = document.getElementById("cred-msg");
-
-// Estado do usuário logado
 let loggedInUser = null;
-let editingAdId = null;
 
-// ==========================
-// FUNÇÃO LOGIN
-// ==========================
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
+// LOGIN
+document.getElementById("loginBtn").addEventListener("click", async () => {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
+  const msg = document.getElementById("login-msg");
+
+  if (!username || !password) {
+    msg.textContent = "Preencha usuário e senha.";
+    return;
+  }
 
   try {
     const res = await fetch("/.netlify/functions/login", {
@@ -33,29 +25,26 @@ loginForm.addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (data.success) {
-      loggedInUser = data.admin;
-      loginForm.style.display = "none";
-      adminSection.style.display = "block";
+      loggedInUser = data.user;
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("admin-section").style.display = "block";
       loadAds();
     } else {
-      loginMsg.textContent = data.message || "Usuário ou senha incorretos!";
-      loginMsg.style.color = "red";
+      msg.textContent = data.message || "Usuário ou senha incorretos.";
     }
   } catch (err) {
     console.error(err);
-    loginMsg.textContent = "Erro ao conectar com o servidor!";
-    loginMsg.style.color = "red";
+    msg.textContent = "Erro de conexão.";
   }
 });
 
-// ==========================
-// FUNÇÃO PARA CARREGAR ANÚNCIOS
-// ==========================
+// CARREGAR ANÚNCIOS
 async function loadAds() {
   try {
-    const res = await fetch("/.netlify/functions/getAds");
+    const res = await fetch("/.netlify/functions/getAds"); // Função serverless para carregar anúncios
     const ads = await res.json();
-    adsList.innerHTML = "";
+    const ul = document.getElementById("ads-ul");
+    ul.innerHTML = "";
 
     ads.forEach(ad => {
       const li = document.createElement("li");
@@ -66,134 +55,76 @@ async function loadAds() {
         <button onclick="editAd(${ad.id})">Editar</button>
         <button onclick="deleteAd(${ad.id})">Excluir</button>
       `;
-      adsList.appendChild(li);
+      ul.appendChild(li);
     });
   } catch (err) {
-    console.error("Erro ao carregar anúncios:", err);
+    console.error(err);
   }
 }
 
-// ==========================
-// FUNÇÃO SALVAR/ATUALIZAR ANÚNCIO
-// ==========================
-saveAdBtn.addEventListener("click", async () => {
-  const title = document.getElementById("ad-title").value.trim();
-  const price = parseFloat(document.getElementById("ad-price").value);
-  const rent = parseFloat(document.getElementById("ad-rent").value);
-  const description = document.getElementById("ad-description").value.trim();
-  const images = document.getElementById("ad-images").value.split(",").map(i => i.trim());
-
-  if (!title || isNaN(price) || isNaN(rent)) {
-    alert("Preencha corretamente título, preço e aluguel!");
-    return;
-  }
-
-  try {
-    await fetch("/.netlify/functions/saveAd", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: editingAdId,
-        title,
-        price,
-        rent,
-        description,
-        images
-      })
-    });
-    clearForm();
-    loadAds();
-  } catch (err) {
-    console.error("Erro ao salvar anúncio:", err);
-  }
-});
-
-// ==========================
-// FUNÇÃO EDITAR ANÚNCIO
-// ==========================
-window.editAd = async (id) => {
-  try {
-    const res = await fetch(`/.netlify/functions/getAd?id=${id}`);
-    const ad = await res.json();
-    if (ad) {
-      editingAdId = ad.id;
-      document.getElementById("ad-title").value = ad.title;
-      document.getElementById("ad-price").value = ad.price;
-      document.getElementById("ad-rent").value = ad.rent;
-      document.getElementById("ad-description").value = ad.description;
-      document.getElementById("ad-images").value = ad.images.join(", ");
-    }
-  } catch (err) {
-    console.error("Erro ao editar anúncio:", err);
-  }
-};
-
-// ==========================
-// FUNÇÃO EXCLUIR ANÚNCIO
-// ==========================
-window.deleteAd = async (id) => {
-  if (!confirm("Deseja realmente excluir este anúncio?")) return;
-  try {
-    await fetch("/.netlify/functions/deleteAd", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id })
-    });
-    loadAds();
-  } catch (err) {
-    console.error("Erro ao excluir anúncio:", err);
-  }
-};
-
-// ==========================
-// FUNÇÃO LIMPAR FORMULÁRIO
-// ==========================
-clearAdBtn.addEventListener("click", clearForm);
+// LIMPAR FORMULÁRIO
 function clearForm() {
-  editingAdId = null;
+  document.getElementById("ad-id").value = "";
   document.getElementById("ad-title").value = "";
   document.getElementById("ad-price").value = "";
   document.getElementById("ad-rent").value = "";
   document.getElementById("ad-description").value = "";
   document.getElementById("ad-images").value = "";
 }
+document.getElementById("clear-ad").addEventListener("click", clearForm);
 
-// ==========================
-// FUNÇÃO ALTERAR USUÁRIO E SENHA
-// ==========================
-changeCredBtn.addEventListener("click", async () => {
-  const newUser = document.getElementById("new-username").value.trim();
-  const newPass = document.getElementById("new-password").value.trim();
-
-  if (!newUser || !newPass) {
-    credMsg.style.color = "red";
-    credMsg.textContent = "Preencha usuário e senha.";
-    return;
-  }
+// SALVAR/ATUALIZAR ANÚNCIO
+document.getElementById("save-ad").addEventListener("click", async () => {
+  const adData = {
+    id: document.getElementById("ad-id").value,
+    title: document.getElementById("ad-title").value.trim(),
+    price: parseFloat(document.getElementById("ad-price").value),
+    rent: parseFloat(document.getElementById("ad-rent").value),
+    description: document.getElementById("ad-description").value.trim(),
+    images: document.getElementById("ad-images").value.split(",").map(i => i.trim())
+  };
 
   try {
-    const res = await fetch("/.netlify/functions/changeCredentials", {
+    const res = await fetch("/.netlify/functions/saveAd", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: loggedInUser.id, username: newUser, password: newPass })
+      body: JSON.stringify(adData)
     });
     const data = await res.json();
     if (data.success) {
-      credMsg.style.color = "green";
-      credMsg.textContent = "Credenciais alteradas com sucesso!";
-      loggedInUser.username = newUser;
+      clearForm();
+      loadAds();
     } else {
-      credMsg.style.color = "red";
-      credMsg.textContent = data.message || "Erro ao alterar credenciais.";
+      alert(data.message || "Erro ao salvar anúncio");
     }
   } catch (err) {
     console.error(err);
-    credMsg.style.color = "red";
-    credMsg.textContent = "Erro ao conectar com o servidor.";
   }
 });
 
-  const client = getClient();
+// EDITAR E EXCLUIR
+window.editAd = function(id) {
+  fetch(`/.netlify/functions/getAd?id=${id}`)
+    .then(res => res.json())
+    .then(ad => {
+      document.getElementById("ad-id").value = ad.id;
+      document.getElementById("ad-title").value = ad.title;
+      document.getElementById("ad-price").value = ad.price;
+      document.getElementById("ad-rent").value = ad.rent;
+      document.getElementById("ad-description").value = ad.description;
+      document.getElementById("ad-images").value = ad.images.join(", ");
+    });
+};
 
+window.deleteAd = async function(id) {
+  if (!confirm("Deseja realmente excluir este anúncio?")) return;
+  try {
+    const res = await fetch(`/.netlify/functions/deleteAd?id=${id}`, { method: "DELETE" });
+    const data = await res.json();
+    if (data.success) loadAds();
+    else alert("Erro ao excluir anúncio");
+  } catch (err) {
+    console.error(err);
   }
-});
+};
+
