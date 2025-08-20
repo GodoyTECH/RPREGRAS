@@ -5,31 +5,45 @@ export async function handler(event) {
     return { statusCode: 405, body: "Método não permitido" };
   }
 
-  const { username, password } = JSON.parse(event.body);
+  let client;
 
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
+  try {
+    const { username, password } = JSON.parse(event.body);
 
-  await client.connect();
+    // Conexão com Neon
+    client = new Client({
+      connectionString: process.env.NEON_DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    });
 
-  const res = await client.query(
-    "SELECT * FROM admin_user WHERE username = $1 AND password = $2",
-    [username, password]
-  );
+    await client.connect();
 
-  await client.end();
+    // Busca usuário no banco
+    const res = await client.query(
+      "SELECT * FROM admin_user WHERE username = $1 AND password = $2",
+      [username, password]
+    );
 
-  if (res.rows.length === 1) {
+    await client.end();
+
+    if (res.rows.length === 1) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ success: true, admin: res.rows[0] })
+      };
+    } else {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ success: false, message: "Usuário ou senha incorretos" })
+      };
+    }
+
+  } catch (error) {
+    console.error("Erro no login:", error);
+    if (client) await client.end();
     return {
-      statusCode: 200,
-      body: JSON.stringify({ success: true })
-    };
-  } else {
-    return {
-      statusCode: 401,
-      body: JSON.stringify({ success: false, message: "Usuário ou senha incorretos" })
+      statusCode: 500,
+      body: JSON.stringify({ success: false, message: "Erro no servidor" })
     };
   }
 }
