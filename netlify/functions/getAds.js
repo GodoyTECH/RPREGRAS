@@ -1,24 +1,19 @@
-import { Client } from "pg";
+// getAds.js
+// ----------------------------------------------------------
+// Lista todos os anúncios (mais recentes primeiro)
+// ----------------------------------------------------------
 
-export async function handler() {
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-  });
+const { query, send } = require("./_util");
 
+exports.handler = async () => {
   try {
-    await client.connect();
-    const res = await client.query("SELECT * FROM anuncios ORDER BY id ASC");
-    await client.end();
-
-    const ads = res.rows.map(r => ({
-      ...r,
-      images: r.images ? JSON.parse(r.images) : []
-    }));
-
-    return { statusCode: 200, body: JSON.stringify(ads) };
+    const res = await query(
+      `SELECT id, title, price, rent, description, images, created_at
+       FROM machines ORDER BY created_at DESC`
+    );
+    return send(200, res.rows);
   } catch (err) {
-    console.error("Erro getAds:", err);
-    return { statusCode: 500, body: "Erro ao buscar anúncios" };
+    console.error(err);
+    return send(500, { error: "Erro ao buscar anúncios" });
   }
-}
+};
