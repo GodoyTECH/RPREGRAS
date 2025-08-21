@@ -1,25 +1,35 @@
-import { Client } from "pg";
+// changeCredentials.js
+// ----------------------------------------------------------
+// Altera usuário/senha do admin
+// Senha é salva com SHA256
+// ----------------------------------------------------------
 
-export async function handler(event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Método não permitido" };
+const { query, send } = require("./_util");
+const crypto = require("crypto");
+
+exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return send(200, {});
   }
-
-  const { newUser, newPass } = JSON.parse(event.body);
-
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-  });
+  if (event.httpMethod !== "POST") {
+    return send(405, { error: "Método não permitido" });
+  }
 
   try {
-    await client.connect();
-    await client.query("UPDATE admin SET username=$1, password=$2 WHERE id=1", [newUser, newPass]);
-    await client.end();
+    const { newUser, newPass } = JSON.parse(event.body || "{}");
+    if (!newUser || !newPass)
+      return send(400, { error: "Usuário e senha obrigatórios" });
 
-    return { statusCode: 200, body: JSON.stringify({ success: true }) };
+    const hash = crypto.createHash("sha256").update(newPass).digest("hex");
+
+    await query(
+      `UPDATE admin SET username=$1, password_hash=$2 WHERE id=1`,
+      [newUser, hash]
+    );
+
+    return send(200, { success: true });
   } catch (err) {
-    console.error("Erro changeCredentials:", err);
-    return { statusCode: 500, body: "Erro ao alterar credenciais" };
+    console.error(err);
+    return send(500, { error: "Erro ao alterar credenciais" });
   }
-}
+};
