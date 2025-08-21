@@ -1,28 +1,20 @@
-import { Client } from "pg";
+// getAd.js
+// ----------------------------------------------------------
+// Busca um anúncio específico pelo ID
+// ----------------------------------------------------------
 
-export async function handler(event) {
-  const { id } = event.queryStringParameters;
+const { query, send } = require("./_util");
 
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-  });
+exports.handler = async (event) => {
+  const id = event.queryStringParameters?.id;
+  if (!id) return send(400, { error: "ID obrigatório" });
 
   try {
-    await client.connect();
-    const res = await client.query("SELECT * FROM anuncios WHERE id=$1", [id]);
-    await client.end();
-
-    if (res.rows.length === 0) {
-      return { statusCode: 404, body: "Anúncio não encontrado" };
-    }
-
-    const ad = res.rows[0];
-    ad.images = ad.images ? JSON.parse(ad.images) : [];
-
-    return { statusCode: 200, body: JSON.stringify(ad) };
+    const res = await query(`SELECT * FROM machines WHERE id=$1`, [id]);
+    if (res.rows.length === 0) return send(404, { error: "Não encontrado" });
+    return send(200, res.rows[0]);
   } catch (err) {
-    console.error("Erro getAd:", err);
-    return { statusCode: 500, body: "Erro ao buscar anúncio" };
+    console.error(err);
+    return send(500, { error: "Erro ao buscar anúncio" });
   }
-}
+};
