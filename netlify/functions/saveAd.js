@@ -1,37 +1,51 @@
 //saveAd.jsimport { Client } from "pg";
+// saveAd.js
+// ----------------------------------------------------------
+// Cria ou atualiza um anúncio no banco de dados
+// Requer: title, images[] obrigatórios
+// Se enviar "id", atualiza o anúncio existente
+// ----------------------------------------------------------
 
-export async function handler(event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Método não permitido" };
+const { query, send } = require("./_util");
+
+exports.handler = async (event) => {
+  // CORS para requisições OPTIONS (pré-flight)
+  if (event.httpMethod === "OPTIONS") {
+    return send(200, {});
   }
-
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-  });
+  if (event.httpMethod !== "POST") {
+    return send(405, { error: "Método não permitido" });
+  }
 
   try {
-    await client.connect();
-    const { id, title, price, rent, description, images } = JSON.parse(event.body);
+    const data = JSON.parse(event.body || "{}");
+    const { id, title, price, rent, description, images } = data;
 
-    if (id) {
-      // Atualizar
-      await client.query(
-        "UPDATE anuncios SET title=$1, price=$2, rent=$3, description=$4, images=$5 WHERE id=$6",
-        [title, price, rent, description, JSON.stringify(images), id]
-      );
-    } else {
-      // Criar
-      await client.query(
-        "INSERT INTO anuncios (title, price, rent, description, images) VALUES ($1,$2,$3,$4,$5)",
-        [title, price, rent, description, JSON.stringify(images)]
-      );
+    // Validação básica
+    if (!title || !Array.isArray(images)) {
+      return send(400, { error: "Título e imagens são obrigatórios" });
     }
 
-    await client.end();
-    return { statusCode: 200, body: JSON.stringify({ success: true }) };
+    if (id) {
+      // Atualizar anúncio existente
+      await query(
+        `UPDATE machines
+         SET title=$1, price=$2, rent=$3, description=$4, images=$5
+         WHERE id=$6`,
+        [title, price, rent, description, JSON.stringify(images), id]
+      );
+      return send(200, { success: true, id });
+    } else {
+      // Criar novo anúncio
+      const res = await query(
+        `INSERT INTO machines (title, price, rent, description, images)
+         VALUES ($1,$2,$3,$4,$5) RETURNING id`,
+        [title, price, rent, description, JSON.stringify(images)]
+      );
+      return send(200, { success: true, id: res.rows[0].id });
+    }
   } catch (err) {
-    console.error("Erro saveAd:", err);
-    return { statusCode: 500, body: "Erro ao salvar anúncio" };
+    console.error(err);
+    return send(500, { error: "Erro ao salvar anúncio" });
   }
-}
+};
