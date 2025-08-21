@@ -1,54 +1,40 @@
-// login.js - Função serverless para autenticação
+// login.js
+// ----------------------------------------------------------
+// Autenticação simples do admin
+// Valida user/senha com hash SHA256 salvo no banco
+// ----------------------------------------------------------
 
-const { Client } = require('pg');
+const { query, send } = require("./_util");
+const crypto = require("crypto");
 
-exports.handler = async function(event, context) {
+exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return send(200, {});
+  }
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Método não permitido" };
+    return send(405, { error: "Método não permitido" });
   }
-
-  let body;
-  try {
-    body = JSON.parse(event.body);
-  } catch (err) {
-    return { statusCode: 400, body: JSON.stringify({ success: false, message: "JSON inválido" }) };
-  }
-
-  const { username, password } = body;
-
-  if (!username || !password) {
-    return { statusCode: 400, body: JSON.stringify({ success: false, message: "Informe usuário e senha" }) };
-  }
-
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
 
   try {
-    await client.connect();
-    const res = await client.query(
-      "SELECT * FROM admin_user WHERE username=$1 AND password=$2",
-      [username, password]
-    );
+    const { username, password } = JSON.parse(event.body || "{}");
+    if (!username || !password)
+      return send(400, { error: "Usuário e senha obrigatórios" });
 
-    if (res.rows.length === 1) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ success: true, user: res.rows[0].username })
-      };
+    // Busca credenciais cadastradas no banco
+    const res = await query(`SELECT * FROM admin WHERE id=1`);
+    if (res.rows.length === 0) return send(500, { error: "Admin não configurado" });
+
+    const row = res.rows[0];
+    const hash = crypto.createHash("sha256").update(password).digest("hex");
+
+    if (username === row.username && hash === row.password_hash) {
+      // ⚠️ Aqui poderia gerar JWT, mas deixei simples
+      return send(200, { success: true, token: "ok" });
     } else {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ success: false, message: "Usuário ou senha incorretos" })
-      };
+      return send(401, { error: "Credenciais inválidas" });
     }
   } catch (err) {
     console.error(err);
-    return { statusCode: 500, body: JSON.stringify({ success: false, message: "Erro no servidor" }) };
-  } finally {
-    await client.end();
+    return send(500, { error: "Erro no login" });
   }
 };
-
-
