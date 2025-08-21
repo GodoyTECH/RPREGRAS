@@ -1,120 +1,55 @@
-// assets/app.js
-// Script responsável por carregar os anúncios e montar os cards dinamicamente
+// app.js
+// --------------------------------------------------------------------
+// Script do site público (index.html)
+// - Busca os anúncios no banco via Netlify Function getAds
+// - Monta dinamicamente os cards de anúncios na página
+// --------------------------------------------------------------------
 
+// Função para carregar anúncios e mostrar na tela
 async function carregarAnuncios() {
   const lista = document.getElementById("anuncios-lista");
   lista.innerHTML = "<p>Carregando anúncios...</p>";
 
   try {
-    // Busca do banco via Netlify Function
+    // Faz chamada para a função Netlify que lista anúncios
     const resp = await fetch("/.netlify/functions/getAds");
     if (!resp.ok) throw new Error("Erro no servidor");
+
     const anuncios = await resp.json();
+    if (anuncios.length === 0) {
+      lista.innerHTML = "<p>Nenhum anúncio encontrado.</p>";
+      return;
+    }
 
-    renderizarAnuncios(anuncios);
-  } catch (err) {
-    console.warn("Sem banco, carregando do JSON local:", err.message);
-
-    // Se não houver DB, carrega do arquivo JSON local
-    const resp = await fetch("data/machines.json");
-    const anuncios = await resp.json();
-    renderizarAnuncios(anuncios);
-  }
-}
-
-function renderizarAnuncios(anuncios) {
-  const lista = document.getElementById("anuncios-lista");
-  lista.innerHTML = "";
-
-  if (!anuncios || anuncios.length === 0) {
-    lista.innerHTML = "<p>Nenhum anúncio disponível.</p>";
-    return;
-  }
-
-  anuncios.forEach((anuncio) => {
-    const card = document.createElement("div");
-    card.className = "card";
-
-    // Carrossel de imagens
-    let imagensHTML = "";
-    if (anuncio.images && anuncio.images.length > 0) {
-      imagensHTML = `
-        <div class="carousel">
-          ${anuncio.images
-            .map(
-              (src, i) =>
-                `<img src="${src}" class="slide ${i === 0 ? "active" : ""}" alt="${anuncio.title}">`
-            )
-            .join("")}
+    // Monta os cards de anúncios
+    lista.innerHTML = anuncios
+      .map(
+        (ad) => `
+        <div class="card">
+          <h2>${ad.title}</h2>
           ${
-            anuncio.images.length > 1
-              ? `<button class="prev">&#10094;</button>
-                 <button class="next">&#10095;</button>
-                 <div class="dots">
-                   ${anuncio.images
-                     .map((_, i) => `<span class="dot ${i === 0 ? "active" : ""}"></span>`)
-                     .join("")}
-                 </div>`
+            ad.images && ad.images.length > 0
+              ? `<img src="${ad.images[0]}" alt="${ad.title}" />`
               : ""
           }
+          <p><strong>Preço:</strong> R$ ${ad.price || "A consultar"}</p>
+          ${
+            ad.rent
+              ? `<p><strong>Aluguel:</strong> R$ ${ad.rent}</p>`
+              : ""
+          }
+          <p>${ad.description || ""}</p>
         </div>
-      `;
-    }
-
-    card.innerHTML = `
-      ${imagensHTML}
-      <h3>${anuncio.title}</h3>
-      <p><strong>Preço de venda:</strong> R$ ${anuncio.price}</p>
-      <p><strong>Aluguel por mês:</strong> R$ ${anuncio.rent}</p>
-      <p>${anuncio.description}</p>
-    `;
-
-    lista.appendChild(card);
-
-    // Ativa carrossel se tiver mais de 1 imagem
-    const slides = card.querySelectorAll(".slide");
-    const dots = card.querySelectorAll(".dot");
-    if (slides.length > 1) {
-      let index = 0;
-      const prevBtn = card.querySelector(".prev");
-      const nextBtn = card.querySelector(".next");
-
-      function showSlide(i) {
-        slides.forEach((s, idx) => s.classList.toggle("active", idx === i));
-        dots.forEach((d, idx) => d.classList.toggle("active", idx === i));
-      }
-
-      // Botões manuais
-      prevBtn.addEventListener("click", () => {
-        index = (index - 1 + slides.length) % slides.length;
-        showSlide(index);
-      });
-
-      nextBtn.addEventListener("click", () => {
-        index = (index + 1) % slides.length;
-        showSlide(index);
-      });
-
-      // Clique nos dots
-      dots.forEach((dot, i) => {
-        dot.addEventListener("click", () => {
-          index = i;
-          showSlide(index);
-        });
-      });
-
-      // Troca automática a cada 5s
-      setInterval(() => {
-        index = (index + 1) % slides.length;
-        showSlide(index);
-      }, 5000);
-    }
-  });
+      `
+      )
+      .join("");
+  } catch (err) {
+    console.error(err);
+    lista.innerHTML = "<p>Erro ao carregar anúncios</p>";
+  }
 }
 
-// Executa quando a página carrega
+// Carregar anúncios quando a página abrir
 document.addEventListener("DOMContentLoaded", carregarAnuncios);
 
-// Executa quando a página carrega
-document.addEventListener("DOMContentLoaded", carregarAnuncios);
 
