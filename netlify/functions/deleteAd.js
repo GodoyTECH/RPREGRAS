@@ -1,21 +1,26 @@
-import { Client } from "pg";
+// deleteAd.js
+// ----------------------------------------------------------
+// Exclui um anúncio pelo ID
+// ----------------------------------------------------------
 
-export async function handler(event) {
-  const { id } = event.queryStringParameters;
+const { query, send } = require("./_util");
 
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-  });
+exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return send(200, {});
+  }
+  if (event.httpMethod !== "POST") {
+    return send(405, { error: "Método não permitido" });
+  }
 
   try {
-    await client.connect();
-    await client.query("DELETE FROM anuncios WHERE id=$1", [id]);
-    await client.end();
+    const { id } = JSON.parse(event.body || "{}");
+    if (!id) return send(400, { error: "ID obrigatório" });
 
-    return { statusCode: 200, body: JSON.stringify({ success: true }) };
+    await query(`DELETE FROM machines WHERE id=$1`, [id]);
+    return send(200, { success: true });
   } catch (err) {
-    console.error("Erro deleteAd:", err);
-    return { statusCode: 500, body: "Erro ao excluir anúncio" };
+    console.error(err);
+    return send(500, { error: "Erro ao excluir anúncio" });
   }
-}
+};
