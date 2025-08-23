@@ -17,7 +17,7 @@ async function login(event) {
   const password = document.getElementById("password").value;
 
   try {
-    const resp = await fetch("/.netlify/functions/login", {
+    const resp = await fetch("/.netlify/functions/login.js", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -44,7 +44,7 @@ async function carregarAnunciosAdmin() {
   lista.innerHTML = "<p>Carregando anúncios...</p>";
 
   try {
-    const resp = await fetch("/.netlify/functions/getAds");
+    const resp = await fetch("/.netlify/functions/getAds.js");
     const anuncios = await resp.json();
 
     if (anuncios.length === 0) {
@@ -155,7 +155,7 @@ async function alterarCredenciais(event) {
   const newPass = document.getElementById("new-password").value;
 
   try {
-    const resp = await fetch("/.netlify/functions/changeCredentials", {
+    const resp = await fetch("/.netlify/functions/changeCredentials.js", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ newUser, newPass }),
