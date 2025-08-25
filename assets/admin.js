@@ -174,12 +174,15 @@ async function alterarCredenciais(event) {
   }
 }
 
-// Liga os formulários às funções
-document.getElementById("login-form")
-  document.addEventListener("submit", login);
-document.getElementById("ad-form")
-
-  
-document.addEventListener("submit", salvarAnuncio);
-  document.getElementById("cred-form")
-  document.addEventListener("submit", alterarCredenciais);
+// Liga os botões/inputs às funções
+document.getElementById("loginBtn").addEventListener("click", login);
+document.getElementById("save-ad").addEventListener("click", salvarAnuncio);
+document.getElementById("clear-ad").addEventListener("click", () => {
+  document.getElementById("ad-id").value = "";
+  document.getElementById("ad-title").value = "";
+  document.getElementById("ad-price").value = "";
+  document.getElementById("ad-rent").value = "";
+  document.getElementById("ad-description").value = "";
+  document.getElementById("ad-images").value = "";
+});
+document.getElementById("change-credentials").addEventListener("click", alterarCredenciais);
