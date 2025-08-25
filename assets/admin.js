@@ -175,12 +175,11 @@ async function alterarCredenciais(event) {
 }
 
 // Liga os formulários às funções
-document
-  .getElementById("login-form")
-  .addEventListener("submit", login);
-document
-  .getElementById("ad-form")
-  .addEventListener("submit", salvarAnuncio);
-document
-  .getElementById("cred-form")
-  .addEventListener("submit", alterarCredenciais);
+document.getElementById("login-form")
+  document.addEventListener("submit", login);
+document.getElementById("ad-form")
+
+  
+document.addEventListener("submit", salvarAnuncio);
+  document.getElementById("cred-form")
+  document.addEventListener("submit", alterarCredenciais);
