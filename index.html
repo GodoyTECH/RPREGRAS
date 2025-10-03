@@ -3,38 +3,671 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificador de Infrações - criado por Cadu Godoy </title>
+    <title>ONESTATE RP - Verificador de Infrações</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Reset e configurações básicas */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Variáveis CSS para consistência */
         :root {
-            --primary-color: #ff4747;
-            --primary-hover: #ff6b6b;
-            --background-dark: #1c1c1c;
-            --card-dark: #2c2c2c;
-            --card-darker: #333;
-            --text-light: #f5f5f5;
-            --text-muted: #aaa;
-            --border-radius: 8px;
-            --transition: all 0.3s ease;
+            --primary: #e74c3c;
+            --primary-dark: #c0392b;
+            --secondary: #3498db;
+            --accent: #f39c12;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+            --light: #ecf0f1;
+            --gray: #7f8c8d;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
         }
 
-        /* Estilos gerais */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+            color: var(--light);
             line-height: 1.6;
-            padding: 20px;
-            background: var(--background-dark);
-            color: var(--text-light);
             min-height: 100vh;
+            padding: 0;
         }
 
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-bottom: 3px solid var(--primary);
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto 20px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+        }
+
+        .card {
+            background: rgba(30, 30, 46, 0.8);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-header i {
+            font-size: 1.5rem;
+            margin-right: 12px;
+            color: var(--accent);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--light);
+        }
+
+        textarea {
+            width: 100%;
+            height: 140px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--light);
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            flex: 2;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--light);
+            border: 1px solid var(--gray);
+            flex: 1;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .estatisticas {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .estatistica {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border-left: 4px solid var(--primary);
+        }
+
+        .estatistica.rp {
+            border-left-color: var(--secondary);
+        }
+
+        .estatistica.chat {
+            border-left-color: var(--accent);
+        }
+
+        .estatistica.grave {
+            border-left-color: var(--danger);
+        }
+
+        .estatistica .valor {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .estatistica .rotulo {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .resultado {
+            min-height: 200px;
+        }
+
+        .regra {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+        }
+
+        .regra:hover {
+            background: rgba(0, 0, 0, 0.4);
+            transform: translateX(5px);
+        }
+
+        .regra.rp {
+            border-left-color: var(--secondary);
+        }
+
+        .regra.chat {
+            border-left-color: var(--accent);
+        }
+
+        .regra.conta {
+            border-left-color: var(--success);
+        }
+
+        .regra.abuso {
+            border-left-color: var(--warning);
+        }
+
+        .regra.alerta {
+            border-left-color: var(--danger);
+        }
+
+        .regra.media {
+            border-left-color: #9b59b6;
+        }
+
+        .regra.clan {
+            border-left-color: #1abc9c;
+        }
+
+        .regra-nome {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .regra-codigo {
+            background: var(--primary);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .regra-descricao {
+            margin-bottom: 10px;
+            color: var(--light);
+        }
+
+        .regra-penalidade {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .nenhum {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        .nenhum i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--gray);
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 20px;
+        }
+
+        .categorias {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .categoria-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            border-radius: 8px;
+            padding: 15px;
+            color: var(--light);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+
+        .categoria-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .categoria-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .categoria-btn i {
+            font-size: 1.2rem;
+            width: 24px;
+        }
+
+        .todas-regras {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .todas-regras::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .todas-regras::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .todas-regras::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .regra-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid var(--primary);
+        }
+
+        .regra-item:hover {
+            background: rgba(0, 0, 0, 0.4);
+            transform: translateX(3px);
+        }
+
+        .regra-item.rp {
+            border-left-color: var(--secondary);
+        }
+
+        .regra-item.chat {
+            border-left-color: var(--accent);
+        }
+
+        .regra-item.conta {
+            border-left-color: var(--success);
+        }
+
+        .regra-item.abuso {
+            border-left-color: var(--warning);
+        }
+
+        .regra-item.alerta {
+            border-left-color: var(--danger);
+        }
+
+        .regra-item.media {
+            border-left-color: #9b59b6;
+        }
+
+        .regra-item.clan {
+            border-left-color: #1abc9c;
+        }
+
+        .regra-item-codigo {
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .regra-item-desc {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .exemplos {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .exemplo {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid var(--accent);
+        }
+
+        .exemplo:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .palavras-chave {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 10px;
+        }
+
+        .girias {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .giria {
+            background: rgba(52, 152, 219, 0.2);
+            border: 1px solid var(--secondary);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            color: var(--light);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 50px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1100px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .estatisticas {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .exemplos {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <h1>ONESTATE RP - VERIFICADOR DE INFRAÇÕES</h1>
+            </div>
+            <p class="subtitle">Sistema oficial de verificação de regras e penalidades do servidor ONESTATE Roleplay</p>
+            <div>
+                <span class="badge"><i class="fas fa-shield-alt"></i> Sistema Oficial</span>
+                <span class="badge" style="background: var(--secondary);"><i class="fas fa-book"></i> 80+ Regras</span>
+                <span class="badge" style="background: var(--accent);"><i class="fas fa-bolt"></i> Detecção Avançada</span>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="content-main">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-search"></i>
+                        <div class="card-title">Verificar Infração</div>
+                    </div>
+                    <p>Descreva a infração cometida em detalhes. O sistema irá identificar automaticamente quais regras foram violadas.</p>
+                    
+                    <textarea id="entrada" placeholder="Exemplo: Jogador atropelou vários outros na rua principal sem motivo algum, depois fugiu para o hospital para evitar a polícia..."></textarea>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="verificar()">
+                            <i class="fas fa-search"></i> Verificar Infração
+                        </button>
+                        <button class="btn btn-secondary" onclick="limpar()">
+                            <i class="fas fa-eraser"></i> Limpar
+                        </button>
+                        <button class="btn btn-outline" onclick="testarExemplo()">
+                            <i class="fas fa-vial"></i> Testar Exemplo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="estatisticas" id="estatisticas" style="display: none;">
+                    <div class="estatistica">
+                        <div class="valor" id="totalInfracoes">0</div>
+                        <div class="rotulo">Total de Infrações</div>
+                    </div>
+                    <div class="estatistica rp">
+                        <div class="valor" id="infracoesRP">0</div>
+                        <div class="rotulo">Regras RP</div>
+                    </div>
+                    <div class="estatistica chat">
+                        <div class="valor" id="infracoesChat">0</div>
+                        <div class="rotulo">Regras Chat</div>
+                    </div>
+                    <div class="estatistica grave">
+                        <div class="valor" id="infracoesGraves">0</div>
+                        <div class="rotulo">Infrações Graves</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div class="card-title">Infrações Identificadas</div>
+                    </div>
+                    <div class="resultado" id="resultado">
+                        <div class="nenhum">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p>Nenhuma infração verificada ainda.<br>Descreva uma infração acima para começar.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-lightbulb"></i>
+                        <div class="card-title">Exemplos de Infrações</div>
+                    </div>
+                    <div class="exemplos">
+                        <div class="exemplo" onclick="inserirExemplo('Jogador atropelou vários outros na rua sem motivo (VDM) e fugiu para área verde (safe zone)')">
+                            <strong>VDM + Fuga para Safe Zone</strong>
+                            <div class="palavras-chave">VDM, atropelar, área verde, safe zone, fugir</div>
+                        </div>
+                        <div class="exemplo" onclick="inserirExemplo('Jogador matou outro no QG da gangue e usou taser mais de 2 vezes no mesmo combate')">
+                            <strong>Combate no QG + Abuso de Taser</strong>
+                            <div class="palavras-chave">QG, clan, taser, matar no QG, abuso</div>
+                        </div>
+                        <div class="exemplo" onclick="inserirExemplo('Jogador colocou música alta no chat de voz e ficou floodando o chat geral')">
+                            <strong>Música no Chat + Flood</strong>
+                            <div class="palavras-chave">música, call, voz, flood, spam</div>
+                        </div>
+                        <div class="exemplo" onclick="inserirExemplo('Jogador usou cheat para ganhar vantagem e tentou vender itens por dinheiro real')">
+                            <strong>Cheat + RMT</strong>
+                            <div class="palavras-chave">cheat, hack, RMT, dinheiro real, vantagem</div>
+                        </div>
+                    </div>
+                    
+                    <div class="girias">
+                        <div class="giria">VDM = Atropelar sem motivo</div>
+                        <div class="giria">RDM = Atirar sem motivo</div>
+                        <div class="giria">MG = Metagaming</div>
+                        <div class="giria">Ant RP = Anti Roleplay</div>
+                        <div class="giria">Safe Zone = Área Verde</div>
+                        <div class="giria">Combat Logging = Sair durante RP</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-filter"></i>
+                        <div class="card-title">Filtrar por Categoria</div>
+                    </div>
+                    <div class="categorias" id="categorias">
+                        <!-- Categorias serão preenchidas via JavaScript -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+               
         /* Container principal */
         .container {
             max-width: 1000px;
