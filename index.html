@@ -1,53 +1,938 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Construmax - Máquinas para Construção</title>
-  <meta name="description" content="Venda e aluguel de máquinas para construção civil. Encontre equipamentos modernos e confiáveis na Construmax.">
-  <link rel="stylesheet" href="assets/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificador de Infrações - ONESTATE</title>
+    <style>
+        /* Reset e configurações básicas */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Variáveis CSS para consistência */
+        :root {
+            --primary-color: #ff4747;
+            --primary-hover: #ff6b6b;
+            --background-dark: #1c1c1c;
+            --card-dark: #2c2c2c;
+            --card-darker: #333;
+            --text-light: #f5f5f5;
+            --text-muted: #aaa;
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        /* Estilos gerais */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background: var(--background-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Cabeçalho */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Área de entrada */
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+            font-size: 1rem;
+            resize: vertical;
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 71, 71, 0.2);
+        }
+
+        /* Botão */
+        .button-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: var(--border-radius);
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Resultados */
+        .resultado {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--card-dark);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .resultado h2 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            color: var(--text-light);
+        }
+
+        .regra {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 5px solid var(--primary-color);
+            background: var(--card-darker);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .regra:hover {
+            transform: translateX(5px);
+        }
+
+        .regra b {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .regra p {
+            margin-bottom: 8px;
+        }
+
+        .nenhum {
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Estatísticas */
+        .estatisticas {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--card-darker);
+            border-radius: var(--border-radius);
+        }
+
+        .estatistica {
+            text-align: center;
+        }
+
+        .estatistica .valor {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .estatistica .rotulo {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Filtros */
+        .filtros {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--card-darker);
+            border-radius: var(--border-radius);
+        }
+
+        .filtros h3 {
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        .categorias {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .categoria-btn {
+            padding: 8px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .categoria-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .categoria-btn:hover {
+            background: rgba(255, 71, 71, 0.2);
+        }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .regra {
+                padding: 12px;
+            }
+            
+            .estatisticas {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .categorias {
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Cabeçalho -->
-  <header class="header">
     <div class="container">
-      <h1 class="logo">Construmax</h1>
-      <nav class="nav">
-        <a href="#anuncios">Máquinas</a>
-        <a href="#contato">Contato</a>
-      </nav>
+        <header>
+            <h1>🔎 Verificador de Infrações ONESTATE</h1>
+            <p class="subtitle">Identifique rapidamente as infrações cometidas com base na descrição fornecida</p>
+        </header>
+        
+        <main>
+            <section class="input-section">
+                <label for="entrada">Descreva a infração para verificação:</label>
+                <textarea 
+                    id="entrada" 
+                    placeholder="Exemplo: jogador matou outro sem motivo, assaltou um civil, utilizou cheats..."
+                    aria-label="Descrição da infração"
+                ></textarea>
+            </section>
+            
+            <div class="button-container">
+                <button id="verificarBtn" onclick="verificar()">Verificar Infração</button>
+                <button onclick="limpar()" style="background: #555; margin-left: 10px;">Limpar</button>
+            </div>
+            
+            <div class="filtros">
+                <h3>Filtrar por categoria:</h3>
+                <div class="categorias" id="categorias">
+                    <!-- Botões de categoria serão gerados dinamicamente -->
+                </div>
+            </div>
+            
+            <div class="estatisticas" id="estatisticas" style="display: none;">
+                <div class="estatistica">
+                    <div class="valor" id="totalInfracoes">0</div>
+                    <div class="rotulo">Infrações Encontradas</div>
+                </div>
+                <div class="estatistica">
+                    <div class="valor" id="categoriaRP">0</div>
+                    <div class="rotulo">Regras RP</div>
+                </div>
+                <div class="estatistica">
+                    <div class="valor" id="categoriaCHAT">0</div>
+                    <div class="rotulo">Regras Chat</div>
+                </div>
+                <div class="estatistica">
+                    <div class="valor" id="categoriaGRAVE">0</div>
+                    <div class="rotulo">Infrações Graves</div>
+                </div>
+            </div>
+            
+            <section class="resultado" id="resultado">
+                <!-- Resultados aparecerão aqui -->
+            </section>
+        </main>
+        
+        <footer style="text-align: center; margin-top: 40px; color: var(--text-muted); font-size: 0.9rem;">
+            <p>ONESTATE RolePlay - Sistema de Verificação de Infrações</p>
+        </footer>
     </div>
-  </header>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container">
-      <h2>As melhores máquinas para sua obra</h2>
-      <p>Venda e aluguel de equipamentos de construção civil com qualidade e confiança.</p>
-    </div>
-  </section>
+    <script>
+        // Todas as regras do ONESTATE com keywords expandidas
+        const regras = {
+            "NAME1": {
+                "keywords": ["nickname errado", "nick fora do rp", "nome sem rp", "nickname fora do rp", "nome incorreto", "nick inapropriado", "nome não rp", "nickname inválido", "nome fora do roleplay", "nickname inadequado", "nome errado", "nick falso", "nome falso", "nick impróprio", "nome impróprio"],
+                "descricao": "Uso de Nickname que não seja referente a Role Play.",
+                "penalidade": "Mudança forçada do nickname",
+                "categoria": "Nome"
+            },
+            "NAME2": {
+                "keywords": ["nickname ofensivo", "nick ofensivo", "nome ofensivo", "nickname insultuoso", "nome insultuoso", "nickname pejorativo", "nome pejorativo", "nickname discriminatório", "nome discriminatório", "nickname racista", "nome racista", "nickname xenófobo", "nome xenófobo", "nickname homofóbico", "nome homofóbico"],
+                "descricao": "Uso de nickname ofensivo NRP.",
+                "penalidade": "Mudança forçada do nickname",
+                "categoria": "Nome"
+            },
+            "AC1": {
+                "keywords": ["venda de conta", "vender conta", "venda conta", "comercializar conta", "negociar conta", "vender account", "venda account", "comprar conta", "compra de conta", "transação conta", "vender personagem", "venda personagem", "negociar personagem", "comércio conta", "traficar conta"],
+                "descricao": "Venda ou tentativa de venda de uma CONTA.",
+                "penalidade": "Bloqueio permanente de todas as CONTAS",
+                "categoria": "Contas"
+            },
+            "AC2": {
+                "keywords": ["transferência de conta", "transferir conta", "transferir a conta", "passar conta", "entregar conta", "ceder conta", "doar conta", "presentear conta", "transferir account", "passar account", "entregar account", "transferência account", "passar personagem", "transferir personagem"],
+                "descricao": "Transferência ou tentativa de transferir uma CONTA.",
+                "penalidade": "Bloqueio permanente da CONTA transferida",
+                "categoria": "Contas"
+            },
+            "AC3": {
+                "keywords": ["mais de 3 contas", "multi conta", "várias contas", "múltiplas contas", "contas extras", "contas adicionais", "excesso de contas", "várias accounts", "múltiplas accounts", "contas secundárias", "contas alternativas", "fake accounts", "contas falsas", "multiaccount", "multicontas"],
+                "descricao": "Criar mais de 3 CONTAS.",
+                "penalidade": "Bloqueio permanente de todas as CONTAS criadas após a terceira",
+                "categoria": "Contas"
+            },
+            "AC4": {
+                "keywords": ["hackear conta", "roubar conta", "invadir conta", "hack conta", "invadir account", "roubar account", "sequestrar conta", "tomar conta", "apoderar-se conta", "acesso não autorizado", "invadir perfil", "hackeamento conta", "violação conta", "penetrar conta", "assalto digital"],
+                "descricao": "Hack de CONTAS.",
+                "penalidade": "Bloqueio permanente da CONTA do infrator e troca forçada da senha",
+                "categoria": "Contas"
+            },
+            "AC5": {
+                "keywords": ["rmt", "vender itens por dinheiro real", "comprar dinheiro real", "vender por dinheiro real", "real money trading", "comércio dinheiro real", "vender dinheiro jogo", "comprar dinheiro jogo", "vender itens reais", "comprar itens reais", "transação monetária", "negócio dinheiro real", "venda por reais", "compra por reais", "comércio ilegal"],
+                "descricao": "RMT - venda ou compra de itens/jogo por dinheiro real.",
+                "penalidade": "Banimento permanente de todas as contas",
+                "categoria": "Contas"
+            },
+            "RP1": {
+                "keywords": ["dm", "matar sem motivo", "deathmatch", "matou sem motivo", "kill sem razão", "assassinar sem motivo", "eliminar sem motivo", "atirar sem motivo", "atacar sem motivo", "agredir sem motivo", "violência sem motivo", "matar aleatório", "kill aleatório", "violência gratuita", "assassinato gratuito"],
+                "descricao": "DeathMatch - Causar dano ou matar sem motivo de RP.",
+                "penalidade": "20 minutos na prisão",
+                "categoria": "RP"
+            },
+            "RP2": {
+                "keywords": ["dm auto", "dmauto", "bater em carro sem motivo", "destruir veículo sem motivo", "danificar carro sem motivo", "atropelar sem motivo", "colidir sem motivo", "bater carro sem razão", "destruir automóvel sem motivo", "danificar veículo sem razão", "acidente proposital", "batida proposital", "colisão intencional", "destruição veicular"],
+                "descricao": "DeathMatch Auto - Causar dano a veículo sem motivo RP.",
+                "penalidade": "20 minutos na prisão",
+                "categoria": "RP"
+            },
+            "RP3": {
+                "keywords": ["poder não rp", "usar poder não rp", "poder nrp", "habilidade não rp", "poder especial não rp", "superpoder não rp", "vantagem não rp", "capacidade não rp", "poder ilegítimo", "habilidade ilegítima", "vantagem injusta", "poder sobrenatural", "habilidade sobrenatural", "poder impossível", "vantagem impossível"],
+                "descricao": "Poder NãoRP - uso de poderes além do personagem.",
+                "penalidade": "15 minutos na prisão",
+                "categoria": "RP"
+            },
+            "RP4": {
+                "keywords": ["não rp", "situação irrealista", "romper rp", "non roleplay", "quebra de imersão", "ação irrealista", "comportamento irreal", "situação impossível", "contexto irreal", "cenário impossível", "ação improvável", "comportamento improvável", "quebra realidade", "romper realidade", "ação não realista"],
+                "descricao": "Non RolePlay - criar situações fora da lógica RP.",
+                "penalidade": "15 minutos na prisão",
+                "categoria": "RP"
+            },
+            "RP5": {
+                "keywords": ["metagaming", "mg", "usar info do discord", "meta gaming", "informação externa", "conhecimento externo", "informação ooc", "conhecimento ooc", "uso informação real", "meta informação", "vantagem informação", "informação privilegiada", "conhecimento privilegiado", "info discord", "info externa"],
+                "descricao": "Meta Gaming - usar informações externas dentro do RP.",
+                "penalidade": "30 min mute até 60 min cadeia",
+                "categoria": "RP"
+            },
+            "RP6": {
+                "keywords": ["abandonar rp", "recusar rp", "fugir para zona verde", "escapar para zona verde", "evadir rp", "negar rp", "rejeitar rp", "escapar situação rp", "fugir interação", "evadir interação", "abandonar situação", "negar interação", "recusar interação", "fuga zona segura", "escape zona protegida"],
+                "descricao": "Abandono de RP.",
+                "penalidade": "30 a 60 minutos na cadeia",
+                "categoria": "RP"
+            },
+            "RP7": {
+                "keywords": ["benefício próprio rp", "forçar rp próprio", "rp benefício próprio", "vantagem pessoal rp", "proveito próprio rp", "interesse próprio rp", "ganho pessoal rp", "benefício individual rp", "vantagem indevida", "proveito indevido", "ganho injusto", "benefício injusto", "rp egoísta", "roleplay egoísta"],
+                "descricao": "Uso desigual do RP em favor próprio.",
+                "penalidade": "20 minutos na prisão",
+                "categoria": "RP"
+            },
+            "RP8": {
+                "keywords": ["afk", "inativo", "ausente", "away from keyboard", "longe do teclado", "desatento", "distante", "inativo prolongado", "ausência prolongada", "desconectado mental", "inatividade", "passividade", "indisponível", "offline virtual", "desligado virtual"],
+                "descricao": "Ficar AFK por mais de 5 minutos.",
+                "penalidade": "Desconexão do servidor",
+                "categoria": "RP"
+            },
+            "RP9": {
+                "keywords": ["driveby", "db", "atropelar", "matar com carro", "tiro de carro", "atirar de carro", "assassinato veicular", "morte por veículo", "kill com veículo", "eliminar com carro", "atropelamento fatal", "colisão fatal", "acidente fatal", "tiro em movimento", "assalto veicular"],
+                "descricao": "DriveBy - matar usando veículo.",
+                "penalidade": "60 minutos na prisão",
+                "categoria": "RP"
+            },
+            "RP9.1": {
+                "keywords": ["mass driveby", "matar vários atropelando", "mass db", "driveby em massa", "atropelamento múltiplo", "matança veicular", "assassinato múltiplo veicular", "carnificina veicular", "massacre veicular", "tiroteio múltiplo veicular", "ataque múltiplo veicular", "assalto múltiplo veicular", "violência múltipla veicular", "mass kill veicular"],
+                "descricao": "Mass DriveBy - matar vários usando veículo.",
+                "penalidade": "Banimento de 12 horas",
+                "categoria": "RP"
+            },
+            "RP10": {
+                "keywords": ["rk", "repeat kill", "voltar após morte", "retornar após morte", "repetir kill", "kill repetido", "morte repetida", "voltar mesmo local", "retornar mesmo local", "perseguir após morte", "caçar após morte", "vingança imediata", "revide imediato", "retaliação imediata", "vingança rápida"],
+                "descricao": "Repeat Kill - retornar após a morte.",
+                "penalidade": "90 minutos de cadeia",
+                "categoria": "RP"
+            },
+            "RP11": {
+                "keywords": ["área protegida", "zona verde", "atacar em zona segura", "crime em área protegida", "violência zona segura", "assalto zona protegida", "tiro zona verde", "morte zona verde", "kill zona segura", "assassinato zona protegida", "crime zona segura", "violação zona segura", "transgressão zona verde", "infração zona protegida"],
+                "descricao": "Não cumprimento das áreas protegidas - cometer crimes em zonas verdes ou de trabalho.",
+                "penalidade": "De 30 a 60 minutos na cadeia",
+                "categoria": "RP"
+            },
+            "RP12": {
+                "keywords": ["sequestro nrp", "sequestro irrealista", "sequestro sem motivo", "raptar sem motivo", "sequestrar sem razão", "cativeiro sem motivo", "rapto irreal", "sequestro improvável", "rapto improvável", "sequestro forçado", "rapto forçado", "sequestro ilógico", "rapto ilógico", "sequestro impossível", "rapto impossível"],
+                "descricao": "Sequestro NRP - tentativa de sequestro irrealista.",
+                "penalidade": "Prisão por 30 minutos",
+                "categoria": "RP"
+            },
+            "RP13": {
+                "keywords": ["faction nrp", "facção nrp", "policial irregular", "exército irregular", "má conduta facção", "comportamento inadequado facção", "abuso facção", "poder facção", "vantagem facção", "corrupção facção", "conduta antiética facção", "ação ilegal facção", "comportamento ilegítimo", "ação imprópria facção"],
+                "descricao": "Faction NRP - comportamento fora do roleplay dentro das facções.",
+                "penalidade": "Exoneração da facção E/OU de 30 minutos na cadeia até 3 dias de banimento",
+                "categoria": "RP"
+            },
+            "RP14": {
+                "keywords": ["importunação sexual", "assédio sexual", "conteúdo sexual", "insulto étnico", "assediar sexualmente", "assédio virtual", "conteúdo explícito", "linguagem sexual", "comportamento sexual", "insinuação sexual", "assedio lgbt", "discriminação sexual", "preconceito étnico", "racismo", "homofobia", "xenofobia"],
+                "descricao": "Importunação de cunho sexual - ações sexuais não consensuais ou insultos étnicos/LGBT+.",
+                "penalidade": "60 minutos de mute ou banimento de 24 horas até 30 dias",
+                "categoria": "RP"
+            },
+            "RP15": {
+                "keywords": ["interromper polícia", "perturbar exército", "atrapalhar operação", "atrapalhar polícia", "interromper exército", "perturbar operação", "atrapalhar patrulha", "interromper patrulha", "perturbar serviço", "atrapalhar serviço", "interferir polícia", "interferir exército", "obstruir polícia", "obstruir exército"],
+                "descricao": "Interrupção das Operações da Polícia e do Exército.",
+                "penalidade": "30 minutos na cadeia",
+                "categoria": "RP"
+            },
+            "RP16": {
+                "keywords": ["atacar médico", "crime contra emergência", "atacar pessoal médico", "agredir médico", "atacar paramédico", "crime contra saúde", "agredir equipe médica", "atacar ambulância", "agredir socorrista", "violência contra médico", "crime contra médico", "ataque a médico", "agressão a paramédico"],
+                "descricao": "Atos Criminais Contra Pessoal de Emergência.",
+                "penalidade": "De 90 minutos na prisão a 12 horas de banimento",
+                "categoria": "RP"
+            },
+            "CHAT1": {
+                "keywords": ["insultar jogador", "xingar jogador", "ofender jogador", "difamar jogador", "caluniar jogador", "ofensa pessoal", "insulto pessoal", "xingamento pessoal", "difamação pessoal", "calúnia pessoal", "injúria pessoal", "ofensa direta", "insulto direto", "xingamento direto", "agressão verbal"],
+                "descricao": "Insultar outros JOGADORES.",
+                "penalidade": "1 dia de banimento",
+                "categoria": "Chat"
+            },
+            "CHAT2": {
+                "keywords": ["insultar família", "xingar mãe", "ofensa familiar", "xingar família", "ofender parentes", "insultar parentes", "xingar parentes", "ofensa a familiares", "insulto a familiares", "xingamento a familiares", "difamar família", "caluniar família", "ofensa familiar grave", "insulto familiar grave"],
+                "descricao": "Insulto a familiares.",
+                "penalidade": "240 minutos mute até 3 dias ban",
+                "categoria": "Chat"
+            },
+            "CHAT3": {
+                "keywords": ["insultar religião", "ofender país", "insultar gênero", "ofensa religiosa", "insulto religioso", "xingamento religioso", "ofensa nacionalidade", "insulto nacionalidade", "xingamento nacionalidade", "ofensa gênero", "insulto gênero", "xingamento gênero", "discriminação religiosa", "discriminação nacional", "discriminação gênero"],
+                "descricao": "Insulto a religião, gênero, sexo ou nacionalidade.",
+                "penalidade": "240 minutos mute até 3 dias ban",
+                "categoria": "Chat"
+            },
+            "CHAT4": {
+                "keywords": ["insultar administração", "xingar admin", "ofender staff", "difamar administração", "caluniar administração", "ofensa staff", "insulto staff", "xingamento staff", "difamação staff", "calúnia staff", "injúria staff", "ofensa moderador", "insulto moderador", "xingamento moderador", "agressão verbal staff"],
+                "descricao": "Insulto à ADMINISTRAÇÃO.",
+                "penalidade": "De 240 minutos de mute até banimento da conta por 7 dias",
+                "categoria": "Chat"
+            },
+            "CHAT5": {
+                "keywords": ["flood", "spam", "macro", "inundação chat", "spammar", "floodar", "mensagens repetidas", "texto repetitivo", "envio em massa", "mensagens em excesso", "excesso mensagens", "chat poluído", "spam excessivo", "flood excessivo", "macro spam"],
+                "descricao": "Flood no chat, spam ou macros.",
+                "penalidade": "10 minutos bloqueio de chat",
+                "categoria": "Chat"
+            },
+            "CHAT6": {
+                "keywords": ["flood no report", "spam no report", "inundação report", "spammar report", "floodar report", "report repetido", "denúncia repetida", "abuso report", "uso excessivo report", "report em excesso", "denúncia em excesso", "spam denúncia", "flood denúncia", "report abusivo"],
+                "descricao": "Flood no Report ou em qualquer outro meio de feedback.",
+                "penalidade": "Mute de 10 a 30 minutos",
+                "categoria": "Chat"
+            },
+            "CHAT7": {
+                "keywords": ["publicidade não autorizada", "propaganda não autorizada", "anúncio não autorizado", "publicidade ilegal", "propaganda ilegal", "anúncio ilegal", "marketing não autorizado", "promoção não autorizada", "divulgação não autorizada", "publicidade externa", "propaganda externa", "anúncio externo", "spam publicitário", "propaganda comercial"],
+                "descricao": "Publicidade não autorizada.",
+                "penalidade": "Bloqueio da CONTA do infrator por 10 DIAS",
+                "categoria": "Chat"
+            },
+            "CHAT8": {
+                "keywords": ["música no call", "som em call", "musica no voz", "ruído no chat", "áudio perturbador", "som perturbador", "ruído perturbador", "música alta", "som alto", "ruído alto", "áudio inadequado", "som inadequado", "ruído inadequado", "música indesejada", "som indesejado"],
+                "descricao": "Música ou ruídos no chat de voz.",
+                "penalidade": "60 minutos bloqueio de chat",
+                "categoria": "Chat"
+            },
+            "CHAT9": {
+                "keywords": ["se passar por admin", "imitar administração", "fingir ser staff", "falsificar identidade admin", "personificar administração", "fingir ser moderador", "imitar moderador", "falsificar staff", "personificar staff", "enganar como admin", "fingir autoridade", "imitar autoridade", "falsificar poder", "personificar poder"],
+                "descricao": "Se passar por um representante da ADMINISTRAÇÃO ou funcionário da EMPRESA.",
+                "penalidade": "Bloqueio permanente de todas as CONTAS",
+                "categoria": "Chat"
+            },
+            "CHAT10": {
+                "keywords": ["enganar jogadores", "ludibriar jogadores", "enganação", "fraude jogadores", "trapaça jogadores", "mentir jogadores", "decepção jogadores", "fraude virtual", "trapaça virtual", "enganação virtual", "estelionato virtual", "golpe jogadores", "scam jogadores", "fraude online"],
+                "descricao": "Enganar JOGADORES do projeto ONESTATE.",
+                "penalidade": "Bloqueio permanente de todas as CONTAS",
+                "categoria": "Chat"
+            },
+            "CHAT11": {
+                "keywords": ["enganar administração", "mentir para admin", "enganação staff", "fraude administração", "trapaça administração", "mentir staff", "decepção staff", "fraude moderador", "trapaça moderador", "enganação moderador", "mentira admin", "falsidade admin", "engano staff", "dolo staff"],
+                "descricao": "Enganar a ADMINISTRAÇÃO.",
+                "penalidade": "Bloqueio permanente de todas as CONTAS",
+                "categoria": "Chat"
+            },
+            "CHAT12": {
+                "keywords": ["difamação", "atacar projeto", "descreditar projeto", "calúnia projeto", "injúria projeto", "má fama projeto", "desprestígio projeto", "denegrir projeto", "manchar imagem", "difamar servidor", "caluniar servidor", "injuriár servidor", "atacar reputação", "manchar reputação"],
+                "descricao": "Difamação - atentar contra a integridade moral e legal do projeto.",
+                "penalidade": "Bloqueio de todas as contas por até 30 dias",
+                "categoria": "Chat"
+            },
+            "CHAT13": {
+                "keywords": ["ameaças ooc", "ameaça vida real", "ameaça física", "ameaçar pessoalmente", "intimidação real", "coação real", "ameaça corporal", "intimidação física", "coação física", "ameaça pessoal", "intimidação pessoal", "coação pessoal", "ameaça externa", "intimidação externa"],
+                "descricao": "Ameaças OOC - ameaças à integridade física de alguém na vida real.",
+                "penalidade": "Bloqueio da conta por 10 dias",
+                "categoria": "Chat"
+            },
+            "CHAT14": {
+                "keywords": ["influência nrp", "induzir quebra de regras", "provocar quebra de regra", "instigar infração", "incitar violação", "incentivar quebra", "provocar infração", "induzir violação", "instigar irregularidade", "incitar irregularidade", "incentivar irregularidade", "provocar irregularidade", "manipular quebra"],
+                "descricao": "Influência NRP - provocar terceiros a quebrarem as regras.",
+                "penalidade": "Bloqueio da conta por 12 horas",
+                "categoria": "Chat"
+            },
+            "CHAT15": {
+                "keywords": ["comportamento tóxico", "tóxico", "comportamento negativo", "atitude tóxica", "conduta tóxica", "comportamento hostil", "atitude hostil", "conduta hostil", "comportamento agressivo", "atitude agressiva", "conduta agressiva", "comportamento prejudicial", "atitude prejudicial", "conduta prejudicial"],
+                "descricao": "Comportamento Tóxico - ações, comentários ou atitudes prejudiciais.",
+                "penalidade": "Banimento da conta de 1 a 3 dias",
+                "categoria": "Chat"
+            },
+            "CHAT16": {
+                "keywords": ["uso língua oficial", "idioma errado", "língua incorreta", "linguagem inadequada", "idioma inadequado", "língua não permitida", "idioma não permitido", "linguagem não autorizada", "idioma não autorizado", "língua proibida", "idioma proibido", "linguagem errada", "idioma incorreto", "língua imprópria"],
+                "descricao": "Uso da Língua Oficial - não usar o idioma oficial da comunidade.",
+                "penalidade": "10/15/30/60 minutos de mute até 12 horas de banimento",
+                "categoria": "Chat"
+            },
+            "CHAT17": {
+                "keywords": ["divulgação informações pessoais", "doxxing", "dados confidenciais", "informação pessoal", "dado pessoal", "privacidade violada", "dado confidencial", "informação confidencial", "dado privado", "informação privada", "exposição dados", "vazamento dados", "divulgação dados", "exposição informação"],
+                "descricao": "Divulgação de informações pessoais - doxxing de outros jogadores.",
+                "penalidade": "Banimento permanente de todas as contas vinculadas",
+                "categoria": "Chat"
+            },
+            "TCHAT1": {
+                "keywords": ["fuga de tópico", "tópico errado", "assunto errado", "conversa fora tópico", "diálogo fora assunto", "comentário irrelevante", "mensagem irrelevante", "conversa irrelevante", "diálogo irrelevante", "off topic", "fora do assunto", "fora do tópico", "conversa paralela", "diálogo paralelo"],
+                "descricao": "Fuga de tópico - mensagens no chat de negociação não relacionadas ao comércio.",
+                "penalidade": "Mute de 10 minutos a 60 minutos",
+                "categoria": "Chat"
+            },
+            "TCHAT2": {
+                "keywords": ["propaganda enganosa", "anúncio enganoso", "bens inexistentes", "publicidade enganosa", "marketing enganoso", "anúncio falso", "publicidade falsa", "marketing falso", "produto inexistente", "item inexistente", "bem fictício", "produto fictício", "item fictício", "oferta falsa"],
+                "descricao": "Propaganda enganosa - anúncio de bens que não estejam no jogo.",
+                "penalidade": "Bloqueio dos chats de texto e voz por 10 minutos",
+                "categoria": "Chat"
+            },
+            "TCHAT3": {
+                "keywords": ["spam trade", "flood trade", "spam comércio", "inundação trade", "spammar trade", "floodar trade", "mensagens repetidas trade", "texto repetitivo trade", "envio em massa trade", "excesso mensagens trade", "chat poluído trade", "spam excessivo trade", "flood excessivo trade"],
+                "descricao": "Spam e Flood - no chat de comércio.",
+                "penalidade": "Bloqueio dos chats de texto e voz por 5 minutos",
+                "categoria": "Chat"
+            },
+            "ABUSE1": {
+                "keywords": ["exploit", "bug abuse", "usar bug", "vulnerabilidade", "aproveitar bug", "abusar bug", "explorar bug", "vantagem bug", "benefício bug", "uso indevido bug", "aproveitamento bug", "exploração bug", "vulnerabilidade jogo", "falha jogo", "erro jogo"],
+                "descricao": "Abuso de modificações do jogo - usar erros ou vulnerabilidades.",
+                "penalidade": "Banimento da conta de 1 a 30 dias",
+                "categoria": "Abuso"
+            },
+            "ABUSE2": {
+                "keywords": ["afk farm", "afk macro", "clicker", "macro afk", "farm automático", "bot afk", "programa afk", "software afk", "automação afk", "farm inativo", "coleta automática", "coleta passiva", "ganho automático", "benefício automático", "vantagem automática"],
+                "descricao": "Abuso de AFK - usar programas para evitar desconexão por inatividade.",
+                "penalidade": "Banimento da conta por 3 dias",
+                "categoria": "Abuso"
+            },
+            "ABUSE3": {
+                "keywords": ["reincidência regras", "quebrar muitas regras", "violação sistemática", "infração repetida", "violação recorrente", "quebra constante", "infração constante", "violação frequente", "quebra frequente", "reincidência constante", "violação habitual", "quebra habitual", "infração habitual", "repetição infrações"],
+                "descricao": "Não observância das regras - violação sistemática e repetida.",
+                "penalidade": "Bloqueio da conta de 3 a 30 dias",
+                "categoria": "Abuso"
+            },
+            "ABUSE3.1": {
+                "keywords": ["violação extrema", "abusar repetidamente", "múltiplas infrações", "violação grave", "infração extrema", "violação severa", "infração severa", "abusar constantemente", "violação crônica", "infração crônica", "reincidência extrema", "violação excessiva", "infração excessiva", "abusar excessivamente"],
+                "descricao": "Violação Extrema das Regras - múltiplas infrações do ABUSE3.",
+                "penalidade": "Banimento permanente de todas as contas",
+                "categoria": "Abuso"
+            },
+            "ABUSE4": {
+                "keywords": ["quebrar evento", "estragar rp evento", "interromper evento", "atrapalhar evento", "sabotar evento", "perturbar evento", "interromper rp evento", "atrapalhar rp evento", "sabotar rp evento", "perturbar rp evento", "estragar evento grande", "atrapalhar evento grande", "sabotar evento grande"],
+                "descricao": "Interrupção de RP de larga escala.",
+                "penalidade": "Banimento 12 horas",
+                "categoria": "Abuso"
+            },
+            "ABUSE5": {
+                "keywords": ["bloquear entrada", "trancar acesso", "impedir acesso", "obstruir entrada", "bloquear passagem", "trancar passagem", "impedir passagem", "obstruir passagem", "bloquear caminho", "trancar caminho", "impedir caminho", "obstruir caminho", "bloqueio local", "obstrução local"],
+                "descricao": "Bloqueio de pontos relevantes.",
+                "penalidade": "10 a 60 minutos cadeia",
+                "categoria": "Abuso"
+            },
+            "ALERT1": {
+                "keywords": ["evasão de ban", "ban evade", "burlar banimento", "escapar ban", "evadir ban", "contornar ban", "furar ban", "driblar ban", "enganar ban", "bypass ban", "ignorar ban", "desrespeitar ban", "violar ban", "transgredir ban"],
+                "descricao": "Evasão de banimento.",
+                "penalidade": "14 dias até banimento permanente",
+                "categoria": "Alerta"
+            },
+            "ALERT2": {
+                "keywords": ["danificar servidores", "prejudicar servidor", "ataque servidor", "sabotar servidor", "prejudicar servidores", "ataque servidores", "sabotar servidores", "danificar sistema", "prejudicar sistema", "ataque sistema", "sabotar sistema", "comprometer servidor", "comprometer servidores"],
+                "descricao": "Danificar os servidores do projeto ONESTATE.",
+                "penalidade": "Bloqueio permanente de todas as CONTAS",
+                "categoria": "Alerta"
+            },
+            "ALERT3": {
+                "keywords": ["cheat", "hack", "programa ilegal", "software terceiros", "trapaça", "fraude", "vantagem ilegal", "benefício ilegal", "modificação ilegal", "alteração ilegal", "manipulação ilegal", "programa proibido", "software proibido", "ferramenta ilegal"],
+                "descricao": "Uso de software de terceiros (cheats).",
+                "penalidade": "Banimento permanente",
+                "categoria": "Alerta"
+            },
+            "ALERT4": {
+                "keywords": ["dano economia", "transferência excessiva", "limite transferência", "prejuízo economia", "danificar economia", "prejudicar economia", "transferência ilegal", "transferência abusiva", "transação excessiva", "troca excessiva", "envio excessivo", "recebimento excessivo", "quantidade excessiva"],
+                "descricao": "Dano à Economia do Servidor - transferência excessiva de dinheiro ou itens.",
+                "penalidade": "Remoção do valor e banimento de 30 dias até permanente",
+                "categoria": "Alerta"
+            },
+            "ALERT5": {
+                "keywords": ["difamação externa", "prejudicar projeto externamente", "ataque externo", "calúnia externa", "injúria externa", "difamação fora", "calúnia fora", "injúria fora", "ataque reputação externo", "manchar imagem externa", "prejudicar imagem externa", "denegrir externamente", "manchar externamente"],
+                "descricao": "Difamação Externa - prejudicar a integridade do projeto em canais externos.",
+                "penalidade": "Banimento permanente de todas as contas",
+                "categoria": "Alerta"
+            },
+            "ALERT6": {
+                "keywords": ["divulgação de terceiros", "propaganda externa", "mencionar outros jogos", "promover externo", "divulgar externo", "publicidade externa", "marketing externo", "anúncio externo", "promoção externa", "recomendação externa", "indicar externo", "sugerir externo", "convidar para externo"],
+                "descricao": "Divulgação de terceiros - promover outros jogos ou serviços.",
+                "penalidade": "Banimento de 1 dia a banimento permanente",
+                "categoria": "Alerta"
+            },
+            "ALERT7": {
+                "keywords": ["decisão administração sênior", "decisão admin sênior", "julgamento admin sênior", "decisão staff sênior", "julgamento staff sênior", "decisão moderador sênior", "julgamento moderador sênior", "arbitragem sênior", "decisão superior", "julgamento superior", "decisão final", "julgamento final"],
+                "descricao": "Decisão da Administração Sênior - punições não especificadas na lista.",
+                "penalidade": "A critério da administração",
+                "categoria": "Alerta"
+            },
+            "MEDIA1": {
+                "keywords": ["stream sniping", "interferência filmagem", "sabotagem gravação", "assédio stream", "perseguição stream", "interrupção stream", "perturbação stream", "assédio gravação", "perseguição gravação", "interrupção gravação", "perturbação gravação", "sabotagem stream", "interferência stream"],
+                "descricao": "Stream Sniping/Interferência na filmagem.",
+                "penalidade": "Banimento da conta de 1 hora a 24 horas",
+                "categoria": "Mídia"
+            },
+            "CLAN1": {
+                "keywords": ["nome gangue ofensivo", "descrição gangue proibida", "cargo gangue ofensivo", "tag gangue ofensiva", "símbolo gangue ofensivo", "identificação gangue ofensiva", "denominação gangue ofensiva", "titulação gangue ofensiva", "designação gangue ofensiva", "apelido gangue ofensivo", "rótulo gangue ofensivo", "emblema gangue ofensivo"],
+                "descricao": "Nome, cargos e descrição da gangue ofensivos.",
+                "penalidade": "Mudança forçada do nome/descrição",
+                "categoria": "Clan"
+            },
+            "CLAN2": {
+                "keywords": ["bloquear qg", "impedir acesso qg", "marcador qg bloqueado", "obstruir qg", "trancar qg", "bloquear quartel", "impedir acesso quartel", "marcador quartel bloqueado", "obstruir quartel", "trancar quartel", "bloquear base", "impedir acesso base", "marcador base bloqueado"],
+                "descricao": "Bloqueio dos marcadores de entrada do QG.",
+                "penalidade": "Prisão por 30 minutos",
+                "categoria": "Clan"
+            },
+            "CLAN3": {
+                "keywords": ["regras chat gangue", "chat gangue", "conversa gangue", "diálogo gangue", "comunicação gangue", "bate-papo gangue", "mensagens gangue", "texto gangue", "fala gangue", "discussão gangue", "debate gangue", "conversação gangue", "interação gangue"],
+                "descricao": "Regras do chat da Gangue - todas as regras de chat se aplicam.",
+                "penalidade": "Bloqueio de texto e voz pelo período referente à violação",
+                "categoria": "Clan"
+            },
+            "CLAN4": {
+                "keywords": ["associação gangues", "aliança evento", "gangues unidas evento", "coligação gangues", "parceria gangues", "coalizão gangues", "união gangues", "federação gangues", "confederação gangues", "consórcio gangues", "conglomerado gangues", "grupo gangues", "time gangues"],
+                "descricao": "Associação a outras gangues durante os eventos.",
+                "penalidade": "Prisão por 30 minutos",
+                "categoria": "Clan"
+            },
+            "CLAN5": {
+                "keywords": ["taser mais de 2 vezes", "abuso taser", "uso excessivo taser", "taser repetido", "taser em excesso", "taser abusivo", "eletrochoque excessivo", "choque excessivo", "taser múltiplo", "eletrochoque múltiplo", "choque múltiplo", "taser desnecessário", "eletrochoque desnecessário"],
+                "descricao": "Abuso do uso de tasers.",
+                "penalidade": "60 minutos cadeia",
+                "categoria": "Clan"
+            },
+            "CLAN5.1": {
+                "keywords": ["taser criminal polícia", "taser bandido polícia", "taser exército", "taser ilegal polícia", "taser criminoso polícia", "taser bandido exército", "taser ilegal exército", "taser criminoso exército", "eletrochoque criminal polícia", "choque criminal polícia", "eletrochoque bandido polícia", "choque bandido polícia"],
+                "descricao": "Uso do taser criminal em membros das forças de segurança sem motivo RP.",
+                "penalidade": "90 minutos de prisão",
+                "categoria": "Clan"
+            },
+            "CLAN6": {
+                "keywords": ["assassinato qg", "matar no qg", "qg marcador", "assassinato quartel", "matar no quartel", "quartel marcador", "assassinato base", "matar na base", "base marcador", "morte qg", "kill qg", "morte quartel", "kill quartel"],
+                "descricao": "Assassinato no marcador dos QGs.",
+                "penalidade": "40 minutos na cadeia",
+                "categoria": "Clan"
+            },
+            "CLAN7": {
+                "keywords": ["bloquear qg veículos", "veículos bloqueando qg", "impedir acesso qg veículos", "obstruir qg veículos", "trancar qg veículos", "bloquear quartel veículos", "veículos bloqueando quartel", "impedir acesso quartel veículos", "obstruir quartel veículos", "trancar quartel veículos", "bloquear base veículos"],
+                "descricao": "Bloquear com veículos o marcador do QG.",
+                "penalidade": "60 minutos na cadeia",
+                "categoria": "Clan"
+            },
+            "CLAN8": {
+                "keywords": ["crime área verde", "atividade ilegal área verde", "tiroteio área verde", "assalto área verde", "sequestro área verde", "violência área verde", "assassinato área verde", "morte área verde", "kill área verde", "delito área verde", "infração área verde", "transgressão área verde", "ilegalidade área verde"],
+                "descricao": "Agitação e atividade ilegal nas áreas verdes.",
+                "penalidade": "Prisão por 60 minutos",
+                "categoria": "Clan"
+            },
+            "CLAN9": {
+                "keywords": ["taser veículo trabalho", "taser carro trabalho", "taser veículo", "eletrochoque veículo trabalho", "choque veículo trabalho", "taser automóvel trabalho", "eletrochoque automóvel trabalho", "choque automóvel trabalho", "taser viatura trabalho", "eletrochoque viatura trabalho", "choque viatura trabalho"],
+                "descricao": "Uso de taser em veículos de trabalho.",
+                "penalidade": "Prisão por 90 minutos",
+                "categoria": "Clan"
+            },
+            "CLAN10": {
+                "keywords": ["abuso moedas gangue", "moedas gangue bug", "ganho desonesto moedas", "moedas ilegítimas", "moedas fraudulentas", "moedas falsas", "moedas ilícitas", "moedas irregulares", "moedas indevidas", "moedas injustas", "moedas corruptas", "moedas manipuladas", "moedas adulteradas"],
+                "descricao": "Abuso de ganho e/ou uso desonesto das moedas de gangue.",
+                "penalidade": "Recolhimento dos bens adquiridos e exclusão da gangue",
+                "categoria": "Clan"
+            }
+        };
 
-  <!-- Seção de anúncios -->
-  <main id="anuncios" class="container">
-    <h2>Máquinas em destaque</h2>
-    <div id="anuncios-lista" class="grid">
-      <!-- Os anúncios serão carregados dinamicamente via app.js -->
-    </div>
-  </main>
+        // Variáveis globais
+        let categoriaFiltro = 'todas';
+        let infracoesEncontradas = [];
 
-  <!-- Contato -->
-  <footer id="contato" class="footer">
-    <div class="container">
-      <h2>Entre em contato</h2>
-      <p>Escolha o melhor canal para falar com a gente:</p>
-      <div class="social">
-        <a href="https://wa.me/5599999999999" target="_blank" class="btn">WhatsApp</a>
-        <a href="https://facebook.com/" target="_blank" class="btn">Facebook</a>
-        <a href="https://instagram.com/" target="_blank" class="btn">Instagram</a>
-      </div>
-    </div>
-  </footer>
+        /**
+         * Inicializa a interface
+         */
+        function inicializar() {
+            criarBotoesCategorias();
+        }
 
-  <script src="assets/app.js"></script>
+        /**
+         * Cria os botões de filtro por categoria
+         */
+        function criarBotoesCategorias() {
+            const categoriasContainer = document.getElementById('categorias');
+            const categoriasUnicas = [...new Set(Object.values(regras).map(regra => regra.categoria))];
+            
+            categoriasContainer.innerHTML = `
+                <button class="categoria-btn active" onclick="filtrarCategoria('todas')">Todas</button>
+                ${categoriasUnicas.map(cat => 
+                    `<button class="categoria-btn" onclick="filtrarCategoria('${cat}')">${cat}</button>`
+                ).join('')}
+            `;
+        }
+
+        /**
+         * Filtra as infrações por categoria
+         */
+        function filtrarCategoria(categoria) {
+            categoriaFiltro = categoria;
+            
+            // Atualizar botões ativos
+            document.querySelectorAll('.categoria-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Re-exibir resultados se já houver uma busca
+            if (infracoesEncontradas.length > 0) {
+                exibirResultados(infracoesEncontradas);
+            }
+        }
+
+        /**
+         * Função principal para verificar infrações
+         */
+        function verificar() {
+            // Obter e limpar o texto de entrada
+            const textoEntrada = document.getElementById('entrada').value.trim().toLowerCase();
+            
+            // Verificar se há texto para analisar
+            if (!textoEntrada) {
+                document.getElementById('resultado').innerHTML = `
+                    <div class="nenhum">
+                        ℹ️ Por favor, digite uma descrição da infração para verificar.
+                    </div>
+                `;
+                document.getElementById('estatisticas').style.display = 'none';
+                return;
+            }
+
+            // Inicializar variáveis para resultados
+            infracoesEncontradas = [];
+            let regrasVerificadas = new Set(); // Para evitar duplicatas
+            let contadoresCategoria = {
+                "RP": 0,
+                "Chat": 0,
+                "Abuso": 0,
+                "Alerta": 0,
+                "Contas": 0,
+                "Nome": 0,
+                "Mídia": 0,
+                "Clan": 0
+            };
+
+            // Iterar sobre todas as regras
+            for (const [codigo, dadosRegra] of Object.entries(regras)) {
+                // Verificar cada palavra-chave da regra atual
+                for (const palavra of dadosRegra.keywords) {
+                    if (textoEntrada.includes(palavra) && !regrasVerificadas.has(codigo)) {
+                        infracoesEncontradas.push({
+                            codigo: codigo,
+                            descricao: dadosRegra.descricao,
+                            penalidade: dadosRegra.penalidade,
+                            categoria: dadosRegra.categoria
+                        });
+                        regrasVerificadas.add(codigo);
+                        
+                        // Contar por categoria
+                        if (contadoresCategoria.hasOwnProperty(dadosRegra.categoria)) {
+                            contadoresCategoria[dadosRegra.categoria]++;
+                        }
+                        break; // Parar após encontrar uma correspondência para esta regra
+                    }
+                }
+            }
+
+            // Atualizar estatísticas
+            atualizarEstatisticas(infracoesEncontradas.length, contadoresCategoria);
+            
+            // Exibir resultados
+            exibirResultados(infracoesEncontradas);
+        }
+
+        /**
+         * Atualiza as estatísticas na interface
+         */
+        function atualizarEstatisticas(total, categorias) {
+            document.getElementById('estatisticas').style.display = 'flex';
+            document.getElementById('totalInfracoes').textContent = total;
+            document.getElementById('categoriaRP').textContent = categorias.RP;
+            document.getElementById('categoriaCHAT').textContent = categorias.Chat;
+            document.getElementById('categoriaGRAVE').textContent = categorias.Abuso + categorias.Alerta;
+        }
+
+        /**
+         * Exibe os resultados da verificação
+         */
+        function exibirResultados(infracoes) {
+            const resultadoElemento = document.getElementById('resultado');
+            
+            // Aplicar filtro de categoria
+            let infracoesFiltradas = infracoes;
+            if (categoriaFiltro !== 'todas') {
+                infracoesFiltradas = infracoes.filter(infracao => infracao.categoria === categoriaFiltro);
+            }
+            
+            if (infracoesFiltradas.length === 0) {
+                if (infracoes.length === 0) {
+                    resultadoElemento.innerHTML = `
+                        <div class="nenhum">
+                            ✅ Nenhuma infração identificada com base na descrição fornecida.
+                        </div>
+                    `;
+                } else {
+                    resultadoElemento.innerHTML = `
+                        <div class="nenhum">
+                            🔍 Nenhuma infração na categoria "${categoriaFiltro}". 
+                            <a href="#" onclick="filtrarCategoria('todas'); exibirResultados(infracoesEncontradas); return false;">Ver todas as ${infracoes.length} infrações encontradas</a>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            // Ordenar infrações por categoria e código
+            infracoesFiltradas.sort((a, b) => {
+                if (a.categoria !== b.categoria) {
+                    return a.categoria.localeCompare(b.categoria);
+                }
+                return a.codigo.localeCompare(b.codigo);
+            });
+
+            // Construir HTML dos resultados
+            let htmlResultados = `
+                <h2>Infrações Identificadas (${infracoesFiltradas.length}${categoriaFiltro !== 'todas' ? ` de ${infracoes.length}` : ''})</h2>
+            `;
+            
+            let categoriaAtual = '';
+            
+            infracoesFiltradas.forEach(infracao => {
+                // Adicionar cabeçalho de categoria se mudou
+                if (infracao.categoria !== categoriaAtual) {
+                    categoriaAtual = infracao.categoria;
+                    htmlResultados += `
+                        <h3 style="margin: 15px 0 10px 0; color: var(--primary-color); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
+                            ${categoriaAtual}
+                        </h3>
+                    `;
+                }
+                
+                htmlResultados += `
+                    <div class="regra">
+                        <p><b>${infracao.codigo}</b>: ${infracao.descricao}</p>
+                        <p><i>Penalidade:</i> ${infracao.penalidade}</p>
+                    </div>
+                `;
+            });
+
+            resultadoElemento.innerHTML = htmlResultados;
+        }
+
+        /**
+         * Limpa a busca
+         */
+        function limpar() {
+            document.getElementById('entrada').value = '';
+            document.getElementById('resultado').innerHTML = '';
+            document.getElementById('estatisticas').style.display = 'none';
+            infracoesEncontradas = [];
+            filtrarCategoria('todas');
+        }
+
+        // Permitir verificação pressionando Enter (mas não Shift+Enter)
+        document.getElementById('entrada').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                verificar();
+            }
+        });
+
+        // Inicializar a interface quando a página carregar
+        window.onload = inicializar;
+    </script>
 </body>
 </html>
