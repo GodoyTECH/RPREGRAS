@@ -1,1695 +1,1522 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONESTATE RP - Verificador de Infrações com IA</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #e74c3c;
-            --primary-dark: #c0392b;
-            --secondary: #3498db;
-            --accent: #f39c12;
-            --dark: #1a1a2e;
-            --darker: #16213e;
-            --light: #ecf0f1;
-            --gray: #7f8c8d;
-            --success: #2ecc71;
-            --warning: #f1c40f;
-            --danger: #e74c3c;
-            --ia-color: #9b59b6;
-            --ia-dark: #8e44ad;
-            --police-color: #2c3e50;
-            --police-dark: #1a252f;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
-            color: var(--light);
-            line-height: 1.6;
-            min-height: 100vh;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            text-align: center;
-            padding: 30px 20px;
-            background: rgba(0, 0, 0, 0.7);
-            border-bottom: 3px solid var(--primary);
-            margin-bottom: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
-        }
-
-        header::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .logo-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
-            text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
-        }
-
-        h1 {
-            font-size: 2.8rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            color: var(--gray);
-            max-width: 800px;
-            margin: 0 auto 20px;
-        }
-
-        .badge {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            margin: 5px;
-        }
-
-        .badge-ia {
-            background: var(--ia-color);
-        }
-
-        .badge-police {
-            background: var(--police-color);
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 25px;
-        }
-
-        .card {
-            background: rgba(30, 30, 46, 0.8);
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .card.modo-ia {
-            background: linear-gradient(135deg, rgba(155, 89, 182, 0.1) 0%, rgba(142, 68, 173, 0.2) 100%);
-            border: 1px solid var(--ia-color);
-        }
-
-        .card.modo-policia {
-            background: linear-gradient(135deg, rgba(44, 62, 80, 0.1) 0%, rgba(26, 37, 47, 0.2) 100%);
-            border: 1px solid var(--police-color);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .card-header i {
-            font-size: 1.5rem;
-            margin-right: 12px;
-            color: var(--accent);
-        }
-
-        .card.modo-ia .card-header i {
-            color: var(--ia-color);
-        }
-
-        .card.modo-policia .card-header i {
-            color: var(--police-color);
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--light);
-        }
-
-        textarea {
-            width: 100%;
-            height: 140px;
-            padding: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            color: var(--light);
-            font-size: 1rem;
-            resize: vertical;
-            transition: all 0.3s;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.3);
-        }
-
-        .card.modo-ia textarea:focus {
-            border-color: var(--ia-color);
-            box-shadow: 0 0 0 2px rgba(155, 89, 182, 0.3);
-        }
-
-        .card.modo-policia textarea:focus {
-            border-color: var(--police-color);
-            box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.3);
-        }
-
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            flex: 2;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
-        }
-
-        .btn-ia {
-            background: var(--ia-color);
-            color: white;
-            flex: 2;
-        }
-
-        .btn-ia:hover {
-            background: var(--ia-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
-        }
-
-        .btn-police {
-            background: var(--police-color);
-            color: white;
-            flex: 2;
-        }
-
-        .btn-police:hover {
-            background: var(--police-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(44, 62, 80, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--secondary);
-            color: white;
-            flex: 1;
-        }
-
-        .btn-secondary:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--light);
-            border: 1px solid var(--gray);
-            flex: 1;
-        }
-
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .estatisticas {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .estatistica {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            border-left: 4px solid var(--primary);
-        }
-
-        .estatistica.rp {
-            border-left-color: var(--secondary);
-        }
-
-        .estatistica.chat {
-            border-left-color: var(--accent);
-        }
-
-        .estatistica.grave {
-            border-left-color: var(--danger);
-        }
-
-        .estatistica.ia {
-            border-left-color: var(--ia-color);
-        }
-
-        .estatistica.police {
-            border-left-color: var(--police-color);
-        }
-
-        .estatistica .valor {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 5px;
-        }
-
-        .estatistica .rotulo {
-            font-size: 0.9rem;
-            color: var(--gray);
-        }
-
-        .resultado {
-            min-height: 200px;
-        }
-
-        .regra {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--primary);
-            transition: all 0.3s;
-        }
-
-        .regra:hover {
-            background: rgba(0, 0, 0, 0.4);
-            transform: translateX(5px);
-        }
-
-        .regra.rp {
-            border-left-color: var(--secondary);
-        }
-
-        .regra.chat {
-            border-left-color: var(--accent);
-        }
-
-        .regra.conta {
-            border-left-color: var(--success);
-        }
-
-        .regra.abuso {
-            border-left-color: var(--warning);
-        }
-
-        .regra.alerta {
-            border-left-color: var(--danger);
-        }
-
-        .regra.media {
-            border-left-color: #9b59b6;
-        }
-
-        .regra.clan {
-            border-left-color: #1abc9c;
-        }
-
-        .regra.nome {
-            border-left-color: #e67e22;
-        }
-
-        .regra.ia {
-            border-left-color: var(--ia-color);
-            background: rgba(155, 89, 182, 0.1);
-        }
-
-        .regra.police {
-            border-left-color: var(--police-color);
-            background: rgba(44, 62, 80, 0.1);
-        }
-
-        .regra-nome {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .regra-codigo {
-            background: var(--primary);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-
-        .regra.ia .regra-codigo {
-            background: var(--ia-color);
-        }
-
-        .regra.police .regra-codigo {
-            background: var(--police-color);
-        }
-
-        .regra-descricao {
-            margin-bottom: 10px;
-            color: var(--light);
-        }
-
-        .regra-penalidade {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--danger);
-            font-weight: 600;
-        }
-
-        .nenhum {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--gray);
-            font-style: italic;
-        }
-
-        .nenhum i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: var(--gray);
-        }
-
-        .ia-loading {
-            display: none;
-            text-align: center;
-            padding: 40px 20px;
-            background: rgba(155, 89, 182, 0.1);
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .police-loading {
-            display: none;
-            text-align: center;
-            padding: 40px 20px;
-            background: rgba(44, 62, 80, 0.1);
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .ia-loading .spinner, .police-loading .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid var(--ia-color);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1.5s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        .police-loading .spinner {
-            border-top: 4px solid var(--police-color);
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .ia-loading p, .police-loading p {
-            color: var(--light);
-            font-size: 1.1rem;
-        }
-
-        .ia-loading small, .police-loading small {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .sidebar {
-            position: sticky;
-            top: 20px;
-        }
-
-        .categorias {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .categoria-btn {
-            background: rgba(0, 0, 0, 0.3);
-            border: none;
-            border-radius: 8px;
-            padding: 15px;
-            color: var(--light);
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 600;
-        }
-
-        .categoria-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
-        }
-
-        .categoria-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        .categoria-btn i {
-            font-size: 1.2rem;
-            width: 24px;
-        }
-
-        .todas-regras {
-            max-height: 600px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-
-        .todas-regras::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .todas-regras::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        .todas-regras::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 10px;
-        }
-
-        .regra-item {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-left: 3px solid var(--primary);
-        }
-
-        .regra-item:hover {
-            background: rgba(0, 0, 0, 0.4);
-            transform: translateX(3px);
-        }
-
-        .regra-item.rp {
-            border-left-color: var(--secondary);
-        }
-
-        .regra-item.chat {
-            border-left-color: var(--accent);
-        }
-
-        .regra-item.conta {
-            border-left-color: var(--success);
-        }
-
-        .regra-item.abuso {
-            border-left-color: var(--warning);
-        }
-
-        .regra-item.alerta {
-            border-left-color: var(--danger);
-        }
-
-        .regra-item.media {
-            border-left-color: #9b59b6;
-        }
-
-        .regra-item.clan {
-            border-left-color: #1abc9c;
-        }
-
-        .regra-item.nome {
-            border-left-color: #e67e22;
-        }
-
-        .regra-item.police {
-            border-left-color: var(--police-color);
-        }
-
-        .regra-item-codigo {
-            font-weight: 700;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .regra-item-desc {
-            font-size: 0.9rem;
-            color: var(--gray);
-        }
-
-        .exemplos {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .exemplo {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 15px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-left: 3px solid var(--accent);
-        }
-
-        .exemplo:hover {
-            background: rgba(0, 0, 0, 0.3);
-            transform: translateY(-3px);
-        }
-
-        .palavras-chave {
-            font-size: 0.8rem;
-            color: var(--gray);
-            margin-top: 10px;
-        }
-
-        .girias {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .giria {
-            background: rgba(52, 152, 219, 0.2);
-            border: 1px solid var(--secondary);
-            border-radius: 20px;
-            padding: 5px 12px;
-            font-size: 0.8rem;
-            color: var(--light);
-        }
-
-        .busca-rapida {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-
-        .busca-rapida h4 {
-            margin-bottom: 10px;
-            color: var(--accent);
-        }
-
-        .codigos-regras {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .codigo-regra {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .codigo-regra:hover {
-            background: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .confianca {
-            display: inline-block;
-            background: #2ecc71;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            margin-left: 10px;
-            font-weight: 600;
-        }
-
-        .confianca-media {
-            background: #f39c12;
-        }
-
-        .confianca-baixa {
-            background: #e74c3c;
-        }
-
-        .explicacao-ia {
-            background: rgba(155, 89, 182, 0.1);
-            border-left: 3px solid var(--ia-color);
-            padding: 10px 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-
-        .explicacao-police {
-            background: rgba(44, 62, 80, 0.1);
-            border-left: 3px solid var(--police-color);
-            padding: 10px 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-
-        .toggle-ia {
-            background: var(--ia-color) !important;
-            margin-top: 15px;
-            width: 100%;
-        }
-
-        .toggle-ia:hover {
-            background: var(--ia-dark) !important;
-        }
-
-        .toggle-police {
-            background: var(--police-color) !important;
-            margin-top: 15px;
-            width: 100%;
-        }
-
-        .toggle-police:hover {
-            background: var(--police-dark) !important;
-        }
-
-        .dica {
-            background: rgba(243, 156, 18, 0.1);
-            border: 1px solid var(--accent);
-            border-radius: 8px;
-            padding: 12px 15px;
-            margin-top: 15px;
-            font-size: 0.9rem;
-        }
-
-        .dica i {
-            color: var(--accent);
-            margin-right: 8px;
-        }
-
-        .dica-ia {
-            background: rgba(155, 89, 182, 0.1);
-            border: 1px solid var(--ia-color);
-        }
-
-        .dica-ia i {
-            color: var(--ia-color);
-        }
-
-        .dica-police {
-            background: rgba(44, 62, 80, 0.1);
-            border: 1px solid var(--police-color);
-        }
-
-        .dica-police i {
-            color: var(--police-color);
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px 20px;
-            margin-top: 50px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 1100px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar {
-                position: static;
-            }
-            
-            .estatisticas {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .exemplos {
-                grid-template-columns: 1fr;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
-            
-            h1 {
-                font-size: 2.2rem;
-            }
-        }
-
-        /* Estilos específicos para o módulo policial */
-        .police-search-input {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            color: var(--light);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 1rem;
-            margin-bottom: 15px;
-        }
-
-        .police-search-input:focus {
-            outline: none;
-            border-color: var(--police-color);
-            box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.3);
-        }
-
-        .police-results {
-            margin-top: 15px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .police-results::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .police-results::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        .police-results::-webkit-scrollbar-thumb {
-            background: var(--police-color);
-            border-radius: 10px;
-        }
-
-        .police-image-box {
-            margin-top: 40px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-        }
-
-        .police-image-box h3 {
-            color: var(--accent);
-            margin-bottom: 10px;
-        }
-
-        .police-image-box img {
-            max-width: 300px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONESTATE RP - Verificador de Infrações com IA</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #e74c3c;
+    --primary-dark: #c0392b;
+    --secondary: #3498db;
+    --accent: #f39c12;
+    --dark: #1a1a2e;
+    --darker: #16213e;
+    --light: #ecf0f1;
+    --gray: #7f8c8d;
+    --success: #2ecc71;
+    --warning: #f1c40f;
+    --danger: #e74c3c;
+    --ia-color: #9b59b6;
+    --ia-dark: #8e44ad;
+    --police-color: #2c3e50;
+    --police-dark: #1a252f;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+    color: var(--light);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 0;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    padding: 30px 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border-bottom: 3px solid var(--primary);
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.logo-icon {
+    font-size: 2.5rem;
+    color: var(--primary);
+    text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+}
+
+h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: var(--gray);
+    max-width: 800px;
+    margin: 0 auto 20px;
+}
+
+.badge {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin: 5px;
+}
+
+.badge-ia {
+    background: var(--ia-color);
+}
+
+.badge-police {
+    background: var(--police-color);
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 25px;
+}
+
+.card {
+    background: rgba(30, 30, 46, 0.8);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.card.modo-ia {
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.1) 0%, rgba(142, 68, 173, 0.2) 100%);
+    border: 1px solid var(--ia-color);
+}
+
+.card.modo-policia {
+    background: linear-gradient(135deg, rgba(44, 62, 80, 0.1) 0%, rgba(26, 37, 47, 0.2) 100%);
+    border: 1px solid var(--police-color);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-header i {
+    font-size: 1.5rem;
+    margin-right: 12px;
+    color: var(--accent);
+}
+
+.card.modo-ia .card-header i {
+    color: var(--ia-color);
+}
+
+.card.modo-policia .card-header i {
+    color: var(--police-color);
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--light);
+}
+
+textarea {
+    width: 100%;
+    height: 140px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--light);
+    font-size: 1rem;
+    resize: vertical;
+    transition: all 0.3s;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.3);
+}
+
+.card.modo-ia textarea:focus {
+    border-color: var(--ia-color);
+    box-shadow: 0 0 0 2px rgba(155, 89, 182, 0.3);
+}
+
+.card.modo-policia textarea:focus {
+    border-color: var(--police-color);
+    box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.3);
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    flex: 2;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+}
+
+.btn-ia {
+    background: var(--ia-color);
+    color: white;
+    flex: 2;
+}
+
+.btn-ia:hover {
+    background: var(--ia-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
+}
+
+.btn-police {
+    background: var(--police-color);
+    color: white;
+    flex: 2;
+}
+
+.btn-police:hover {
+    background: var(--police-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(44, 62, 80, 0.4);
+}
+
+.btn-secondary {
+    background: var(--secondary);
+    color: white;
+    flex: 1;
+}
+
+.btn-secondary:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--light);
+    border: 1px solid var(--gray);
+    flex: 1;
+}
+
+.btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.estatisticas {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.estatistica {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    border-left: 4px solid var(--primary);
+}
+
+.estatistica.rp {
+    border-left-color: var(--secondary);
+}
+
+.estatistica.chat {
+    border-left-color: var(--accent);
+}
+
+.estatistica.grave {
+    border-left-color: var(--danger);
+}
+
+.estatistica.ia {
+    border-left-color: var(--ia-color);
+}
+
+.estatistica.police {
+    border-left-color: var(--police-color);
+}
+
+.estatistica-numero {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.estatistica-label {
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.regra-item {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.regra-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.regra-item-codigo {
+    font-weight: bold;
+    color: var(--accent);
+    font-size: 0.9rem;
+}
+
+.regra-item-desc {
+    font-size: 0.95rem;
+    margin-top: 5px;
+}
+
+.regra {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-left: 4px solid var(--primary);
+}
+
+.regra.rp {
+    border-left-color: var(--secondary);
+}
+
+.regra.chat {
+    border-left-color: var(--accent);
+}
+
+.regra.abuso {
+    border-left-color: var(--danger);
+}
+
+.regra.alerta {
+    border-left-color: var(--warning);
+}
+
+.regra.police {
+    border-left-color: var(--police-color);
+}
+
+.regra-nome {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.regra-codigo {
+    background: var(--dark);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--accent);
+}
+
+.regra-descricao {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.regra-penalidade {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 6px;
+    border-left: 3px solid var(--warning);
+}
+
+.regra-penalidade i {
+    margin-right: 8px;
+    color: var(--warning);
+}
+
+.confianca {
+    background: var(--ia-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.confianca-baixa {
+    background: var(--danger);
+}
+
+.confianca-media {
+    background: var(--warning);
+    color: var(--dark);
+}
+
+.explicacao-ia, .explicacao-police {
+    background: rgba(155, 89, 182, 0.1);
+    border: 1px solid var(--ia-color);
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.explicacao-police {
+    background: rgba(44, 62, 80, 0.1);
+    border-color: var(--police-color);
+}
+
+.explicacao-ia i, .explicacao-police i {
+    margin-right: 8px;
+    color: var(--ia-color);
+}
+
+.explicacao-police i {
+    color: var(--police-color);
+}
+
+.nenhum {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gray);
+}
+
+.nenhum i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: var(--gray);
+}
+
+.loading {
+    text-align: center;
+    padding: 30px;
+}
+
+.loading i {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: var(--ia-color);
+}
+
+.categorias {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.categoria-btn {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--light);
+    padding: 12px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.categoria-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.categoria-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.categoria-btn i {
+    width: 20px;
+    text-align: center;
+}
+
+.exemplos {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.exemplo {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.exemplo:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+.exemplo strong {
+    color: var(--accent);
+    display: block;
+    margin-bottom: 5px;
+}
+
+.palavras-chave {
+    font-size: 0.8rem;
+    color: var(--gray);
+    margin-top: 8px;
+    font-style: italic;
+}
+
+.busca-rapida {
+    margin-top: 20px;
+}
+
+.busca-rapida h4 {
+    margin-bottom: 10px;
+    color: var(--accent);
+}
+
+.codigos-regras {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.codigo-regra {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+}
+
+.codigo-regra:hover {
+    background: var(--primary);
+    transform: scale(1.05);
+}
+
+.police-image-box {
+    text-align: center;
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.police-image-box h3 {
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.regras-policia {
+    margin-top: 20px;
+}
+
+.regras-policia-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    cursor: pointer;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.regras-policia-header h3 {
+    color: var(--accent);
+    margin: 0;
+}
+
+footer {
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 50px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--gray);
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .estatisticas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .estatisticas {
+        grid-template-columns: 1fr;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <h1>ONESTATE RP - VERIFICADOR COM IA</h1>
-            </div>
-            <p class="subtitle">Sistema inteligente de verificação de infrações com detecção contextual por IA</p>
-            <div>
-                <span class="badge badge-ia"><i class="fas fa-robot"></i> IA Integrada</span>
-                <span class="badge" style="background: var(--secondary);"><i class="fas fa-bolt"></i> Detecção Contextual</span>
-                <span class="badge" style="background: var(--accent);"><i class="fas fa-brain"></i> Análise Inteligente</span>
-                <span class="badge badge-police"><i class="fas fa-shield-alt"></i> Módulo Policial</span>
-            </div>
-        </header>
+<div class="container">
+    <header>
+        <div class="logo">
+            <i class="fas fa-shield-alt logo-icon"></i>
+        </div>
+        <h1>ONESTATE RP</h1>
+        <p class="subtitle">Sistema de Verificação de Infrações com Inteligência Artificial</p>
+        <div>
+            <span class="badge">v2.1</span>
+            <span class="badge badge-ia">IA Integrada</span>
+            <span class="badge badge-police">Módulo Policial</span>
+        </div>
+    </header>
 
-        <div class="main-content">
-            <div class="content-main">
-                <!-- Sistema de Verificação Principal -->
-                <div class="card modo-ia" id="cardVerificacao">
-                    <div class="card-header">
-                        <i class="fas fa-robot"></i>
-                        <div class="card-title">Verificação com Inteligência Artificial</div>
-                    </div>
-                    <p>Descreva a infração e nossa IA irá analisar o contexto para identificar as regras violadas com precisão.</p>
-                    
-                    <textarea id="entrada" placeholder="Exemplo: O jogador estava dirigindo normalmente quando outro player saiu de uma rua lateral e atropelou ele de propósito, depois fugiu rindo...&#10;&#10;Ou digite o código da regra: abuse3, rp1, chat5, etc."></textarea>
-                    
-                    <div class="dica dica-ia">
-                        <i class="fas fa-lightbulb"></i>
-                        <strong>Dica da IA:</strong> Descreva a situação em detalhes. A IA entende contexto, intenções e gravidade das ações.
-                    </div>
-                    
-                    <div class="button-group">
-                        <button class="btn btn-ia" onclick="verificarComIA()">
-                            <i class="fas fa-robot"></i> Verificar com IA
-                        </button>
-                        <button class="btn btn-secondary" onclick="verificarNormal()">
-                            <i class="fas fa-search"></i> Verificação Normal
-                        </button>
-                        <button class="btn btn-outline" onclick="limpar()">
-                            <i class="fas fa-eraser"></i> Limpar
-                        </button>
-                    </div>
-                    
-                    <button class="btn toggle-ia" onclick="toggleModoIA()">
-                        <i class="fas fa-sync-alt"></i> Alternar para Verificação Tradicional
+    <div class="main-content">
+        <div class="content-left">
+            <!-- Card de Verificação Principal -->
+            <div class="card" id="cardVerificacao">
+                <div class="card-header">
+                    <i class="fas fa-search"></i>
+                    <div class="card-title">Verificador de Infrações</div>
+                </div>
+                
+                <textarea id="entrada" placeholder="Descreva a infração cometida ou digite o código da regra (ex: RP1, CHAT4, ABUSE3)..."></textarea>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="verificarNormal()">
+                        <i class="fas fa-search"></i> Verificar Infração
+                    </button>
+                    <button class="btn btn-ia" onclick="verificarComIA()">
+                        <i class="fas fa-robot"></i> Verificar com IA
+                    </button>
+                    <button class="btn btn-outline" onclick="limpar()">
+                        <i class="fas fa-eraser"></i> Limpar
                     </button>
                 </div>
+                
+                <button class="btn btn-secondary toggle-ia" onclick="toggleModoIA()" style="margin-top: 15px; width: 100%;">
+                    <i class="fas fa-robot"></i> Alternar para Verificação com IA
+                </button>
+            </div>
 
-                <div class="ia-loading" id="iaLoading">
-                    <div class="spinner"></div>
-                    <p>IA analisando a descrição...<br>
-                    <small>Processando contexto, intenções e gravidade das ações</small></p>
+            <!-- Estatísticas -->
+            <div class="estatisticas" id="estatisticas" style="display: none;">
+                <div class="estatistica">
+                    <div class="estatistica-numero" id="totalInfracoes">0</div>
+                    <div class="estatistica-label">Total de Infrações</div>
                 </div>
-
-                <div class="estatisticas" id="estatisticas" style="display: none;">
-                    <div class="estatistica">
-                        <div class="valor" id="totalInfracoes">0</div>
-                        <div class="rotulo">Total de Infrações</div>
-                    </div>
-                    <div class="estatistica rp">
-                        <div class="valor" id="infracoesRP">0</div>
-                        <div class="rotulo">Regras RP</div>
-                    </div>
-                    <div class="estatistica chat">
-                        <div class="valor" id="infracoesChat">0</div>
-                        <div class="rotulo">Regras Chat</div>
-                    </div>
-                    <div class="estatistica ia">
-                        <div class="valor" id="confiancaIA">0%</div>
-                        <div class="rotulo">Confiança da IA</div>
-                    </div>
+                <div class="estatistica rp">
+                    <div class="estatistica-numero" id="infracoesRP">0</div>
+                    <div class="estatistica-label">Infrações de RP</div>
                 </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <div class="card-title">Infrações Identificadas</div>
-                    </div>
-                    <div class="resultado" id="resultado">
-                        <div class="nenhum">
-                            <i class="fas fa-clipboard-list"></i>
-                            <p>Nenhuma infração verificada ainda.<br>Descreva uma infração acima para começar.</p>
-                        </div>
-                    </div>
+                <div class="estatistica chat">
+                    <div class="estatistica-numero" id="infracoesChat">0</div>
+                    <div class="estatistica-label">Infrações de Chat</div>
                 </div>
-
-                <!-- Sistema de Verificação Policial -->
-                <div class="card modo-policia" id="cardVerificacaoPolicial">
-                    <div class="card-header">
-                        <i class="fas fa-gavel"></i>
-                        <div class="card-title">Verificação Policial - Crimes no RP</div>
-                    </div>
-                    <p>Descreva o crime cometido e nossa IA irá analisar o contexto para identificar os artigos violados com precisão.</p>
-                    
-                    <textarea id="entradaPolicial" placeholder="Exemplo: O suspeito atropelou um pedestre e fugiu do local...&#10;&#10;Ou digite o código do crime: CRIM1.1, CIV2.4, ADM3.1, etc."></textarea>
-                    
-                    <div class="dica dica-police">
-                        <i class="fas fa-lightbulb"></i>
-                        <strong>Dica da IA Policial:</strong> Descreva o crime em detalhes. A IA entende contexto, intenções e gravidade das ações criminosas.
-                    </div>
-                    
-                    <div class="button-group">
-                        <button class="btn btn-police" onclick="verificarComIAPolicial()">
-                            <i class="fas fa-robot"></i> Verificar com IA
-                        </button>
-                        <button class="btn btn-secondary" onclick="verificarNormalPolicial()">
-                            <i class="fas fa-search"></i> Verificação Normal
-                        </button>
-                        <button class="btn btn-outline" onclick="limparPolicial()">
-                            <i class="fas fa-eraser"></i> Limpar
-                        </button>
-                    </div>
-                    
-                    <button class="btn toggle-police" onclick="toggleModoPolicial()">
-                        <i class="fas fa-sync-alt"></i> Alternar para Verificação Tradicional
-                    </button>
-                </div>
-
-                <div class="police-loading" id="policeLoading">
-                    <div class="spinner"></div>
-                    <p>IA Policial analisando o crime...<br>
-                    <small>Processando contexto, intenções e gravidade das ações criminosas</small></p>
-                </div>
-
-                <div class="estatisticas" id="estatisticasPolicial" style="display: none;">
-                    <div class="estatistica">
-                        <div class="valor" id="totalCrimes">0</div>
-                        <div class="rotulo">Total de Crimes</div>
-                    </div>
-                    <div class="estatistica police">
-                        <div class="valor" id="crimesCriminal">0</div>
-                        <div class="rotulo">Crimes Criminais</div>
-                    </div>
-                    <div class="estatistica">
-                        <div class="valor" id="crimesCivil">0</div>
-                        <div class="rotulo">Crimes Civis</div>
-                    </div>
-                    <div class="estatistica police">
-                        <div class="valor" id="confiancaIAPolicial">0%</div>
-                        <div class="rotulo">Confiança da IA</div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-gavel"></i>
-                        <div class="card-title">Crimes Identificados</div>
-                    </div>
-                    <div class="resultado" id="resultadoPolicial">
-                        <div class="nenhum">
-                            <i class="fas fa-clipboard-list"></i>
-                            <p>Nenhum crime verificado ainda.<br>Descreva um crime acima para começar.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card retrátil - Regras da Polícia -->
-                <div class="card" id="cardRegrasPolicia">
-                    <div class="card-header" style="cursor:pointer;" onclick="toggleRegrasPolicia()">
-                        <i class="fas fa-shield-alt"></i>
-                        <div class="card-title">🚔 Regras da Polícia 🚔 <small style="color:var(--gray); font-size:0.9rem;">(clique para expandir)</small></div>
-                    </div>
-                    <div id="conteudoRegrasPolicia" style="display:none; padding:20px; line-height:1.6; font-size:0.95rem;">
-                        <h3 style="color:var(--accent); margin-bottom:10px;">Regras Gerais</h3>
-                        <p>1. É proibido levantar falsas acusações contra civis. Qualquer policial que agir sem base será removido da corporação.</p>
-                        <p>2. É proibido deter ou aprisionar qualquer cidadão sem causa. Punição: remoção da corporação.</p>
-                        <p>3. A atitude desrespeitosa com colegas e civis é inaceitável. <strong>Penalidade:</strong> 1ª Repreensão, 2ª Remoção.</p>
-                        
-                        <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Patrulha</h3>
-                        <p>4. É obrigatório o uso do uniforme completo durante o serviço. <strong>Penalidade:</strong> Repreensão.</p>
-                        <p>5. É proibido abandonar a viatura em locais inadequados. <strong>Penalidade:</strong> Repreensão.</p>
-                        <p>6. É proibido usar armas de fogo sem motivo plausível. <strong>Penalidade:</strong> Remoção.</p>
-                        
-                        <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Prisão</h3>
-                        <p>7. É proibido prender qualquer cidadão sem provas concretas. <strong>Penalidade:</strong> Remoção.</p>
-                        <p>8. É proibido agredir presos. <strong>Penalidade:</strong> Remoção.</p>
-                        <p>9. É obrigatório ler os direitos do preso no momento da prisão. <strong>Penalidade:</strong> Repreensão.</p>
-                        
-                        <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Perseguição</h3>
-                        <p>10. É proibido perseguir veículos sem motivo. <strong>Penalidade:</strong> Repreensão.</p>
-                        <p>11. É proibido atirar em veículos em movimento sem motivo. <strong>Penalidade:</strong> Remoção.</p>
-                        <p>12. É obrigatório usar sirene durante perseguições. <strong>Penalidade:</strong> Repreensão.</p>
-                    </div>
-                </div>
-
-                <!-- Caixa de Imagem do Departamento de Polícia -->
-                <div class="police-image-box">
-                    <h3>Departamento de Polícia</h3>
-                    <p>Imagem oficial do D.P. para identificação</p>
-                    <div style="background: #2c3e50; width: 300px; height: 200px; margin: 0 auto; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">
-                        [IMAGEM DO DEPARTAMENTO DE POLÍCIA]
-                    </div>
-                    <p style="margin-top: 10px; font-size: 0.9rem;">Departamento de Polícia - Onestate RP</p>
+                <div class="estatistica ia">
+                    <div class="estatistica-numero" id="confiancaIA">0%</div>
+                    <div class="estatistica-label">Confiança da IA</div>
                 </div>
             </div>
 
-            <div class="sidebar">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-list"></i>
-                        <div class="card-title">Categorias de Regras</div>
-                    </div>
-                    <div class="categorias">
-                        <button class="categoria-btn active" data-categoria="todas">
-                            <i class="fas fa-layer-group"></i> Todas as Regras
-                        </button>
-                        <button class="categoria-btn" data-categoria="rp">
-                            <i class="fas fa-user-circle"></i> Regras de RP
-                        </button>
-                        <button class="categoria-btn" data-categoria="chat">
-                            <i class="fas fa-comments"></i> Regras de Chat
-                        </button>
-                        <button class="categoria-btn" data-categoria="conta">
-                            <i class="fas fa-user"></i> Regras de Conta
-                        </button>
-                        <button class="categoria-btn" data-categoria="abuso">
-                            <i class="fas fa-exclamation-circle"></i> Regras de Abuso
-                        </button>
-                        <button class="categoria-btn" data-categoria="alerta">
-                            <i class="fas fa-radiation"></i> Regras de Alerta
-                        </button>
-                        <button class="categoria-btn" data-categoria="media">
-                            <i class="fas fa-photo-video"></i> Regras de Mídia
-                        </button>
-                        <button class="categoria-btn" data-categoria="clan">
-                            <i class="fas fa-users"></i> Regras de Clan
-                        </button>
-                        <button class="categoria-btn" data-categoria="nome">
-                            <i class="fas fa-signature"></i> Regras de Nome
-                        </button>
-                        <button class="categoria-btn" data-categoria="police">
-                            <i class="fas fa-shield-alt"></i> Regras da Polícia
-                        </button>
+            <!-- Resultados -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-list-alt"></i>
+                    <div class="card-title">Resultados da Verificação</div>
+                </div>
+                <div id="resultado">
+                    <div class="nenhum">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>Nenhuma infração verificada ainda.<br>Descreva uma infração acima para começar.</p>
                     </div>
                 </div>
+                <div class="loading" id="iaLoading" style="display: none;">
+                    <i class="fas fa-robot fa-spin"></i>
+                    <p>Analisando a infração com IA...</p>
+                </div>
+            </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-book"></i>
-                        <div class="card-title">Todas as Regras</div>
-                    </div>
-                    <div class="todas-regras" id="todasRegras">
-                        <!-- As regras serão carregadas aqui pelo JavaScript -->
-                    </div>
+            <!-- Card de Verificação Policial -->
+            <div class="card" id="cardVerificacaoPolicial">
+                <div class="card-header">
+                    <i class="fas fa-balance-scale"></i>
+                    <div class="card-title">Verificador de Crimes - Módulo Policial</div>
                 </div>
+                
+                <textarea id="entradaPolicial" placeholder="Descreva o crime cometido ou digite o código do artigo (ex: 1.4, 2.5, 3.1)..."></textarea>
+                
+                <div class="button-group">
+                    <button class="btn btn-police" onclick="verificarNormalPolicial()">
+                        <i class="fas fa-search"></i> Verificar Crime
+                    </button>
+                    <button class="btn btn-ia" onclick="verificarComIAPolicial()">
+                        <i class="fas fa-robot"></i> Verificar com IA
+                    </button>
+                    <button class="btn btn-outline" onclick="limparPolicial()">
+                        <i class="fas fa-eraser"></i> Limpar
+                    </button>
+                </div>
+                
+                <button class="btn btn-secondary toggle-police" onclick="toggleModoPolicial()" style="margin-top: 15px; width: 100%;">
+                    <i class="fas fa-robot"></i> Alternar para Verificação com IA
+                </button>
+            </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-lightbulb"></i>
-                        <div class="card-title">Exemplos de Infrações</div>
-                    </div>
-                    <div class="exemplos">
-                        <div class="exemplo" onclick="inserirExemplo('O player estava dirigindo normalmente quando outro player saiu de uma rua lateral e atropelou ele de propósito, depois fugiu rindo.')">
-                            <strong>Atropelamento Doloso</strong>
-                            <p>Atropelar outro jogador intencionalmente e fugir do local.</p>
-                            <div class="palavras-chave">Palavras-chave: atropelar, propósito, fugir, rindo</div>
-                        </div>
-                        <div class="exemplo" onclick="inserirExemplo('O player estava em um assalto e atirou em todos os reféns sem motivo, depois saiu correndo.')">
-                            <strong>Abuso de Mecânicas</strong>
-                            <p>Matar reféns durante um assalto sem justificativa.</p>
-                            <div class="palavras-chave">Palavras-chave: assalto, reféns, atirar, sem motivo</div>
-                        </div>
-                    </div>
+            <!-- Estatísticas Policiais -->
+            <div class="estatisticas" id="estatisticasPolicial" style="display: none;">
+                <div class="estatistica police">
+                    <div class="estatistica-numero" id="totalCrimes">0</div>
+                    <div class="estatistica-label">Total de Crimes</div>
                 </div>
+                <div class="estatistica grave">
+                    <div class="estatistica-numero" id="crimesCriminal">0</div>
+                    <div class="estatistica-label">Crimes Criminais</div>
+                </div>
+                <div class="estatistica">
+                    <div class="estatistica-numero" id="crimesCivil">0</div>
+                    <div class="estatistica-label">Crimes Civis</div>
+                </div>
+                <div class="estatistica ia">
+                    <div class="estatistica-numero" id="confiancaIAPolicial">0%</div>
+                    <div class="estatistica-label">Confiança da IA</div>
+                </div>
+            </div>
 
-                <div class="busca-rapida">
-                    <h4>Busca Rápida por Código</h4>
-                    <div class="codigos-regras">
-                        <div class="codigo-regra" onclick="inserirCodigo('abuse3')">abuse3</div>
-                        <div class="codigo-regra" onclick="inserirCodigo('rp1')">rp1</div>
-                        <div class="codigo-regra" onclick="inserirCodigo('chat5')">chat5</div>
-                        <div class="codigo-regra" onclick="inserirCodigo('account2')">account2</div>
-                        <div class="codigo-regra" onclick="inserirCodigo('alert1')">alert1</div>
-                        <div class="codigo-regra" onclick="inserirCodigo('media4')">media4</div>
-                        <div class="codigo-regra" onclick="inserirCodigo('clan3')">clan3</div>
-                        <div class="codigo-regra" onclick="inserirCodigo('name2')">name2</div>
+            <!-- Resultados Policiais -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-gavel"></i>
+                    <div class="card-title">Resultados - Crimes Identificados</div>
+                </div>
+                <div id="resultadoPolicial">
+                    <div class="nenhum">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>Nenhum crime verificado ainda.<br>Descreva um crime acima para começar.</p>
                     </div>
                 </div>
+                <div class="loading" id="policeLoading" style="display: none;">
+                    <i class="fas fa-robot fa-spin"></i>
+                    <p>Analisando o crime com IA Policial...</p>
+                </div>
+            </div>
+
+            <!-- Regras da Polícia -->
+            <div class="card">
+                <div class="regras-policia-header" onclick="toggleRegrasPolicia()">
+                    <h3><i class="fas fa-book"></i> Regras de Conduta Policial</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="conteudoRegrasPolicia">
+                    <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Patrulha</h3>
+                    <p>4. É obrigatório o uso do uniforme completo durante o serviço. <strong>Penalidade:</strong> Repreensão.</p>
+                    <p>5. É proibido abandonar a viatura em locais inadequados. <strong>Penalidade:</strong> Repreensão.</p>
+                    <p>6. É proibido usar armas de fogo sem motivo plausível. <strong>Penalidade:</strong> Remoção.</p>
+
+                    <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Prisão</h3>
+                    <p>7. É proibido prender qualquer cidadão sem provas concretas. <strong>Penalidade:</strong> Remoção.</p>
+                    <p>8. É proibido agredir presos. <strong>Penalidade:</strong> Remoção.</p>
+                    <p>9. É obrigatório ler os direitos do preso no momento da prisão. <strong>Penalidade:</strong> Repreensão.</p>
+
+                    <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Perseguição</h3>
+                    <p>10. É proibido perseguir veículos sem motivo. <strong>Penalidade:</strong> Repreensão.</p>
+                    <p>11. É proibido atirar em veículos em movimento sem motivo. <strong>Penalidade:</strong> Remoção.</p>
+                    <p>12. É obrigatório usar sirene durante perseguições. <strong>Penalidade:</strong> Repreensão.</p>
+                </div>
+            </div>
+
+            <!-- Caixa de Imagem do Departamento de Polícia -->
+            <div class="police-image-box">
+                <h3>Direitos e Diretrizes</h3>
+                <p>Mikhael Devereux e Luiza Devereux</p>
+                <div style="background: #2c3e50; width: 300px; height: 200px; margin: 0 auto; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">
+                    [IMAGEM DO DEPARTAMENTO DE POLÍCIA]
+                </div>
+                <p style="margin-top: 10px; font-size: 0.9rem;">Departamento de Polícia - Onestate RP</p>
             </div>
         </div>
 
-        <footer>
-            <p>ONESTATE RP - Sistema de Verificação com IA &copy; 2023</p>
-            <p>Desenvolvido para aprimorar a experiência de roleplay e garantir o cumprimento das regras</p>
-        </footer>
+        <div class="sidebar">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-list"></i>
+                    <div class="card-title">Categorias de Regras</div>
+                </div>
+                <div class="categorias">
+                    <button class="categoria-btn active" data-categoria="todas">
+                        <i class="fas fa-layer-group"></i> Todas as Regras
+                    </button>
+                    <button class="categoria-btn" data-categoria="rp">
+                        <i class="fas fa-user-circle"></i> Regras de RP
+                    </button>
+                    <button class="categoria-btn" data-categoria="chat">
+                        <i class="fas fa-comments"></i> Regras de Chat
+                    </button>
+                    <button class="categoria-btn" data-categoria="conta">
+                        <i class="fas fa-user"></i> Regras de Conta
+                    </button>
+                    <button class="categoria-btn" data-categoria="abuso">
+                        <i class="fas fa-exclamation-circle"></i> Regras de Abuso
+                    </button>
+                    <button class="categoria-btn" data-categoria="alerta">
+                        <i class="fas fa-radiation"></i> Regras de Alerta
+                    </button>
+                    <button class="categoria-btn" data-categoria="media">
+                        <i class="fas fa-photo-video"></i> Regras de Mídia
+                    </button>
+                    <button class="categoria-btn" data-categoria="clan">
+                        <i class="fas fa-users"></i> Regras de Clan
+                    </button>
+                    <button class="categoria-btn" data-categoria="nome">
+                        <i class="fas fa-signature"></i> Regras de Nome
+                    </button>
+                    <button class="categoria-btn" data-categoria="police">
+                        <i class="fas fa-shield-alt"></i> Crimes Policiais
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-book"></i>
+                    <div class="card-title">Todas as Regras</div>
+                </div>
+                <div class="todas-regras" id="todasRegras">
+                    <!-- As regras serão carregadas aqui pelo JavaScript -->
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-lightbulb"></i>
+                    <div class="card-title">Exemplos de Infrações</div>
+                </div>
+                <div class="exemplos">
+                    <div class="exemplo" onclick="inserirExemplo('O player estava dirigindo normalmente quando outro player saiu de uma rua lateral e atropelou ele de propósito, depois fugiu rindo.')">
+                        <strong>Atropelamento Doloso</strong>
+                        <p>Atropelar outro jogador intencionalmente e fugir do local.</p>
+                        <div class="palavras-chave">Palavras-chave: atropelar, propósito, fugir, rindo</div>
+                    </div>
+                    <div class="exemplo" onclick="inserirExemplo('O player estava em um assalto e atirou em todos os reféns sem motivo, depois saiu correndo.')">
+                        <strong>Abuso de Mecânicas</strong>
+                        <p>Matar reféns durante um assalto sem justificativa.</p>
+                        <div class="palavras-chave">Palavras-chave: assalto, reféns, atirar, sem motivo</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="busca-rapida">
+                <h4>Busca Rápida por Código</h4>
+                <div class="codigos-regras">
+                    <div class="codigo-regra" onclick="inserirCodigo('ABUSE3')">ABUSE3</div>
+                    <div class="codigo-regra" onclick="inserirCodigo('RP1')">RP1</div>
+                    <div class="codigo-regra" onclick="inserirCodigo('CHAT5')">CHAT5</div>
+                    <div class="codigo-regra" onclick="inserirCodigo('AC2')">AC2</div>
+                    <div class="codigo-regra" onclick="inserirCodigo('ALERT1')">ALERT1</div>
+                    <div class="codigo-regra" onclick="inserirCodigo('MEDIA1')">MEDIA1</div>
+                    <div class="codigo-regra" onclick="inserirCodigo('CLAN3')">CLAN3</div>
+                    <div class="codigo-regra" onclick="inserirCodigo('NAME2')">NAME2</div>
+                </div>
+            </div>
+
+            <div class="busca-rapida">
+                <h4>Artigos Criminais</h4>
+                <div class="codigos-regras">
+                    <div class="codigo-regra" onclick="inserirCodigoPolicial('1.4')">1.4</div>
+                    <div class="codigo-regra" onclick="inserirCodigoPolicial('1.5')">1.5</div>
+                    <div class="codigo-regra" onclick="inserirCodigoPolicial('2.4')">2.4</div>
+                    <div class="codigo-regra" onclick="inserirCodigoPolicial('2.5')">2.5</div>
+                    <div class="codigo-regra" onclick="inserirCodigoPolicial('3.1')">3.1</div>
+                    <div class="codigo-regra" onclick="inserirCodigoPolicial('3.5')">3.5</div>
+                    <div class="codigo-regra" onclick="inserirCodigoPolicial('1.1')">1.1</div>
+                    <div class="codigo-regra" onclick="inserirCodigoPolicial('2.1')">2.1</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // Dados das regras
-        const regras = [
-            { codigo: "abuse1", nome: "Abuso de Mecânicas", categoria: "abuso", descricao: "Utilizar falhas ou bugs do servidor para obter vantagem.", penalidade: "Banimento permanente" },
-            { codigo: "abuse3", nome: "Abuso de Mecânicas - Grave", categoria: "abuso", descricao: "Explorar bugs de forma repetida ou para prejudicar outros jogadores.", penalidade: "Banimento permanente" },
-            { codigo: "rp1", nome: "Quebra de Roleplay", categoria: "rp", descricao: "Ações que quebram a imersão do roleplay, como falar OOC em situações IC.", penalidade: "Advertência ou banimento temporário" },
-            { codigo: "rp2", nome: "Fail RP", categoria: "rp", descricao: "Realizar ações que não fariam sentido no mundo real ou no contexto do personagem.", penalidade: "Advertência ou banimento temporário" },
-            { codigo: "rp4", nome: "Comportamento Anti-RP", categoria: "rp", descricao: "Recusar-se a participar de situações de RP ou sabotar interações de RP.", penalidade: "Banimento temporário" },
-            { codigo: "chat5", nome: "Desrespeito no Chat", categoria: "chat", descricao: "Ofender, insultar ou desrespeitar outros jogadores no chat.", penalidade: "Mute temporário" },
-            { codigo: "chat7", nome: "Spam no Chat", categoria: "chat", descricao: "Enviar mensagens repetitivas ou em excesso no chat.", penalidade: "Mute temporário" },
-            { codigo: "account2", nome: "Conta Secundária", categoria: "conta", descricao: "Utilizar contas secundárias para burlar punições.", penalidade: "Banimento permanente em todas as contas" },
-            { codigo: "alert1", nome: "Alerta de Segurança", categoria: "alerta", descricao: "Comportamento que coloca em risco a segurança do servidor.", penalidade: "Banimento permanente" },
-            { codigo: "media4", nome: "Conteúdo Impróprio", categoria: "media", descricao: "Compartilhar conteúdo inadequado ou ofensivo.", penalidade: "Banimento temporário ou permanente" },
-            { codigo: "clan3", nome: "Quebra de Regras de Clan", categoria: "clan", descricao: "Desrespeitar as regras específicas de clans ou facções.", penalidade: "Punição específica do clan" },
-            { codigo: "name2", nome: "Nome Inapropriado", categoria: "nome", descricao: "Utilizar nome ofensivo, inadequado ou que quebre a imersão.", penalidade: "Forçar alteração do nome" },
-            { codigo: "CRIM1.1", nome: "Homicídio Doloso", categoria: "police", descricao: "Matar intencionalmente outro personagem sem justificativa legal.", penalidade: "Prisão de 50 a 100 meses" },
-            { codigo: "CRIM1.2", nome: "Tentativa de Homicídio", categoria: "police", descricao: "Tentar matar outro personagem sem sucesso.", penalidade: "Prisão de 30 a 60 meses" },
-            { codigo: "CRIM2.1", nome: "Roubo Qualificado", categoria: "police", descricao: "Roubar utilizando arma de fogo ou em grupo.", penalidade: "Prisão de 40 a 80 meses" },
-            { codigo: "CRIM2.3", nome: "Furto", categoria: "police", descricao: "Subtrair coisa alheia móvel sem violência.", penalidade: "Prisão de 10 a 30 meses" },
-            { codigo: "CIV3.1", nome: "Danos ao Patrimônio", categoria: "police", descricao: "Causar danos a propriedades públicas ou privadas.", penalidade: "Prisão de 15 a 40 meses + multa" },
-            { codigo: "ADM4.2", nome: "Desacato à Autoridade", categoria: "police", descricao: "Desrespeitar ou desobedecer ordens de agentes públicos.", penalidade: "Prisão de 10 a 25 meses" }
-        ];
+    <footer>
+        <p>ONESTATE RP - Sistema de Verificação com IA &copy; 2023</p>
+        <p>Desenvolvido para aprimorar a experiência de roleplay e garantir o cumprimento das regras</p>
+    </footer>
+</div>
 
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            carregarTodasRegras();
-            configurarCategorias();
+<script>
+// DADOS COMPLETOS DAS REGRAS E CRIMES
+const regras = [
+    // REGRAS DE NOME
+    { codigo: "NAME1", nome: "Nickname Não-RP", categoria: "nome", descricao: "Uso de Nickname que não seja referente a Role Play", penalidade: "Mudança forçada do nickname", keywords: ["nickname errado", "nick fora do rp", "nome sem rp", "nickname fora do rp", "nome incorreto", "nick inapropriado", "nome não rp", "nickname inválido", "nome fora do roleplay", "nickname inadequado", "nome errado", "nick falso", "nome falso", "nick impróprio", "nome impróprio", "nickname sem rp", "nome de personagem errado", "nickname sem contexto", "nome aleatório", "nickname sem sentido", "nome fora do tema", "nickname quebrou imersão"] },
+    { codigo: "NAME2", nome: "Nickname Ofensivo", categoria: "nome", descricao: "Uso de nickname ofensivo NRP", penalidade: "Mudança forçada do nickname", keywords: ["nickname ofensivo", "nick ofensivo", "nome ofensivo", "nickname insultuoso", "nome insultuoso", "nickname pejorativo", "nome pejorativo", "nickname discriminatório", "nome discriminatório", "nickname racista", "nome racista", "nickname xenófobo", "nome xenófobo", "nickname homofóbico", "nome homofóbico", "nickname preconceituoso", "nome preconceituoso", "nickname com palavrão", "nome com palavrão", "nickname ofensivo racial", "nome ofensivo racial", "nickname machista"] },
+
+    // REGRAS DE CONTA
+    { codigo: "AC1", nome: "Venda de Conta", categoria: "conta", descricao: "Venda ou tentativa de venda de uma CONTA", penalidade: "Bloqueio permanente de todas as CONTAS", keywords: ["venda de conta", "vender conta", "venda conta", "comercializar conta", "negociar conta", "vender account", "venda account", "comprar conta", "compra de conta", "transação conta", "vender personagem", "venda personagem", "negociar personagem", "comércio conta", "traficar conta", "anunciar conta", "ofertar conta", "leilão conta", "vender progressão", "vender level", "vender personagem level alto", "vender conta com itens"] },
+    { codigo: "AC2", nome: "Transferência de Conta", categoria: "conta", descricao: "Transferência ou tentativa de transferir uma CONTA", penalidade: "Bloqueio permanente da CONTA transferida", keywords: ["transferência de conta", "transferir conta", "transferir a conta", "passar conta", "entregar conta", "ceder conta", "doar conta", "presentear conta", "transferir account", "passar account", "entregar account", "transferência account", "passar personagem", "transferir personagem", "dar conta", "emprestar conta permanentemente"] },
+    { codigo: "AC3", nome: "Multi Conta", categoria: "conta", descricao: "Criar mais de 3 CONTAS", penalidade: "Bloqueio permanente de todas as CONTAS criadas após a terceira", keywords: ["mais de 3 contas", "multi conta", "várias contas", "múltiplas contas", "contas extras", "contas adicionais", "excesso de contas", "várias accounts", "múltiplas accounts", "contas secundárias", "contas alternativas", "fake accounts", "contas falsas", "multiaccount", "multicontas", "farm com múltiplas contas", "uso de contas alternativas", "contas clones"] },
+    { codigo: "AC4", nome: "Hack de Conta", categoria: "conta", descricao: "Hackear ou obter acesso não autorizado à CONTA de outro JOGADOR", penalidade: "Bloqueio permanente da CONTA do infrator + mudança forçada da senha", keywords: ["hackear conta", "roubar conta", "invadir conta", "hack conta", "invadir account", "roubar account", "sequestrar conta", "tomar conta", "apoderar-se conta", "acesso não autorizado", "invadir perfil", "hackeamento conta", "violação conta", "penetrar conta", "assalto digital", "phishing conta", "engenharia social conta", "roubo de login"] },
+    { codigo: "AC5", nome: "RMT - Venda por Dinheiro Real", categoria: "conta", descricao: "Vender, anunciar, trocar ou comprar itens e/ou dinheiro do jogo por dinheiro real", penalidade: "Banimento permanente de todas as contas", keywords: ["rmt", "vender itens por dinheiro real", "comprar dinheiro real", "vender por dinheiro real", "real money trading", "comércio dinheiro real", "vender dinheiro jogo", "comprar dinheiro jogo", "vender itens reais", "comprar itens reais", "transação monetária", "negócio dinheiro real", "venda por reais", "compra por reais", "comércio ilegal", "vender por dinheiro", "comprar por dinheiro", "vender gold", "comprar gold", "vender recursos reais"] },
+
+    // REGRAS DE RP
+    { codigo: "RP1", nome: "DeathMatch (DM)", categoria: "rp", descricao: "Causar dano ou matar a um personagem sem motivos de RP", penalidade: "20 minutos na prisão", keywords: ["dm", "matar sem motivo", "deathmatch", "matou sem motivo", "kill sem razão", "assassinar sem motivo", "eliminar sem motivo", "atirar sem motivo", "atacar sem motivo", "agredir sem motivo", "violência sem motivo", "matar aleatório", "kill aleatório", "violência gratuita", "assassinato gratuito", "matar sem rp", "atirar sem razão", "agressão sem motivo", "briga sem motivo", "confronto sem motivo", "disparar sem motivo", "executar sem motivo", "rdm", "random deathmatch", "tiro aleatório"] },
+    { codigo: "RP2", nome: "DeathMatch Auto (DMAuto)", categoria: "rp", descricao: "Causar dano ou destruir a um veículo sem motivos de RP", penalidade: "20 minutos na prisão", keywords: ["dm auto", "dmauto", "bater em carro sem motivo", "destruir veículo sem motivo", "danificar carro sem motivo", "atropelar sem motivo", "colidir sem motivo", "bater carro sem razão", "destruir automóvel sem motivo", "danificar veículo sem razão", "acidente proposital", "batida proposital", "colisão intencional", "destruição veicular", "quebrar carro sem motivo", "estragar veículo", "atropelamento sem motivo", "colisão sem razão", "batida de carro sem motivo", "vdm", "vehicle deathmatch", "atropelar de propósito", "bater de carro de propósito"] },
+    { codigo: "RP3", nome: "Poder Não-RP (NP)", categoria: "rp", descricao: "Uso de capacidades físicas além das características do personagem em caráter de RP", penalidade: "15 minutos na prisão", keywords: ["poder não rp", "usar poder não rp", "poder nrp", "habilidade não rp", "poder especial não rp", "superpoder não rp", "vantagem não rp", "capacidade não rp", "poder ilegítimo", "habilidade ilegítima", "vantagem injusta", "poder sobrenatural", "habilidade sobrenatural", "poder impossível", "vantagem impossível", "força sobre-humana", "resistência sobre-humana", "velocidade sobre-humana"] },
+    { codigo: "RP4", nome: "Non RolePlay (NRP)", categoria: "rp", descricao: "Romper a lógica do RP e das ações do personagem criando situações pouco ou nada realistas", penalidade: "15 minutos na prisão", keywords: ["não rp", "situação irrealista", "romper rp", "non roleplay", "quebra de imersão", "ação irrealista", "comportamento irreal", "situação impossível", "contexto irreal", "cenário impossível", "ação improvável", "comportamento improvável", "quebra realidade", "romper realidade", "ação não realista", "rp irrealista", "história impossível", "contexto impossível", "situação inverossímil", "ant rp", "anti roleplay", "quebrar rp", "ação fora do rp"] },
+    { codigo: "RP5", nome: "Meta Gaming (MG)", categoria: "rp", descricao: "Usar informações do mundo real dentro do roleplay", penalidade: "De 30 minutos de mute até 60 minutos na cadeia", keywords: ["metagaming", "mg", "usar info do discord", "meta gaming", "informação externa", "conhecimento externo", "informação ooc", "conhecimento ooc", "uso informação real", "meta informação", "vantagem informação", "informação privilegiada", "conhecimento privilegiado", "info discord", "info externa", "informação fora do jogo", "conhecimento de fora", "uso de informação metagame", "meta", "usar info ooc"] },
+    { codigo: "RP6", nome: "Abandono de RP", categoria: "rp", descricao: "Qualquer tentativa de desviar do processo de RP para ganho pessoal. Entrar em uma zona verde para escapar de uma perseguição armada", penalidade: "de 30 a 60 minutos na cadeia", keywords: ["abandonar rp", "recusar rp", "fugir para zona verde", "escapar para zona verde", "evadir rp", "negar rp", "rejeitar rp", "escapar situação rp", "fugir interação", "evadir interação", "abandonar situação", "negar interação", "recusar interação", "fuga zona segura", "escape zona protegida", "correr para zona verde", "refugiar-se zona segura", "escapar perseguição zona verde", "fugir combate zona verde", "safe zone", "área safe", "fugir para safe", "escapar para área safe"] },
+    { codigo: "RP7", nome: "RP em benefício próprio", categoria: "rp", descricao: "Uso desigual do RP em favor próprio utilizando os comandos /do, /me, /try", penalidade: "20 minutos na prisão", keywords: ["benefício próprio rp", "forçar rp próprio", "rp benefício próprio", "vantagem pessoal rp", "proveito próprio rp", "interesse próprio rp", "ganho pessoal rp", "benefício individual rp", "vantagem indevida", "proveito indevido", "ganho injusto", "benefício injusto", "rp egoísta", "roleplay egoísta", "abusar do /me", "abusar do /do", "forçar resultado rp", "manipular rp"] },
+    { codigo: "RP8", nome: "AFK", categoria: "rp", descricao: "Quando não há qualquer atividade de um JOGADOR por mais de 5 minutos", penalidade: "Desconexão do servidor", keywords: ["afk", "inativo", "ausente", "away from keyboard", "longe do teclado", "desatento", "distante", "inativo prolongado", "ausência prolongada", "desconectado mental", "inatividade", "passividade", "indisponível", "offline virtual", "desligado virtual", "parado sem fazer nada", "jogador ausente", "personagem parado", "afk prolongado"] },
+    { codigo: "RP9", nome: "DriveBy (DB)", categoria: "rp", descricao: "Causar dano ou matar um personagem utilizando um veículo", penalidade: "60 minutos na prisão", keywords: ["driveby", "db", "atropelar", "matar com carro", "tiro de carro", "atirar de carro", "assassinato veicular", "morte por veículo", "kill com veículo", "eliminar com carro", "atropelamento fatal", "colisão fatal", "acidente fatal", "tiro em movimento", "assalto veicular", "atropelar proposital", "matar atropelando", "executar com carro", "assassinar com veículo", "vdm", "vehicle kill", "matar de carro"] },
+    { codigo: "RP9.1", nome: "Mass DriveBy (DB)", categoria: "rp", descricao: "Causar dano ou matar vários jogadores usando qualquer veículo", penalidade: "Banimento da conta por 12 horas", keywords: ["mass driveby", "matar vários atropelando", "mass db", "driveby em massa", "atropelamento múltiplo", "matança veicular", "assassinato múltiplo veicular", "carnificina veicular", "massacre veicular", "tiroteio múltiplo veicular", "ataque múltiplo veicular", "assalto múltiplo veicular", "violência múltipla veicular", "mass kill veicular", "atropelar vários", "matar vários com carro", "veículo como arma múltipla", "mass vdm", "vdm em massa"] },
+    { codigo: "RP10", nome: "Repeat Kill (RK)", categoria: "rp", descricao: "Matar ou perseguir um jogador após sua morte. Retornar ao local da morte anterior dentro de 15 minutos", penalidade: "90 minutos na cadeia", keywords: ["rk", "repeat kill", "voltar após morte", "retornar após morte", "repetir kill", "kill repetido", "morte repetida", "voltar mesmo local", "retornar mesmo local", "perseguir após morte", "caçar após morte", "vingança imediata", "revide imediato", "retaliação imediata", "vingança rápida", "voltar para se vingar", "retornar para matar", "perseguição após respawn"] },
+    { codigo: "RP11", nome: "Não cumprimento das áreas protegidas", categoria: "rp", descricao: "Cometer crimes ou atacar outros jogadores em zonas verdes, zonas de trabalho ou veículos de trabalho", penalidade: "De 30 a 60 minutos na cadeia", keywords: ["área protegida", "zona verde", "atacar em zona segura", "crime em área protegida", "violência zona segura", "assalto zona protegida", "tiro zona verde", "morte zona verde", "kill zona segura", "assassinato zona protegida", "crime zona segura", "violação zona segura", "transgressão zona verde", "infração zona protegida", "atacar no hospital", "crime no hospital", "violência na loja", "assalto no mercado", "tiro em área segura", "safe zone", "área safe", "zona safe", "crime em safe zone"] },
+    { codigo: "RP12", nome: "Sequestro NRP", categoria: "rp", descricao: "Tentativa de sequestro irrealista. Mais de 50% do total de sequestradores ou mais de 5 jogadores", penalidade: "Prisão por 30 minutos", keywords: ["sequestro nrp", "sequestro irrealista", "sequestro sem motivo", "raptar sem motivo", "sequestrar sem razão", "cativeiro sem motivo", "rapto irreal", "sequestro improvável", "rapto improvável", "sequestro forçado", "rapto forçado", "sequestro ilógico", "rapto ilógico", "sequestro impossível", "rapto impossível", "sequestrar muitos jogadores", "rapto desproporcional"] },
+    { codigo: "RP13", nome: "Faction NRP", categoria: "rp", descricao: "Comportamento fora do roleplay dentro das facções do jogo. Inclui liberação ilegal de prisioneiros", penalidade: "Exoneração da facção E/OU de 30 minutos na cadeia até 3 dias de banimento", keywords: ["faction nrp", "facção nrp", "policial irregular", "exército irregular", "má conduta facção", "comportamento inadequado facção", "abuso facção", "poder facção", "vantagem facção", "corrupção facção", "conduta antiética facção", "ação ilegal facção", "comportamento ilegítimo", "ação imprópria facção", "policial corrupto", "soldado irregular", "abuso de autoridade", "liberar prisioneiro ilegal", "executar civil", "policial abusivo"] },
+    { codigo: "RP14", nome: "Importunação de cunho sexual", categoria: "rp", descricao: "Qualquer forma de ação sexual não consensual, incluindo simulação e diálogos/ações explícitas", penalidade: "60 minutos de mute ou banimento de 24 horas até 30 dias", keywords: ["importunação sexual", "assédio sexual", "conteúdo sexual", "insulto étnico", "assediar sexualmente", "assédio virtual", "conteúdo explícito", "linguagem sexual", "comportamento sexual", "insinuação sexual", "assedio lgbt", "discriminação sexual", "preconceito étnico", "racismo", "homofobia", "xenofobia", "assedio no jogo", "conteúdo sexual explícito", "linguagem obscena", "comentários sexuais"] },
+    { codigo: "RP15", nome: "Interrupção das Operações da Polícia e do Exército", categoria: "rp", descricao: "Provocar intencionalmente membros da Polícia ou Exército para entretenimento ou perturbar suas operações", penalidade: "30 minutos na cadeia", keywords: ["interromper polícia", "perturbar exército", "atrapalhar operação", "atrapalhar polícia", "interromper exército", "perturbar operação", "atrapalhar patrulha", "interromper patrulha", "perturbar serviço", "atrapalhar serviço", "interferir polícia", "interferir exército", "obstruir polícia", "obstruir exército", "atrapalhar blitz", "interromper abordagem", "perturbar trabalho polícia"] },
+    { codigo: "RP16", nome: "Atos Criminais Contra Pessoal de Emergência", categoria: "rp", descricao: "Qualquer ato criminoso contra o pessoal de emergência médica é proibido", penalidade: "De 90 minutos na prisão a 12 horas de banimento", keywords: ["atacar médico", "crime contra emergência", "atacar pessoal médico", "agredir médico", "atacar paramédico", "crime contra saúde", "agredir equipe médica", "atacar ambulância", "agredir socorrista", "violência contra médico", "crime contra médico", "ataque a médico", "agressão a paramédico", "matar médico", "assaltar ambulância", "roubar equipamento médico"] },
+
+    // REGRAS DE CHAT
+    { codigo: "CHAT1", nome: "Insultar outros JOGADORES", categoria: "chat", descricao: "Insultar jogadores sem qualquer razão válida dentro do RP", penalidade: "1 dia de banimento", keywords: ["insultar jogador", "xingar jogador", "ofender jogador", "difamar jogador", "caluniar jogador", "ofensa pessoal", "insulto pessoal", "xingamento pessoal", "difamação pessoal", "calúnia pessoal", "injúria pessoal", "ofensa direta", "insulto direto", "xingamento direto", "agressão verbal", "chamar nomes", "ofender outro player", "xingar outro jogador"] },
+    { codigo: "CHAT2", nome: "Insulto a familiares", categoria: "chat", descricao: "Insultar e/ou mencionar familiares de outros JOGADORES de forma negativa", penalidade: "De 240 minutos mutado ao bloqueio da CONTA do infrator por 3 DIAS", keywords: ["insultar família", "xingar mãe", "ofender familiares", "xingar pai", "ofensa familiar", "insulto familiar", "xingamento familiar", "difamar família", "caluniar família", "ofensa a parentes", "insulto a parentes", "xingar família", "ofender mãe", "ofender pai", "xingar mãe", "xingar pai"] },
+    { codigo: "CHAT3", nome: "Insultos a um país, religião, gênero ou sexo", categoria: "chat", descricao: "Insultar ou mencionar de maneira negativa a nacionalidade, religião, gênero ou sexo de outros JOGADORES", penalidade: "De 240 minutos mutado ao bloqueio da CONTA do infrator por 3 DIAS", keywords: ["insultar religião", "ofender país", "insultar gênero", "ofensa religiosa", "insulto religioso", "xingamento religioso", "ofensa nacionalidade", "insulto nacionalidade", "xingamento nacionalidade", "ofensa gênero", "insulto gênero", "xingamento gênero", "discriminação religiosa", "discriminação nacional", "discriminação gênero", "racismo", "homofobia", "xenofobia", "preconceito religioso", "preconceito nacional"] },
+    { codigo: "CHAT4", nome: "Insulto à ADMINISTRAÇÃO", categoria: "chat", descricao: "Insultar qualquer representante da ADMINISTRAÇÃO, seja de forma direta ou velada", penalidade: "De 240 minutos de mute até banimento da conta por 7 dias", keywords: ["insultar administração", "xingar admin", "ofender staff", "difamar administração", "caluniar administração", "ofensa staff", "insulto staff", "xingamento staff", "difamação staff", "calúnia staff", "injúria staff", "ofensa moderador", "insulto moderador", "xingamento moderador", "agressão verbal staff", "ofender admin", "xingar moderador"] },
+    { codigo: "CHAT5", nome: "Flood", categoria: "chat", descricao: "Spam no chat, incluindo com o uso de macros", penalidade: "Bloqueio dos chats de voz e texto por 10 minutos", keywords: ["flood", "spam", "macro", "inundação chat", "spammar", "floodar", "mensagens repetidas", "texto repetitivo", "envio em massa", "mensagens em excesso", "excesso mensagens", "chat poluído", "spam excessivo", "flood excessivo", "macro spam", "spam no chat", "flood no chat"] },
+    { codigo: "CHAT6", nome: "Flood no Report", categoria: "chat", descricao: "Fazer flood no Report ou em qualquer outro meio de feedback", penalidade: "Mute de 10 a 30 minutos", keywords: ["flood no report", "spam no report", "inundação report", "spammar report", "floodar report", "report repetido", "denúncia repetida", "abuso report", "uso excessivo report", "report em excesso", "denúncia em excesso", "spam denúncia", "flood denúncia", "report abusivo"] },
+    { codigo: "CHAT7", nome: "Publicidade não autorizada", categoria: "chat", descricao: "Qualquer tipo de publicidade sobre recursos de terceiros que não possua autorização da ADMINISTRAÇÃO", penalidade: "Bloqueio da CONTA do infrator por 10 DIAS", keywords: ["publicidade não autorizada", "propaganda não autorizada", "anúncio não autorizado", "publicidade ilegal", "propaganda ilegal", "anúncio ilegal", "marketing não autorizado", "promoção não autorizada", "divulgação não autorizada", "publicidade externa", "propaganda externa", "anúncio externo", "spam publicitário", "propaganda comercial"] },
+    { codigo: "CHAT8", nome: "Música no chat de voz", categoria: "chat", descricao: "Obstrução da comunicação por voz através da transmissão de música ou outros tipos de ruídos", penalidade: "Bloqueio dos chats de voz e texto por 60 minutos", keywords: ["música no call", "som em call", "musica no voz", "ruído no chat", "áudio perturbador", "som perturbador", "ruído perturbador", "música alta", "som alto", "ruído alto", "áudio inadequado", "som inadequado", "ruído inadequado", "música indesejada", "som indesejado", "música no chat de voz", "som no voice chat", "ruído no voice", "música no voice"] },
+    { codigo: "CHAT9", nome: "Se passar por um representante da ADMINISTRAÇÃO", categoria: "chat", descricao: "Impersonar e/ou se passar por representante da ADMINISTRAÇÃO ou funcionário da EMPRESA", penalidade: "Bloqueio permanente de todas as CONTAS", keywords: ["se passar por admin", "imitar administração", "fingir ser staff", "falsificar identidade admin", "personificar administração", "fingir ser moderador", "imitar moderador", "falsificar staff", "personificar staff", "enganar como admin", "fingir autoridade", "imitar autoridade", "falsificar poder", "personificar poder"] },
+    { codigo: "CHAT10", nome: "Enganar JOGADORES do projeto ONESTATE", categoria: "chat", descricao: "Enganar, iludir ou ludibriar os JOGADORES de qualquer forma ou modo", penalidade: "Bloqueio permanente de todas as CONTAS", keywords: ["enganar jogadores", "ludibriar jogadores", "enganação", "fraude jogadores", "trapaça jogadores", "mentir jogadores", "decepção jogadores", "fraude virtual", "trapaça virtual", "enganação virtual", "estelionato virtual", "golpe jogadores", "scam jogadores", "fraude online"] },
+    { codigo: "CHAT11", nome: "Enganar a ADMINISTRAÇÃO", categoria: "chat", descricao: "Enganar qualquer representante de ADMINISTRAÇÃO de qualquer forma ou modo", penalidade: "Bloqueio permanente de todas as CONTAS", keywords: ["enganar administração", "mentir para admin", "enganação staff", "fraude administração", "trapaça administração", "mentir staff", "decepção staff", "fraude moderador", "trapaça moderador", "enganação moderador", "mentira admin", "falsidade admin", "engano staff", "dolo staff"] },
+    { codigo: "CHAT12", nome: "Difamação", categoria: "chat", descricao: "Atentar contra a integridade moral e legal do projeto. Atacar, descreditar e/ou difamar o projeto ou seus membros", penalidade: "Bloqueio de todas as contas por até 30 dias", keywords: ["difamação", "atacar projeto", "descreditar projeto", "calúnia projeto", "injúria projeto", "má fama projeto", "desprestígio projeto", "denegrir projeto", "manchar imagem", "difamar servidor", "caluniar servidor", "injuriár servidor", "atacar reputação", "manchar reputação"] },
+    { codigo: "CHAT13", nome: "Ameaças OOC", categoria: "chat", descricao: "Ameaças à integridade física de alguém na vida real", penalidade: "Bloqueio da conta por 10 dias", keywords: ["ameaças ooc", "ameaça vida real", "ameaça física", "ameaçar pessoalmente", "intimidação real", "coação real", "ameaça corporal", "intimidação física", "coação física", "ameaça pessoal", "intimidação pessoal", "coação pessoal", "ameaça externa", "intimidação externa"] },
+    { codigo: "CHAT14", nome: "Influência NRP", categoria: "chat", descricao: "Provocar terceiros a quebrarem as regras com a intenção de causar o banimento do jogador", penalidade: "Bloqueio da conta por 12 horas", keywords: ["influência nrp", "induzir quebra de regras", "provocar quebra de regra", "instigar infração", "incitar violação", "incentivar quebra", "provocar infração", "induzir violação", "instigar irregularidade", "incitar irregularidade", "incentivar irregularidade", "provocar irregularidade", "manipular quebra"] },
+    { codigo: "CHAT15", nome: "Comportamento Tóxico", categoria: "chat", descricao: "Comportamento tóxico ou negativo, que inclui ações, comentários ou atitudes prejudiciais ou hostis", penalidade: "Banimento da conta de 1 a 3 dias", keywords: ["comportamento tóxico", "tóxico", "comportamento negativo", "atitude tóxica", "conduta tóxica", "comportamento hostil", "atitude hostil", "conduta hostil", "comportamento agressivo", "atitude agressiva", "conduta agressiva", "comportamento prejudicial", "atitude prejudicial", "conduta prejudicial"] },
+    { codigo: "CHAT16", nome: "Uso da Língua Oficial", categoria: "chat", descricao: "Os jogadores devem geralmente falar o idioma oficial dentro da comunidade regional do jogo", penalidade: "10/15/30/60 minutos de mute até 12 horas de banimento", keywords: ["uso língua oficial", "idioma errado", "língua incorreta", "linguagem inadequada", "idioma inadequado", "língua não permitida", "idioma não permitido", "linguagem não autorizada", "idioma não autorizado", "língua proibida", "idioma proibido", "linguagem errada", "idioma incorreto", "língua imprópria"] },
+    { codigo: "CHAT17", nome: "Divulgação de informações pessoais", categoria: "chat", descricao: "É proibida a divulgação de dados confidenciais, materiais privados ou 'doxxing' de outros jogadores", penalidade: "Banimento permanente de todas as contas vinculadas", keywords: ["divulgação informações pessoais", "doxxing", "dados confidenciais", "informação pessoal", "dado pessoal", "privacidade violada", "dado confidencial", "informação confidencial", "dado privado", "informação privada", "exposição dados", "vazamento dados", "divulgação dados", "exposição informação"] },
+    { codigo: "TCHAT1", nome: "Fuga de tópico", categoria: "chat", descricao: "Enviar mensagens no chat de negociação (Trade) que não estão relacionadas ao comércio", penalidade: "Mute de 10 minutos a 60 minutos", keywords: ["fuga de tópico", "tópico errado", "assunto errado", "conversa fora tópico", "diálogo fora assunto", "comentário irrelevante", "mensagem irrelevante", "conversa irrelevante", "diálogo irrelevante", "off topic", "fora do assunto", "fora do tópico", "conversa paralela", "diálogo paralelo"] },
+    { codigo: "TCHAT2", nome: "Propaganda enganosa", categoria: "chat", descricao: "Anúncio enganoso ou de bens que não estejam no jogo", penalidade: "Bloqueio dos chats de texto e voz por 10 minutos", keywords: ["propaganda enganosa", "anúncio enganoso", "bens inexistentes", "publicidade enganosa", "marketing enganoso", "anúncio falso", "publicidade falsa", "marketing falso", "produto inexistente", "item inexistente", "bem fictício", "produto fictício", "item fictício", "oferta falsa"] },
+    { codigo: "TCHAT3", nome: "Spam e Flood", categoria: "chat", descricao: "Spammar e floodar o chat de comércio é terminantemente proibido", penalidade: "Bloqueio dos chats de texto e voz por 5 minutos", keywords: ["spam trade", "flood trade", "spam comércio", "inundação trade", "spammar trade", "floodar trade", "mensagens repetidas trade", "texto repetitivo trade", "envio em massa trade", "excesso mensagens trade", "chat poluído trade", "spam excessivo trade", "flood excessivo trade"] },
+
+    // REGRAS DE ABUSO
+    { codigo: "ABUSE1", nome: "Abuso de modificações do jogo", categoria: "abuso", descricao: "Usar erros, vulnerabilidades ou funcionalidades não intencionais do jogo para obter vantagem ou prejudicar a jogabilidade", penalidade: "Banimento da conta de 1 a 30 dias", keywords: ["exploit", "bug abuse", "usar bug", "vulnerabilidade", "aproveitar bug", "abusar bug", "explorar bug", "vantagem bug", "benefício bug", "uso indevido bug", "aproveitamento bug", "exploração bug", "vulnerabilidade jogo", "falha jogo", "erro jogo", "bug", "glitch", "explorar falha", "abusar de falha"] },
+    { codigo: "ABUSE2", nome: "Abuso de AFK", categoria: "abuso", descricao: "Usar erros, vulnerabilidades, funcionalidades não intencionais do jogo e/ou programas de terceiros para evitar ser desconectado", penalidade: "Banimento da conta por 3 dias", keywords: ["afk farm", "afk macro", "clicker", "macro afk", "farm automático", "bot afk", "programa afk", "software afk", "automação afk", "farm inativo", "coleta automática", "coleta passiva", "ganho automático", "benefício automático", "vantagem automática", "afk farming", "macro para afk", "programa para farm"] },
+    { codigo: "ABUSE3", nome: "Não observância das regras", categoria: "abuso", descricao: "Violação sistemática e repetida das regras do jogo (tomando como referência 5 ocorrências)", penalidade: "Bloqueio da conta de 3 a 30 dias", keywords: ["reincidência regras", "quebrar muitas regras", "violação sistemática", "infração repetida", "violação recorrente", "quebra constante", "infração constante", "violação frequente", "quebra frequente", "reincidência constante", "violação habitual", "quebra habitual", "infração habitual", "repetição infrações"] },
+    { codigo: "ABUSE3.1", nome: "Violação Extrema das Regras", categoria: "abuso", descricao: "Violações repetidas e sistemáticas das regras, com múltiplas infrações do ABUSE3", penalidade: "Banimento permanente de todas as contas", keywords: ["violação extrema", "abusar repetidamente", "múltiplas infrações", "violação grave", "infração extrema", "violação severa", "infração severa", "abusar constantemente", "violação crônica", "infração crônica", "reincidência extrema", "violação excessiva", "infração excessiva", "abusar excessivamente"] },
+    { codigo: "ABUSE4", nome: "Interrupção de RP de larga escala", categoria: "abuso", descricao: "Quebra do processo de RP de eventos de larga escala. Tentativa de obstruir eventos e atividades", penalidade: "Banimento por 12 horas", keywords: ["quebrar evento", "estragar rp evento", "interromper evento", "atrapalhar evento", "sabotar evento", "perturbar evento", "interromper rp evento", "atrapalhar rp evento", "sabotar rp evento", "perturbar rp evento", "estragar evento grande", "atrapalhar evento grande", "sabotar evento grande"] },
+    { codigo: "ABUSE5", nome: "Bloqueio de pontos relevantes", categoria: "abuso", descricao: "Interferir intencionalmente nas atividades comuns de outros jogadores dentro do jogo", penalidade: "De 10 a 60 minutos na cadeia", keywords: ["bloquear entrada", "trancar acesso", "impedir acesso", "obstruir entrada", "bloquear passagem", "trancar passagem", "impedir passagem", "obstruir passagem", "bloquear caminho", "trancar caminho", "impedir caminho", "obstruir caminho", "bloqueio local", "obstrução local"] },
+
+    // REGRAS DE ALERTA
+    { codigo: "ALERT1", nome: "Evasão de banimento", categoria: "alerta", descricao: "Tentar burlar ou evitar um banimento ou punição", penalidade: "De banimento de 14 dias de todas as contas até banimento permanente", keywords: ["evasão de ban", "ban evade", "burlar banimento", "escapar ban", "evadir ban", "contornar ban", "furar ban", "driblar ban", "enganar ban", "bypass ban", "ignorar ban", "desrespeitar ban", "violar ban", "transgredir ban"] },
+    { codigo: "ALERT2", nome: "Danificar os servidores do projeto ONESTATE", categoria: "alerta", descricao: "Qualquer ato ou omissão com intenção de causar danos significativos à economia interna do jogo ou a estabilidade dos servidores", penalidade: "Bloqueio permanente de todas as CONTAS", keywords: ["danificar servidores", "prejudicar servidor", "ataque servidor", "sabotar servidor", "prejudicar servidores", "ataque servidores", "sabotar servidores", "danificar sistema", "prejudicar sistema", "ataque sistema", "sabotar sistema", "comprometer servidor", "comprometer servidores"] },
+    { codigo: "ALERT3", nome: "Uso de software de terceiros (cheats)", categoria: "alerta", descricao: "Modificar ou tentar modificar os arquivos do projeto ONESTATE assim como utilizar softwares para modifcar dados e valores", penalidade: "Bloqueio permanente de todas as CONTAS", keywords: ["cheat", "hack", "programa ilegal", "software terceiros", "trapaça", "fraude", "vantagem ilegal", "benefício ilegal", "modificação ilegal", "alteração ilegal", "manipulação ilegal", "programa proibido", "software proibido", "ferramenta ilegal", "hack", "cheater", "trapaceiro", "mod menu", "cheat engine"] },
+    { codigo: "ALERT4", nome: "Dano à Economia do Servidor", categoria: "alerta", descricao: "Transferência de dinheiro ou itens entre JOGADORES no servidor, de qualquer forma, que ultrapasse os limites estabelecidos", penalidade: "Remoção do valor + banimento de 30 dias até permanente", keywords: ["dano economia", "transferência excessiva", "limite transferência", "prejuízo economia", "danificar economia", "prejudicar economia", "transferência ilegal", "transferência abusiva", "transação excessiva", "troca excessiva", "envio excessivo", "recebimento excessivo", "quantidade excessiva"] },
+    { codigo: "ALERT5", nome: "Difamação Externa", categoria: "alerta", descricao: "Tentar ativamente prejudicar a integridade moral e/ou legal do projeto ou de qualquer um de seus jogadores em canais externos", penalidade: "Banimento permanente de todas as contas", keywords: ["difamação externa", "prejudicar projeto externamente", "ataque externo", "calúnia externa", "injúria externa", "difamação fora", "calúnia fora", "injúria fora", "ataque reputação externo", "manchar imagem externa", "prejudicar imagem externa", "denegrir externamente", "manchar externamente"] },
+    { codigo: "ALERT6", nome: "Divulgação de terceiros", categoria: "alerta", descricao: "Promover, fazer propaganda e/ou mencionar outros jogos, produtos, projetos ou serviços externos", penalidade: "Banimento de 1 dia a banimento permanente", keywords: ["divulgação de terceiros", "propaganda externa", "mencionar outros jogos", "promover externo", "divulgar externo", "publicidade externa", "marketing externo", "anúncio externo", "promoção externa", "recomendação externa", "indicar externo", "sugerir externo", "convidar para externo"] },
+    { codigo: "ALERT7", nome: "Decisão da Administração Sênior", categoria: "alerta", descricao: "A administração sênior tem o direito de aplicar punições que não estão especificadas na lista", penalidade: "A critério da administração", keywords: ["decisão administração sênior", "decisão admin sênior", "julgamento admin sênior", "decisão staff sênior", "julgamento staff sênior", "decisão moderador sênior", "julgamento moderador sênior", "arbitragem sênior", "decisão superior", "julgamento superior", "decisão final", "julgamento final"] },
+
+    // REGRAS DE MÍDIA
+    { codigo: "MEDIA1", nome: "Stream Sniping/Interferência na filmagem", categoria: "media", descricao: "Assediar um(a) criador(a) de conteúdo durante uma transmissão ao vivo, interferir no processo de filmagem", penalidade: "Banimento da conta de 1 hora a 24 horas", keywords: ["stream sniping", "interferência filmagem", "sabotagem gravação", "assédio stream", "perseguição stream", "interrupção stream", "perturbação stream", "assédio gravação", "perseguição gravação", "interrupção gravação", "perturbação gravação", "sabotagem stream", "interferência stream"] },
+
+    // REGRAS DE CLAN
+    { codigo: "CLAN1", nome: "Nome, cargos e descrição da gangue", categoria: "clan", descricao: "O nome, os cargos e a descrição da gangue não podem conter ofensas ou palavras que sejam proibidas", penalidade: "Mudança forçada do nome e descrição da gangue", keywords: ["nome gangue ofensivo", "descrição gangue proibida", "cargo gangue ofensivo", "tag gangue ofensiva", "símbolo gangue ofensivo", "identificação gangue ofensiva", "denominação gangue ofensiva", "titulação gangue ofensiva", "designação gangue ofensiva", "apelido gangue ofensivo", "rótulo gangue ofensivo", "emblema gangue ofensivo"] },
+    { codigo: "CLAN2", nome: "Bloqueio dos marcadores de entrada do QG", categoria: "clan", descricao: "É proibido bloquear o marcador de entrada para os QGs, impossibilitando o acesso de outros jogadores ao QG", penalidade: "Prisão por 30 minutos", keywords: ["bloquear qg", "impedir acesso qg", "marcador qg bloqueado", "obstruir qg", "trancar qg", "bloquear quartel", "impedir acesso quartel", "marcador quartel bloqueado", "obstruir quartel", "trancar quartel", "bloquear base", "impedir acesso base", "marcador base bloqueado"] },
+    { codigo: "CLAN3", nome: "Regras do chat da Gangue", categoria: "clan", descricao: "Todas as regras de chat do jogo são válidas para conversas entre membros das gangues", penalidade: "Bloqueio de texto e voz pelo período referente à violação", keywords: ["regras chat gangue", "chat gangue", "conversa gangue", "diálogo gangue", "comunicação gangue", "bate-papo gangue", "mensagens gangue", "texto gangue", "fala gangue", "discussão gangue", "debate gangue", "conversação gangue", "interação gangue"] },
+    { codigo: "CLAN4", nome: "Associação a outras gangues durante os eventos", categoria: "clan", descricao: "Durante os eventos de PvP é proibido a associação entre 2 ou mais gangues", penalidade: "Prisão por 30 minutos", keywords: ["associação gangues", "aliança evento", "gangues unidas evento", "coligação gangues", "parceria gangues", "coalizão gangues", "união gangues", "federação gangues", "confederação gangues", "consórcio gangues", "conglomerado gangues", "grupo gangues", "time gangues"] },
+    { codigo: "CLAN5", nome: "Abuso do uso de tasers", categoria: "clan", descricao: "É proibido o uso do taser por mais de duas vezes na mesma ocasião pelo mesmo jogador", penalidade: "Prisão por 60 minutos", keywords: ["taser mais de 2 vezes", "abuso taser", "uso excessivo taser", "taser repetido", "taser em excesso", "taser abusivo", "eletrochoque excessivo", "choque excessivo", "taser múltiplo", "eletrochoque múltiplo", "choque múltiplo", "taser desnecessário", "eletrochoque desnecessário"] },
+    { codigo: "CLAN5.1", nome: "Uso do taser criminal em membros das forças de segurança", categoria: "clan", descricao: "É proibido usar o taser de bandido com o objetivo de retirar um jogador da polícia ou do exército de um carro oficial sem motivo RP", penalidade: "90 minutos de prisão", keywords: ["taser criminal polícia", "taser bandido polícia", "taser exército", "taser ilegal polícia", "taser criminoso polícia", "taser bandido exército", "taser ilegal exército", "taser criminoso exército", "eletrochoque criminal polícia", "choque criminal polícia", "eletrochoque bandido polícia", "choque bandido polícia"] },
+    { codigo: "CLAN6", nome: "Assassinato no marcador dos QGs", categoria: "clan", descricao: "Matar jogadores na entrada/saída do QG. Atirar de dentro para fora e vice-versa não é permitido", penalidade: "40 minutos na cadeia", keywords: ["assassinato qg", "matar no qg", "qg marcador", "assassinato quartel", "matar no quartel", "quartel marcador", "assassinato base", "matar na base", "base marcador", "morte qg", "kill qg", "morte quartel", "kill quartel", "matou no qg", "matar na entrada qg", "kill na base"] },
+    { codigo: "CLAN7", nome: "Bloquear com veículos o marcador do QG", categoria: "clan", descricao: "Bloquear os marcadores de entrada/saída do QG e os caminhos que levam aos marcadores é proibido", penalidade: "60 minutos na cadeia", keywords: ["bloquear qg veículos", "veículos bloqueando qg", "impedir acesso qg veículos", "obstruir qg veículos", "trancar qg veículos", "bloquear quartel veículos", "veículos bloqueando quartel", "impedir acesso quartel veículos", "obstruir quartel veículos", "trancar quartel veículos", "bloquear base veículos"] },
+    { codigo: "CLAN8", nome: "Agitação e atividade ilegal nas áreas verdes", categoria: "clan", descricao: "É proibido qualquer atividade criminal nas áreas verdes, incluindo tiroteios, assaltos e sequestros", penalidade: "Prisão por 60 minutos", keywords: ["crime área verde", "atividade ilegal área verde", "tiroteio área verde", "assalto área verde", "sequestro área verde", "violência área verde", "assassinato área verde", "morte área verde", "kill área verde", "delito área verde", "infração área verde", "transgressão área verde", "ilegalidade área verde", "crime safe zone", "atividade ilegal safe zone", "matar na área verde"] },
+    { codigo: "CLAN9", nome: "Uso de taser em veículos de trabalho", categoria: "clan", descricao: "É proibido o uso de tasers nos veículos de trabalho", penalidade: "Prisão por 90 minutos", keywords: ["taser veículo trabalho", "taser carro trabalho", "taser veículo", "eletrochoque veículo trabalho", "choque veículo trabalho", "taser automóvel trabalho", "eletrochoque automóvel trabalho", "choque automóvel trabalho", "taser viatura trabalho", "eletrochoque viatura trabalho", "choque viatura trabalho"] },
+    { codigo: "CLAN10", nome: "Abuso de ganho e/ou uso desonesto das moedas de gangue", categoria: "clan", descricao: "É proibido o uso de bugs e/ou qualquer outro método desonesto para adquirir moedas da gangue", penalidade: "Recolhimento dos bens adquiridos e exclusão da gangue", keywords: ["abuso moedas gangue", "moedas gangue bug", "ganho desonesto moedas", "moedas ilegítimas", "moedas fraudulentas", "moedas falsas", "moedas ilícitas", "moedas irregulares", "moedas indevidas", "moedas injustas", "moedas corruptas", "moedas manipuladas", "moedas adulteradas"] },
+
+    // CRIMES POLICIAIS
+    { codigo: "1.1", nome: "Captura das instituições públicas", categoria: "police", descricao: "Captura das instituições públicas", penalidade: "20 minutos de prisão", keywords: ["captura instituições públicas", "tomar prédio público", "ocupar instituição", "tomar prédio governo", "capturar prédio público", "invadir instituição pública", "tomar controle prédio público"] },
+    { codigo: "1.2", nome: "Tomada do poder pela força", categoria: "police", descricao: "Tomada do poder pela força", penalidade: "20 minutos de prisão", keywords: ["tomada poder força", "golpe estado", "tomar poder força", "golpe militar", "tomar controle força", "assalto poder", "tomar governo força", "golpe força"] },
+    { codigo: "1.3", nome: "Tomada de reféns ou sequestro", categoria: "police", descricao: "Tomada de reféns ou sequestro", penalidade: "20 minutos de prisão", keywords: ["tomada reféns", "sequestro", "rapto", "refém", "sequestrar pessoa", "tomar refém", "raptar pessoa", "manter refém", "sequestro refém"] },
+    { codigo: "1.4", nome: "Colisão fatal com um pedestre", categoria: "police", descricao: "Colisão fatal com um pedestre", penalidade: "20 minutos de prisão", keywords: ["colisão fatal pedestre", "atropelamento fatal", "matar atropelando", "morte atropelamento", "atropelar mortal", "colidir fatal pedestre", "acidente fatal pedestre", "matar com carro pedestre"] },
+    { codigo: "1.5", nome: "Tentativa de roubo", categoria: "police", descricao: "Tentativa de roubo", penalidade: "20 minutos de prisão", keywords: ["tentativa roubo", "tentar roubar", "tentativa assalto", "tentar assaltar", "intento roubo", "tentativa furto", "tentar furtar", "tentativa arrombamento", "tentar arrombar"] },
+    { codigo: "1.6", nome: "Roubo a um policial", categoria: "police", descricao: "Roubo a um policial", penalidade: "20 minutos de prisão", keywords: ["roubo policial", "assalto policial", "roubar policial", "assaltar policial", "furtar policial", "roubo agente", "assalto agente", "roubar agente segurança"] },
+    { codigo: "1.7", nome: "Entrada não autorizada em território protegido", categoria: "police", descricao: "Entrada não autorizada em território protegido", penalidade: "20 minutos de prisão", keywords: ["entrada não autorizada", "acesso não autorizado", "invadir território", "entrada proibida", "acesso proibido", "invadir área protegida", "entrada ilegal", "acesso ilegal", "invadir propriedade"] },
+    { codigo: "1.8", nome: "Colisão com pedestre", categoria: "police", descricao: "Colisão com pedestre", penalidade: "20 minutos de prisão", keywords: ["colisão pedestre", "atropelamento", "bater pedestre", "acidente pedestre", "colidir pedestre", "atropelar pessoa", "bater em pessoa", "acidente com pedestre"] },
+    { codigo: "1.9", nome: "Disparos de arma em local público/Sem porte", categoria: "police", descricao: "Disparos de arma em local público/Sem porte", penalidade: "20 minutos de prisão", keywords: ["disparos arma público", "tiros local público", "atirar público", "disparos público", "tiros sem porte", "atirar sem porte", "arma sem porte", "disparos ilegais", "tiros ilegais"] },
+    { codigo: "1.10", nome: "Suborno de um policial", categoria: "police", descricao: "Suborno de um policial", penalidade: "20 minutos de prisão", keywords: ["suborno policial", "subornar policial", "propina policial", "corrupção policial", "suborno agente", "subornar agente", "propina agente", "corromper policial"] },
+    { codigo: "1.11", nome: "Assassinato de civil ou policial", categoria: "police", descricao: "Assassinato de civil ou policial - PROIBIDO APLICAÇÃO", penalidade: "PROIBIDO APLICAÇÃO", keywords: ["assassinato civil", "matar civil", "assassinato policial", "matar policial", "homicídio civil", "homicídio policial", "matar pessoa", "assassinar pessoa"] },
+    { codigo: "1.12", nome: "Ataque a um policial", categoria: "police", descricao: "Ataque a um policial - PROIBIDO APLICAÇÃO", penalidade: "PROIBIDO APLICAÇÃO", keywords: ["ataque policial", "atacar policial", "agressão policial", "agredir policial", "violência policial", "atacar agente", "agredir agente", "violência agente"] },
+    { codigo: "2.1", nome: "Danos à propriedade pública", categoria: "police", descricao: "Danos à propriedade pública", penalidade: "10 minutos de prisão", keywords: ["danos propriedade pública", "danificar público", "destruir público", "depredar público", "danos bem público", "destruir propriedade pública", "depredar propriedade pública", "danificar patrimônio público"] },
+    { codigo: "2.2", nome: "Danos à propriedade privada", categoria: "police", descricao: "Danos à propriedade privada", penalidade: "10 minutos de prisão", keywords: ["danos propriedade privada", "danificar privado", "destruir privado", "depredar privado", "danos bem privado", "destruir propriedade privada", "depredar propriedade privada", "danificar patrimônio privado"] },
+    { codigo: "2.3", nome: "Trotes para a polícia/emergência", categoria: "police", descricao: "Trotes para a polícia/emergência", penalidade: "10 minutos de prisão", keywords: ["trotes polícia", "trote emergência", "ligação falsa", "chamado falso", "trote 190", "trote 911", "trote emergencial", "falso chamado", "alarme falso"] },
+    { codigo: "2.4", nome: "Arruaça", categoria: "police", descricao: "Arruaça", penalidade: "10 minutos de prisão", keywords: ["arruaça", "baderna", "confusão", "bagunça", "desordem", "tumulto", "rebuliço", "algazarra", "balbúrdia", "confusão pública"] },
+    { codigo: "2.5", nome: "Assassinato, ameaça de assassinato", categoria: "police", descricao: "Assassinato, ameaça de assassinato", penalidade: "10 minutos de prisão", keywords: ["ameaça assassinato", "ameaça morte", "ameaça matar", "ameaça homicídio", "intimidação morte", "ameaça vida", "intimidação matar", "coação morte"] },
+    { codigo: "2.6", nome: "Insulto a funcionário público", categoria: "police", descricao: "Insulto a funcionário público", penalidade: "10 minutos de prisão", keywords: ["insulto funcionário público", "ofender funcionário", "xingar funcionário", "desrespeito funcionário", "insulto servidor", "ofender servidor", "xingar servidor", "desrespeito servidor"] },
+    { codigo: "2.7", nome: "Extorsão", categoria: "police", descricao: "Extorsão", penalidade: "10 minutos de prisão", keywords: ["extorsão", "chantagem", "ameaça extorsão", "coação extorsão", "extorquir", "chantagear", "ameaça chantagem", "coação chantagem"] },
+    { codigo: "3.1", nome: "Resistência à prisão", categoria: "police", descricao: "Resistência à prisão", penalidade: "5 minutos de prisão", keywords: ["resistência prisão", "resistir prisão", "fugir prisão", "escapar prisão", "oposição prisão", "negar prisão", "recusar prisão", "lutar prisão"] },
+    { codigo: "3.2", nome: "Desacato à autoridade", categoria: "police", descricao: "Desacato à autoridade", penalidade: "5 minutos de prisão", keywords: ["desacato autoridade", "desrespeito autoridade", "desacato policial", "desrespeito policial", "desacato agente", "desrespeito agente", "insolência autoridade", "insolência policial"] },
+    { codigo: "3.3", nome: "Auxílio à resistência à prisão", categoria: "police", descricao: "Auxílio à resistência à prisão", penalidade: "5 minutos de prisão", keywords: ["auxílio resistência", "ajudar resistência", "auxiliar fuga", "ajudar fuga", "cooperar resistência", "participar resistência", "apoiar resistência", "facilitar fuga"] },
+    { codigo: "3.4", nome: "Infração das leis de trânsito", categoria: "police", descricao: "Infração das leis de trânsito", penalidade: "5 minutos de prisão", keywords: ["infração trânsito", "violação trânsito", "desrespeito trânsito", "infração direção", "violação direção", "desobediência trânsito", "infração veicular", "violação veicular"] },
+    { codigo: "3.5", nome: "Ataque a civis (violência)", categoria: "police", descricao: "Ataque a civis (violência)", penalidade: "5 minutos de prisão", keywords: ["ataque civis", "violência civis", "agressão civis", "atacar civis", "agredir civis", "violência contra civis", "agressão contra civis", "bater em civis"] },
+    { codigo: "3.6", nome: "Recusa a apresentar documentos", categoria: "police", descricao: "Recusa a apresentar documentos", penalidade: "5 minutos de prisão", keywords: ["recusa documentos", "negar documentos", "recusar identidade", "negar identidade", "recusar documentos", "negar documentos", "recusa identificação", "negar identificação"] }
+];
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+    carregarTodasRegras();
+    configurarCategorias();
+});
+
+// Carregar todas as regras na sidebar
+function carregarTodasRegras() {
+    const container = document.getElementById('todasRegras');
+    container.innerHTML = '';
+
+    regras.forEach(regra => {
+        const div = document.createElement('div');
+        div.className = `regra-item ${regra.categoria}`;
+        div.innerHTML = `
+            <div class="regra-item-codigo">
+                <span>${regra.codigo}</span>
+            </div>
+            <div class="regra-item-desc">${regra.nome}</div>
+        `;
+
+        div.addEventListener('click', () => {
+            if (regra.categoria === 'police') {
+                document.getElementById('entradaPolicial').value = regra.codigo;
+                document.getElementById('entradaPolicial').focus();
+            } else {
+                document.getElementById('entrada').value = regra.codigo;
+                document.getElementById('entrada').focus();
+            }
         });
 
-        // Carregar todas as regras na sidebar
-        function carregarTodasRegras() {
-            const container = document.getElementById('todasRegras');
-            container.innerHTML = '';
-            
-            regras.forEach(regra => {
-                const div = document.createElement('div');
-                div.className = `regra-item ${regra.categoria}`;
-                div.innerHTML = `
-                    <div class="regra-item-codigo">
-                        <span>${regra.codigo}</span>
-                    </div>
-                    <div class="regra-item-desc">${regra.nome}</div>
-                `;
-                div.addEventListener('click', () => {
-                    document.getElementById('entrada').value = regra.codigo;
-                    document.getElementById('entrada').focus();
-                });
-                container.appendChild(div);
-            });
-        }
+        container.appendChild(div);
+    });
+}
 
-        // Configurar filtros de categoria
-        function configurarCategorias() {
-            const botoes = document.querySelectorAll('.categoria-btn');
-            botoes.forEach(botao => {
-                botao.addEventListener('click', function() {
-                    // Remover classe active de todos os botões
-                    botoes.forEach(b => b.classList.remove('active'));
-                    // Adicionar classe active ao botão clicado
-                    this.classList.add('active');
-                    
-                    const categoria = this.getAttribute('data-categoria');
-                    filtrarRegras(categoria);
-                });
-            });
-        }
+// Configurar filtros de categoria
+function configurarCategorias() {
+    const botoes = document.querySelectorAll('.categoria-btn');
+    botoes.forEach(botao => {
+        botao.addEventListener('click', function() {
+            // Remover classe active de todos os botões
+            botoes.forEach(b => b.classList.remove('active'));
+            // Adicionar classe active ao botão clicado
+            this.classList.add('active');
+            const categoria = this.getAttribute('data-categoria');
+            filtrarRegras(categoria);
+        });
+    });
+}
 
-        // Filtrar regras por categoria
-        function filtrarRegras(categoria) {
-            const itens = document.querySelectorAll('.regra-item');
-            
-            itens.forEach(item => {
-                if (categoria === 'todas') {
-                    item.style.display = 'block';
-                } else {
-                    if (item.classList.contains(categoria)) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                }
-            });
-        }
-
-        // Inserir exemplo no campo de texto
-        function inserirExemplo(texto) {
-            document.getElementById('entrada').value = texto;
-        }
-
-        // Inserir código de regra no campo de texto
-        function inserirCodigo(codigo) {
-            document.getElementById('entrada').value = codigo;
-        }
-
-        // Limpar campos
-        function limpar() {
-            document.getElementById('entrada').value = '';
-            document.getElementById('resultado').innerHTML = `
-                <div class="nenhum">
-                    <i class="fas fa-clipboard-list"></i>
-                    <p>Nenhuma infração verificada ainda.<br>Descreva uma infração acima para começar.</p>
-                </div>
-            `;
-            document.getElementById('estatisticas').style.display = 'none';
-        }
-
-        // Alternar entre modo IA e modo normal
-        function toggleModoIA() {
-            const card = document.getElementById('cardVerificacao');
-            const botao = document.querySelector('.toggle-ia');
-            
-            if (card.classList.contains('modo-ia')) {
-                card.classList.remove('modo-ia');
-                botao.innerHTML = '<i class="fas fa-robot"></i> Alternar para Verificação com IA';
+// Filtrar regras por categoria
+function filtrarRegras(categoria) {
+    const itens = document.querySelectorAll('.regra-item');
+    itens.forEach(item => {
+        if (categoria === 'todas') {
+            item.style.display = 'block';
+        } else {
+            if (item.classList.contains(categoria)) {
+                item.style.display = 'block';
             } else {
-                card.classList.add('modo-ia');
-                botao.innerHTML = '<i class="fas fa-sync-alt"></i> Alternar para Verificação Tradicional';
+                item.style.display = 'none';
             }
         }
+    });
+}
 
-        // Verificação com IA
-        function verificarComIA() {
-            const entrada = document.getElementById('entrada').value.trim();
-            if (!entrada) {
-                alert('Por favor, descreva a infração ou insira um código de regra.');
-                return;
-            }
-            
-            // Mostrar loading
-            document.getElementById('iaLoading').style.display = 'block';
-            document.getElementById('resultado').innerHTML = '';
-            document.getElementById('estatisticas').style.display = 'none';
-            
-            // Simular processamento da IA
-            setTimeout(() => {
-                processarVerificacaoIA(entrada);
-                document.getElementById('iaLoading').style.display = 'none';
-            }, 2000);
-        }
+// Inserir exemplo no campo de texto
+function inserirExemplo(texto) {
+    document.getElementById('entrada').value = texto;
+}
 
-        // Verificação normal
-        function verificarNormal() {
-            const entrada = document.getElementById('entrada').value.trim();
-            if (!entrada) {
-                alert('Por favor, descreva a infração ou insira um código de regra.');
-                return;
-            }
-            
-            processarVerificacaoNormal(entrada);
-        }
+// Inserir código de regra no campo de texto
+function inserirCodigo(codigo) {
+    document.getElementById('entrada').value = codigo;
+}
 
-        // Processar verificação com IA
-        function processarVerificacaoIA(texto) {
-            let regrasEncontradas = [];
-            let confianca = 85 + Math.floor(Math.random() * 15); // 85-99%
-            
-            // Verificar se é um código de regra
-            const codigoRegra = regras.find(regra => 
-                regra.codigo.toLowerCase() === texto.toLowerCase()
-            );
-            
-            if (codigoRegra) {
-                regrasEncontradas.push(codigoRegra);
-            } else {
-                // Análise contextual com IA simulada
-                const textoLower = texto.toLowerCase();
-                
-                // Detectar palavras-chave e contexto
-                if (textoLower.includes('atropel') && (textoLower.includes('propos') || textoLower.includes('intencion') || textoLower.includes('rindo'))) {
-                    regrasEncontradas.push(
-                        regras.find(r => r.codigo === 'abuse3'),
-                        regras.find(r => r.codigo === 'rp2')
-                    );
-                }
-                
-                if (textoLower.includes('assalto') && textoLower.includes('refém') && (textoLower.includes('atirar') || textoLower.includes('matar'))) {
-                    regrasEncontradas.push(
-                        regras.find(r => r.codigo === 'abuse1'),
-                        regras.find(r => r.codigo === 'rp4')
-                    );
-                }
-                
-                if (textoLower.includes('bug') || textoLower.includes('explorar') || textoLower.includes('falha')) {
-                    regrasEncontradas.push(regras.find(r => r.codigo === 'abuse1'));
-                }
-                
-                if (textoLower.includes('ooc') && textoLower.includes('ic')) {
-                    regrasEncontradas.push(regras.find(r => r.codigo === 'rp1'));
-                }
-                
-                if ((textoLower.includes('ofender') || textoLower.includes('insultar') || textoLower.includes('xingar')) && textoLower.includes('chat')) {
-                    regrasEncontradas.push(regras.find(r => r.codigo === 'chat5'));
-                }
-                
-                // Remover duplicatas e valores nulos
-                regrasEncontradas = regrasEncontradas.filter((regra, index, self) => 
-                    regra && index === self.findIndex(r => r.codigo === regra.codigo)
-                );
-                
-                // Se não encontrou nada, tentar busca por palavras-chave
-                if (regrasEncontradas.length === 0) {
-                    regras.forEach(regra => {
-                        if (textoLower.includes(regra.codigo.toLowerCase())) {
+// Inserir código policial no campo de texto
+function inserirCodigoPolicial(codigo) {
+    document.getElementById('entradaPolicial').value = codigo;
+}
+
+// Limpar campos
+function limpar() {
+    document.getElementById('entrada').value = '';
+    document.getElementById('resultado').innerHTML = `
+        <div class="nenhum">
+            <i class="fas fa-clipboard-list"></i>
+            <p>Nenhuma infração verificada ainda.<br>Descreva uma infração acima para começar.</p>
+        </div>
+    `;
+    document.getElementById('estatisticas').style.display = 'none';
+}
+
+// Alternar entre modo IA e modo normal
+function toggleModoIA() {
+    const card = document.getElementById('cardVerificacao');
+    const botao = document.querySelector('.toggle-ia');
+    if (card.classList.contains('modo-ia')) {
+        card.classList.remove('modo-ia');
+        botao.innerHTML = '<i class="fas fa-robot"></i> Alternar para Verificação com IA';
+    } else {
+        card.classList.add('modo-ia');
+        botao.innerHTML = '<i class="fas fa-sync-alt"></i> Alternar para Verificação Tradicional';
+    }
+}
+
+// Verificação com IA
+function verificarComIA() {
+    const entrada = document.getElementById('entrada').value.trim();
+    if (!entrada) {
+        alert('Por favor, descreva a infração ou insira um código de regra.');
+        return;
+    }
+
+    // Mostrar loading
+    document.getElementById('iaLoading').style.display = 'block';
+    document.getElementById('resultado').innerHTML = '';
+    document.getElementById('estatisticas').style.display = 'none';
+
+    // Simular processamento da IA
+    setTimeout(() => {
+        processarVerificacaoIA(entrada);
+        document.getElementById('iaLoading').style.display = 'none';
+    }, 2000);
+}
+
+// Verificação normal
+function verificarNormal() {
+    const entrada = document.getElementById('entrada').value.trim();
+    if (!entrada) {
+        alert('Por favor, descreva a infração ou insira um código de regra.');
+        return;
+    }
+    processarVerificacaoNormal(entrada);
+}
+
+// Processar verificação com IA
+function processarVerificacaoIA(texto) {
+    let regrasEncontradas = [];
+    let confianca = 85 + Math.floor(Math.random() * 15); // 85-99%
+
+    // Verificar se é um código de regra
+    const codigoRegra = regras.find(regra =>
+        regra.codigo.toLowerCase() === texto.toLowerCase() && regra.categoria !== 'police'
+    );
+
+    if (codigoRegra) {
+        regrasEncontradas.push(codigoRegra);
+    } else {
+        // Análise contextual com IA simulada
+        const textoLower = texto.toLowerCase();
+
+        // Buscar por palavras-chave em todas as regras (exceto policiais)
+        regras.forEach(regra => {
+            if (regra.categoria !== 'police') {
+                for (const keyword of regra.keywords) {
+                    if (textoLower.includes(keyword.toLowerCase())) {
+                        if (!regrasEncontradas.some(r => r.codigo === regra.codigo)) {
                             regrasEncontradas.push(regra);
                         }
-                    });
-                }
-            }
-            
-            // Exibir resultados
-            exibirResultados(regrasEncontradas, confianca);
-        }
-
-        // Processar verificação normal
-        function processarVerificacaoNormal(texto) {
-            let regrasEncontradas = [];
-            const textoLower = texto.toLowerCase();
-            
-            // Buscar por código exato
-            const codigoExato = regras.find(regra => 
-                regra.codigo.toLowerCase() === textoLower
-            );
-            
-            if (codigoExato) {
-                regrasEncontradas.push(codigoExato);
-            } else {
-                // Buscar por palavras-chave no nome ou descrição
-                regras.forEach(regra => {
-                    if (regra.nome.toLowerCase().includes(textoLower) || 
-                        regra.descricao.toLowerCase().includes(textoLower) ||
-                        textoLower.includes(regra.codigo.toLowerCase())) {
-                        regrasEncontradas.push(regra);
+                        break;
                     }
-                });
+                }
             }
-            
-            // Exibir resultados
-            exibirResultados(regrasEncontradas, 100);
-        }
+        });
 
-        // Exibir resultados da verificação
-        function exibirResultados(regrasEncontradas, confianca) {
-            const resultado = document.getElementById('resultado');
-            const estatisticas = document.getElementById('estatisticas');
-            
-            if (regrasEncontradas.length === 0) {
-                resultado.innerHTML = `
-                    <div class="nenhum">
-                        <i class="fas fa-search"></i>
-                        <p>Nenhuma infração identificada.<br>Tente descrever a situação com mais detalhes.</p>
-                    </div>
-                `;
-                estatisticas.style.display = 'none';
-                return;
-            }
-            
-            // Calcular estatísticas
-            const totalInfracoes = regrasEncontradas.length;
-            const infracoesRP = regrasEncontradas.filter(r => r.categoria === 'rp').length;
-            const infracoesChat = regrasEncontradas.filter(r => r.categoria === 'chat').length;
-            
-            // Atualizar estatísticas
-            document.getElementById('totalInfracoes').textContent = totalInfracoes;
-            document.getElementById('infracoesRP').textContent = infracoesRP;
-            document.getElementById('infracoesChat').textContent = infracoesChat;
-            document.getElementById('confiancaIA').textContent = confianca + '%';
-            
-            // Exibir estatísticas
-            estatisticas.style.display = 'grid';
-            
-            // Exibir regras encontradas
-            let html = '';
-            regrasEncontradas.forEach(regra => {
-                let classeConfianca = 'confianca';
-                if (confianca < 70) classeConfianca += ' confianca-baixa';
-                else if (confianca < 90) classeConfianca += ' confianca-media';
-                
-                html += `
-                    <div class="regra ${regra.categoria}">
-                        <div class="regra-nome">
-                            ${regra.nome}
-                            <span class="regra-codigo">${regra.codigo}</span>
-                            ${confianca < 100 ? `<span class="${classeConfianca}">${confianca}% confiança</span>` : ''}
-                        </div>
-                        <div class="regra-descricao">${regra.descricao}</div>
-                        <div class="regra-penalidade">
-                            <i class="fas fa-gavel"></i>
-                            <strong>Penalidade:</strong> ${regra.penalidade}
-                        </div>
-                        ${confianca < 100 ? `
-                        <div class="explicacao-ia">
-                            <i class="fas fa-robot"></i>
-                            <strong>Análise da IA:</strong> Esta regra foi identificada com base no contexto descrito. 
-                            A IA considerou a intenção e gravidade das ações relatadas.
-                        </div>
-                        ` : ''}
-                    </div>
-                `;
+        // Se não encontrou nada, tentar busca por código
+        if (regrasEncontradas.length === 0) {
+            regras.forEach(regra => {
+                if (regra.categoria !== 'police' && textoLower.includes(regra.codigo.toLowerCase())) {
+                    regrasEncontradas.push(regra);
+                }
             });
-            
-            resultado.innerHTML = html;
         }
+    }
 
-        // ========== FUNÇÕES PARA O MÓDULO POLICIAL ==========
+    // Exibir resultados
+    exibirResultados(regrasEncontradas, confianca);
+}
 
-        // Alternar entre modo IA e modo normal (Policial)
-        function toggleModoPolicial() {
-            const card = document.getElementById('cardVerificacaoPolicial');
-            const botao = document.querySelector('.toggle-police');
-            
-            if (card.classList.contains('modo-policia')) {
-                card.classList.remove('modo-policia');
-                botao.innerHTML = '<i class="fas fa-robot"></i> Alternar para Verificação com IA';
-            } else {
-                card.classList.add('modo-policia');
-                botao.innerHTML = '<i class="fas fa-sync-alt"></i> Alternar para Verificação Tradicional';
+// Processar verificação normal
+function processarVerificacaoNormal(texto) {
+    let regrasEncontradas = [];
+    const textoLower = texto.toLowerCase();
+
+    // Buscar por código exato (exceto policiais)
+    const codigoExato = regras.find(regra =>
+        regra.codigo.toLowerCase() === textoLower && regra.categoria !== 'police'
+    );
+
+    if (codigoExato) {
+        regrasEncontradas.push(codigoExato);
+    } else {
+        // Buscar por palavras-chave no nome ou descrição (exceto policiais)
+        regras.forEach(regra => {
+            if (regra.categoria !== 'police' &&
+                (regra.nome.toLowerCase().includes(textoLower) ||
+                 regra.descricao.toLowerCase().includes(textoLower) ||
+                 textoLower.includes(regra.codigo.toLowerCase()))) {
+                regrasEncontradas.push(regra);
             }
-        }
+        });
+    }
 
-        // Verificação com IA (Policial)
-        function verificarComIAPolicial() {
-            const entrada = document.getElementById('entradaPolicial').value.trim();
-            if (!entrada) {
-                alert('Por favor, descreva o crime ou insira um código de artigo.');
-                return;
-            }
-            
-            // Mostrar loading
-            document.getElementById('policeLoading').style.display = 'block';
-            document.getElementById('resultadoPolicial').innerHTML = '';
-            document.getElementById('estatisticasPolicial').style.display = 'none';
-            
-            // Simular processamento da IA
-            setTimeout(() => {
-                processarVerificacaoIAPolicial(entrada);
-                document.getElementById('policeLoading').style.display = 'none';
-            }, 2000);
-        }
+    // Exibir resultados
+    exibirResultados(regrasEncontradas, 100);
+}
 
-        // Verificação normal (Policial)
-        function verificarNormalPolicial() {
-            const entrada = document.getElementById('entradaPolicial').value.trim();
-            if (!entrada) {
-                alert('Por favor, descreva o crime ou insira um código de artigo.');
-                return;
-            }
-            
-            processarVerificacaoNormalPolicial(entrada);
-        }
+// Exibir resultados da verificação
+function exibirResultados(regrasEncontradas, confianca) {
+    const resultado = document.getElementById('resultado');
+    const estatisticas = document.getElementById('estatisticas');
 
-        // Limpar campos (Policial)
-        function limparPolicial() {
-            document.getElementById('entradaPolicial').value = '';
-            document.getElementById('resultadoPolicial').innerHTML = `
-                <div class="nenhum">
-                    <i class="fas fa-clipboard-list"></i>
-                    <p>Nenhum crime verificado ainda.<br>Descreva um crime acima para começar.</p>
+    if (regrasEncontradas.length === 0) {
+        resultado.innerHTML = `
+            <div class="nenhum">
+                <i class="fas fa-search"></i>
+                <p>Nenhuma infração identificada.<br>Tente descrever a situação com mais detalhes.</p>
+            </div>
+        `;
+        estatisticas.style.display = 'none';
+        return;
+    }
+
+    // Calcular estatísticas
+    const totalInfracoes = regrasEncontradas.length;
+    const infracoesRP = regrasEncontradas.filter(r => r.categoria === 'rp').length;
+    const infracoesChat = regrasEncontradas.filter(r => r.categoria === 'chat').length;
+
+    // Atualizar estatísticas
+    document.getElementById('totalInfracoes').textContent = totalInfracoes;
+    document.getElementById('infracoesRP').textContent = infracoesRP;
+    document.getElementById('infracoesChat').textContent = infracoesChat;
+    document.getElementById('confiancaIA').textContent = confianca + '%';
+
+    // Exibir estatísticas
+    estatisticas.style.display = 'grid';
+
+    // Exibir regras encontradas
+    let html = '';
+    regrasEncontradas.forEach(regra => {
+        let classeConfianca = 'confianca';
+        if (confianca < 70) classeConfianca += ' confianca-baixa';
+        else if (confianca < 90) classeConfianca += ' confianca-media';
+
+        html += `
+            <div class="regra ${regra.categoria}">
+                <div class="regra-nome">
+                    ${regra.nome}
+                    <span class="regra-codigo">${regra.codigo}</span>
+                    ${confianca < 100 ? `<span class="${classeConfianca}">${confianca}% confiança</span>` : ''}
                 </div>
-            `;
-            document.getElementById('estatisticasPolicial').style.display = 'none';
-        }
+                <div class="regra-descricao">${regra.descricao}</div>
+                <div class="regra-penalidade">
+                    <i class="fas fa-gavel"></i>
+                    <strong>Penalidade:</strong> ${regra.penalidade}
+                </div>
+                ${confianca < 100 ? `
+                <div class="explicacao-ia">
+                    <i class="fas fa-robot"></i>
+                    <strong>Análise da IA:</strong> Esta regra foi identificada com base no contexto descrito.
+                    A IA considerou a intenção e gravidade das ações relatadas.
+                </div>
+                ` : ''}
+            </div>
+        `;
+    });
 
-        // Processar verificação com IA (Policial)
-        function processarVerificacaoIAPolicial(texto) {
-            let crimesEncontrados = [];
-            let confianca = 85 + Math.floor(Math.random() * 15); // 85-99%
-            
-            // Verificar se é um código de crime
-            const codigoCrime = regras.find(regra => 
-                regra.codigo.toLowerCase() === texto.toLowerCase() && regra.categoria === 'police'
-            );
-            
-            if (codigoCrime) {
-                crimesEncontrados.push(codigoCrime);
-            } else {
-                // Análise contextual com IA simulada
-                const textoLower = texto.toLowerCase();
-                
-                // Detectar palavras-chave e contexto para crimes
-                if ((textoLower.includes('matar') || textoLower.includes('homicídio')) && 
-                    (textoLower.includes('intencion') || textoLower.includes('propos'))) {
-                    crimesEncontrados.push(regras.find(r => r.codigo === 'CRIM1.1'));
-                }
-                
-                if (textoLower.includes('tentar') && textoLower.includes('matar')) {
-                    crimesEncontrados.push(regras.find(r => r.codigo === 'CRIM1.2'));
-                }
-                
-                if (textoLower.includes('roubo') && (textoLower.includes('arma') || textoLower.includes('grupo'))) {
-                    crimesEncontrados.push(regras.find(r => r.codigo === 'CRIM2.1'));
-                }
-                
-                if (textoLower.includes('furt') || textoLower.includes('roubar') && !textoLower.includes('arma')) {
-                    crimesEncontrados.push(regras.find(r => r.codigo === 'CRIM2.3'));
-                }
-                
-                if (textoLower.includes('dan') && (textoLower.includes('propriedade') || textoLower.includes('patrimônio'))) {
-                    crimesEncontrados.push(regras.find(r => r.codigo === 'CIV3.1'));
-                }
-                
-                if ((textoLower.includes('desrespeitar') || textoLower.includes('desobedecer')) && 
-                    (textoLower.includes('policial') || textoLower.includes('autoridade'))) {
-                    crimesEncontrados.push(regras.find(r => r.codigo === 'ADM4.2'));
-                }
-                
-                // Remover duplicatas e valores nulos
-                crimesEncontrados = crimesEncontrados.filter((crime, index, self) => 
-                    crime && index === self.findIndex(c => c.codigo === crime.codigo)
-                );
-                
-                // Se não encontrou nada, tentar busca por palavras-chave
-                if (crimesEncontrados.length === 0) {
-                    regras.forEach(regra => {
-                        if (regra.categoria === 'police' && textoLower.includes(regra.codigo.toLowerCase())) {
+    resultado.innerHTML = html;
+}
+
+// ========== FUNÇÕES PARA O MÓDULO POLICIAL ==========
+
+// Alternar entre modo IA e modo normal (Policial)
+function toggleModoPolicial() {
+    const card = document.getElementById('cardVerificacaoPolicial');
+    const botao = document.querySelector('.toggle-police');
+    if (card.classList.contains('modo-policia')) {
+        card.classList.remove('modo-policia');
+        botao.innerHTML = '<i class="fas fa-robot"></i> Alternar para Verificação com IA';
+    } else {
+        card.classList.add('modo-policia');
+        botao.innerHTML = '<i class="fas fa-sync-alt"></i> Alternar para Verificação Tradicional';
+    }
+}
+
+// Verificação com IA (Policial)
+function verificarComIAPolicial() {
+    const entrada = document.getElementById('entradaPolicial').value.trim();
+    if (!entrada) {
+        alert('Por favor, descreva o crime ou insira um código de artigo.');
+        return;
+    }
+
+    // Mostrar loading
+    document.getElementById('policeLoading').style.display = 'block';
+    document.getElementById('resultadoPolicial').innerHTML = '';
+    document.getElementById('estatisticasPolicial').style.display = 'none';
+
+    // Simular processamento da IA
+    setTimeout(() => {
+        processarVerificacaoIAPolicial(entrada);
+        document.getElementById('policeLoading').style.display = 'none';
+    }, 2000);
+}
+
+// Verificação normal (Policial)
+function verificarNormalPolicial() {
+    const entrada = document.getElementById('entradaPolicial').value.trim();
+    if (!entrada) {
+        alert('Por favor, descreva o crime ou insira um código de artigo.');
+        return;
+    }
+    processarVerificacaoNormalPolicial(entrada);
+}
+
+// Limpar campos (Policial)
+function limparPolicial() {
+    document.getElementById('entradaPolicial').value = '';
+    document.getElementById('resultadoPolicial').innerHTML = `
+        <div class="nenhum">
+            <i class="fas fa-clipboard-list"></i>
+            <p>Nenhum crime verificado ainda.<br>Descreva um crime acima para começar.</p>
+        </div>
+    `;
+    document.getElementById('estatisticasPolicial').style.display = 'none';
+}
+
+// Processar verificação com IA (Policial)
+function processarVerificacaoIAPolicial(texto) {
+    let crimesEncontrados = [];
+    let confianca = 85 + Math.floor(Math.random() * 15); // 85-99%
+
+    // Verificar se é um código de crime
+    const codigoCrime = regras.find(regra =>
+        (regra.codigo === texto || regra.codigo === texto.replace('.', '')) && regra.categoria === 'police'
+    );
+
+    if (codigoCrime) {
+        crimesEncontrados.push(codigoCrime);
+    } else {
+        // Análise contextual com IA simulada
+        const textoLower = texto.toLowerCase();
+
+        // Buscar por palavras-chave em crimes policiais
+        regras.forEach(regra => {
+            if (regra.categoria === 'police') {
+                for (const keyword of regra.keywords) {
+                    if (textoLower.includes(keyword.toLowerCase())) {
+                        if (!crimesEncontrados.some(c => c.codigo === regra.codigo)) {
                             crimesEncontrados.push(regra);
                         }
-                    });
+                        break;
+                    }
                 }
             }
-            
-            // Exibir resultados
-            exibirResultadosPolicial(crimesEncontrados, confianca);
-        }
+        });
 
-        // Processar verificação normal (Policial)
-        function processarVerificacaoNormalPolicial(texto) {
-            let crimesEncontrados = [];
-            const textoLower = texto.toLowerCase();
-            
-            // Buscar por código exato
-            const codigoExato = regras.find(regra => 
-                regra.codigo.toLowerCase() === textoLower && regra.categoria === 'police'
-            );
-            
-            if (codigoExato) {
-                crimesEncontrados.push(codigoExato);
-            } else {
-                // Buscar por palavras-chave no nome ou descrição (apenas regras policiais)
-                regras.forEach(regra => {
-                    if (regra.categoria === 'police' && 
-                        (regra.nome.toLowerCase().includes(textoLower) || 
-                         regra.descricao.toLowerCase().includes(textoLower) ||
-                         textoLower.includes(regra.codigo.toLowerCase()))) {
-                        crimesEncontrados.push(regra);
-                    }
-                });
-            }
-            
-            // Exibir resultados
-            exibirResultadosPolicial(crimesEncontrados, 100);
-        }
-
-        // Exibir resultados da verificação policial
-        function exibirResultadosPolicial(crimesEncontrados, confianca) {
-            const resultado = document.getElementById('resultadoPolicial');
-            const estatisticas = document.getElementById('estatisticasPolicial');
-            
-            if (crimesEncontrados.length === 0) {
-                resultado.innerHTML = `
-                    <div class="nenhum">
-                        <i class="fas fa-search"></i>
-                        <p>Nenhum crime identificado.<br>Tente descrever a situação com mais detalhes.</p>
-                    </div>
-                `;
-                estatisticas.style.display = 'none';
-                return;
-            }
-            
-            // Calcular estatísticas
-            const totalCrimes = crimesEncontrados.length;
-            const crimesCriminal = crimesEncontrados.filter(c => c.codigo.startsWith('CRIM')).length;
-            const crimesCivil = crimesEncontrados.filter(c => c.codigo.startsWith('CIV')).length;
-            
-            // Atualizar estatísticas
-            document.getElementById('totalCrimes').textContent = totalCrimes;
-            document.getElementById('crimesCriminal').textContent = crimesCriminal;
-            document.getElementById('crimesCivil').textContent = crimesCivil;
-            document.getElementById('confiancaIAPolicial').textContent = confianca + '%';
-            
-            // Exibir estatísticas
-            estatisticas.style.display = 'grid';
-            
-            // Exibir crimes encontrados
-            let html = '';
-            crimesEncontrados.forEach(crime => {
-                let classeConfianca = 'confianca';
-                if (confianca < 70) classeConfianca += ' confianca-baixa';
-                else if (confianca < 90) classeConfianca += ' confianca-media';
-                
-                html += `
-                    <div class="regra police">
-                        <div class="regra-nome">
-                            ${crime.nome}
-                            <span class="regra-codigo">${crime.codigo}</span>
-                            ${confianca < 100 ? `<span class="${classeConfianca}">${confianca}% confiança</span>` : ''}
-                        </div>
-                        <div class="regra-descricao">${crime.descricao}</div>
-                        <div class="regra-penalidade">
-                            <i class="fas fa-gavel"></i>
-                            <strong>Pena:</strong> ${crime.penalidade}
-                        </div>
-                        ${confianca < 100 ? `
-                        <div class="explicacao-police">
-                            <i class="fas fa-robot"></i>
-                            <strong>Análise da IA Policial:</strong> Este crime foi identificado com base no contexto descrito. 
-                            A IA considerou a intenção e gravidade das ações criminosas relatadas.
-                        </div>
-                        ` : ''}
-                    </div>
-                `;
+        // Se não encontrou nada, tentar busca por código
+        if (crimesEncontrados.length === 0) {
+            regras.forEach(regra => {
+                if (regra.categoria === 'police' && textoLower.includes(regra.codigo.toLowerCase())) {
+                    crimesEncontrados.push(regra);
+                }
             });
-            
-            resultado.innerHTML = html;
         }
+    }
 
-        // Alternar visibilidade das regras da polícia
-        function toggleRegrasPolicia() {
-            const conteudo = document.getElementById('conteudoRegrasPolicia');
-            if (conteudo.style.display === 'none') {
-                conteudo.style.display = 'block';
-            } else {
-                conteudo.style.display = 'none';
+    // Exibir resultados
+    exibirResultadosPolicial(crimesEncontrados, confianca);
+}
+
+// Processar verificação normal (Policial)
+function processarVerificacaoNormalPolicial(texto) {
+    let crimesEncontrados = [];
+    const textoLower = texto.toLowerCase();
+
+    // Buscar por código exato (apenas crimes policiais)
+    const codigoExato = regras.find(regra =>
+        (regra.codigo === texto || regra.codigo === texto.replace('.', '')) && regra.categoria === 'police'
+    );
+
+    if (codigoExato) {
+        crimesEncontrados.push(codigoExato);
+    } else {
+        // Buscar por palavras-chave no nome ou descrição (apenas crimes policiais)
+        regras.forEach(regra => {
+            if (regra.categoria === 'police' &&
+                (regra.nome.toLowerCase().includes(textoLower) ||
+                 regra.descricao.toLowerCase().includes(textoLower) ||
+                 textoLower.includes(regra.codigo.toLowerCase()))) {
+                crimesEncontrados.push(regra);
             }
-        }
-    </script>
+        });
+    }
+
+    // Exibir resultados
+    exibirResultadosPolicial(crimesEncontrados, 100);
+}
+
+// Exibir resultados da verificação policial
+function exibirResultadosPolicial(crimesEncontrados, confianca) {
+    const resultado = document.getElementById('resultadoPolicial');
+    const estatisticas = document.getElementById('estatisticasPolicial');
+
+    if (crimesEncontrados.length === 0) {
+        resultado.innerHTML = `
+            <div class="nenhum">
+                <i class="fas fa-search"></i>
+                <p>Nenhum crime identificado.<br>Tente descrever a situação com mais detalhes.</p>
+            </div>
+        `;
+        estatisticas.style.display = 'none';
+        return;
+    }
+
+    // Calcular estatísticas
+    const totalCrimes = crimesEncontrados.length;
+    const crimesCriminal = crimesEncontrados.filter(c => c.codigo.startsWith('1')).length;
+    const crimesCivil = crimesEncontrados.filter(c => c.codigo.startsWith('2')).length;
+
+    // Atualizar estatísticas
+    document.getElementById('totalCrimes').textContent = totalCrimes;
+    document.getElementById('crimesCriminal').textContent = crimesCriminal;
+    document.getElementById('crimesCivil').textContent = crimesCivil;
+    document.getElementById('confiancaIAPolicial').textContent = confianca + '%';
+
+    // Exibir estatísticas
+    estatisticas.style.display = 'grid';
+
+    // Exibir crimes encontrados
+    let html = '';
+    crimesEncontrados.forEach(crime => {
+        let classeConfianca = 'confianca';
+        if (confianca < 70) classeConfianca += ' confianca-baixa';
+        else if (confianca < 90) classeConfianca += ' confianca-media';
+
+        html += `
+            <div class="regra police">
+                <div class="regra-nome">
+                    <strong>Artigo ${crime.codigo}</strong> - ${crime.nome}
+                    ${confianca < 100 ? `<span class="${classeConfianca}">${confianca}% confiança</span>` : ''}
+                </div>
+                <div class="regra-descricao">${crime.descricao}</div>
+                <div class="regra-penalidade">
+                    <i class="fas fa-clock"></i>
+                    <strong>Tempo de Prisão:</strong> ${crime.penalidade}
+                </div>
+                ${confianca < 100 ? `
+                <div class="explicacao-police">
+                    <i class="fas fa-robot"></i>
+                    <strong>Análise da IA Policial:</strong> Este crime foi identificado com base no contexto descrito.
+                    A IA considerou a intenção e gravidade das ações criminosas relatadas.
+                </div>
+                ` : ''}
+            </div>
+        `;
+    });
+
+    resultado.innerHTML = html;
+}
+
+// Alternar visibilidade das regras da polícia
+function toggleRegrasPolicia() {
+    const conteudo = document.getElementById('conteudoRegrasPolicia');
+    if (conteudo.style.display === 'none') {
+        conteudo.style.display = 'block';
+    } else {
+        conteudo.style.display = 'none';
+    }
+}
+</script>
 </body>
 </html>
