@@ -641,12 +641,89 @@ footer {
     
     h1 {
         font-size: 2rem;
-    }
+    }/* Proteção por Senha */
+.login-container {
+    background: rgba(30, 30, 46, 0.95);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.login-container h2 {
+    color: #e74c3c;
+    margin-bottom: 10px;
+}
+
+.login-container p {
+    color: #7f8c8d;
+    margin-bottom: 25px;
+}
+
+.password-input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    font-size: 16px;
+}
+
+.password-input:focus {
+    outline: none;
+    border-color: #e74c3c;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+}
+
+.login-btn {
+    width: 100%;
+    padding: 15px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.login-btn:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+}
+
+.error-message {
+    color: #e74c3c;
+    margin-top: 15px;
+    display: none;
+}
+
+.hidden {
+    display: none;
+}
 }
 </style>
 </head>
 <body>
-<div class="container">
+ <div id="loginScreen" class="login-container">
+    <h2><i class="fas fa-lock"></i> Acesso Restrito</h2>
+    <p>Digite a senha para acessar o sistema Verific OS RP</p>
+    <input type="password" id="passwordInput" class="password-input" placeholder="Digite a senha...">
+    <button onclick="checkPassword()" class="login-btn">Acessar Sistema</button>
+    <div id="errorMessage" class="error-message">
+        <i class="fas fa-exclamation-triangle"></i> Senha incorreta!
+    </div>
+</div>
+
+<div id="mainContent" class="hidden">
+    <!-- SEU CONTEÚDO ATUAL AQUI -->
+
     <header>
         <div class="logo">
             <i class="fas fa-shield-alt logo-icon"></i>
@@ -1544,6 +1621,33 @@ function toggleRegrasPolicia() {
         conteudo.style.display = 'none';
     }
 }
+// Sistema de Proteção por Senha
+const CORRECT_PASSWORD = "admin123"; // Altere para a senha que desejar
+
+function checkPassword() {
+    const password = document.getElementById('passwordInput').value;
+    const loginScreen = document.getElementById('loginScreen');
+    const mainContent = document.getElementById('mainContent');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    if (password === CORRECT_PASSWORD) {
+        loginScreen.style.display = 'none';
+        mainContent.classList.remove('hidden');
+    } else {
+        errorMessage.style.display = 'block';
+        document.getElementById('passwordInput').value = '';
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 3000);
+    }
+}
+
+// Enter para enviar a senha
+document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        checkPassword();
+    }
+});
 </script>
 </body>
 </html>
