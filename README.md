@@ -1,2 +1,1 @@
-# sitedeanuncios
-site a venda, foi criado para vendas de maquinas e aluguel de equipamentos.
+Codex ira criar um testo , explicativo doq é esse sistema
