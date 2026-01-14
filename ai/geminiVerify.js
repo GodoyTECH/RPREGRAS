@@ -1,5 +1,5 @@
 (function () {
-    const GEMINI_API_KEY = ""; // Configure sua chave aqui.
+    const GEMINI_API_KEY = "AIzaSyAzbgJWyewim15hgoPzUqjq8ifsC8FGyl0"; // Configure sua chave aqui.
     const GEMINI_MODEL = "gemini-1.5-flash";
 
     function buildPrompt(relato, regras) {
