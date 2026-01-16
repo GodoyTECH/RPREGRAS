@@ -57,6 +57,46 @@ header {
     overflow: hidden;
 }
 
+.header-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 15px;
+    padding: 0;
+}
+
+.header-trigger-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: center;
+    flex: 1;
+}
+
+.header-trigger h1 {
+    margin: 0;
+}
+
+.header-panel {
+    padding-top: 15px;
+}
+
+.header-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.btn-logout {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-logout:hover {
+    background: rgba(231, 76, 60, 0.1);
+}
+
 header::before {
     content: "";
     position: absolute;
@@ -151,6 +191,7 @@ h1 {
 .card-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -160,6 +201,65 @@ h1 {
     font-size: 1.5rem;
     margin-right: 12px;
     color: var(--accent);
+}
+
+.card-header-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-header-main i {
+    margin-right: 0;
+}
+
+.collapsible-trigger {
+    background: none;
+    border: none;
+    color: inherit;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+}
+
+.collapsible-chevron {
+    transition: transform 0.3s ease;
+    margin-left: auto;
+    margin-right: 0;
+    color: var(--gray);
+}
+
+.collapsible.is-open .collapsible-chevron {
+    transform: rotate(180deg);
+}
+
+.collapsible-panel {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.collapsible.is-open .collapsible-panel {
+    opacity: 1;
+}
+
+.simple-section {
+    margin-bottom: 25px;
+}
+
+.simple-section .collapsible-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    font-weight: 700;
+    color: var(--light);
+}
+
+.simple-section-title {
+    font-size: 1.1rem;
 }
 
 .card.modo-ia .card-header i {
@@ -187,6 +287,48 @@ textarea {
     font-size: 1rem;
     resize: vertical;
     transition: all 0.3s;
+}
+
+.voice-input-group {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.voice-input-group textarea {
+    flex: 1;
+}
+
+.voice-button {
+    width: 52px;
+    min-width: 52px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--light);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.voice-button:hover:not(:disabled) {
+    border-color: var(--ia-color);
+    box-shadow: 0 0 0 2px rgba(155, 89, 182, 0.3);
+}
+
+.voice-button.listening {
+    background: rgba(155, 89, 182, 0.3);
+    border-color: var(--ia-color);
+}
+
+.voice-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.voice-status {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: var(--gray);
 }
 
 textarea:focus {
@@ -442,6 +584,10 @@ textarea:focus {
     font-size: 0.9rem;
 }
 
+.resumo-ia {
+    margin-bottom: 15px;
+}
+
 .explicacao-police {
     background: rgba(44, 62, 80, 0.1);
     border-color: var(--police-color);
@@ -591,6 +737,40 @@ textarea:focus {
     margin-bottom: 10px;
 }
 
+.rule-image-wrapper {
+    background: #2c3e50;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    border-radius: 10px;
+    overflow: visible;
+}
+
+.rule-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.blinking-border {
+    animation: blinkBorder 1.6s ease-in-out infinite;
+    outline: 2px solid rgba(231, 76, 60, 0.8);
+    outline-offset: 4px;
+}
+
+@keyframes blinkBorder {
+    0% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 12px 2px rgba(231, 76, 60, 0.9);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+    }
+}
+
 .regras-policia {
     margin-top: 20px;
 }
@@ -619,6 +799,15 @@ footer {
     color: var(--gray);
 }
 
+footer .collapsible-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: 700;
+    color: var(--gray);
+}
+
 /* Responsividade */
 @media (max-width: 1200px) {
     .main-content {
@@ -641,7 +830,27 @@ footer {
     
     h1 {
         font-size: 2rem;
-    }/* Proteção por Senha */
+    }
+}
+
+/* Proteção por Senha */
+.login-view {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.auth-pending #loginView,
+.auth-pending #appView {
+    display: none;
+}
+
+.app-hidden {
+    display: none;
+}
+
 .login-container {
     background: rgba(30, 30, 46, 0.95);
     padding: 40px;
@@ -707,334 +916,417 @@ footer {
 .hidden {
     display: none;
 }
-}
 </style>
 </head>
-<body>
- <div id="loginScreen" class="login-container">
-    <h2><i class="fas fa-lock"></i> Acesso Restrito</h2>
-    <p>Digite a senha para acessar o sistema Verific OS RP</p>
-    <input type="password" id="passwordInput" class="password-input" placeholder="Digite a senha...">
-    <button onclick="checkPassword()" class="login-btn">Acessar Sistema</button>
-    <div id="errorMessage" class="error-message">
-        <i class="fas fa-exclamation-triangle"></i> Senha incorreta!
+<body class="auth-pending">
+ <div id="loginView" class="login-view">
+    <div id="loginScreen" class="login-container">
+        <h2><i class="fas fa-lock"></i> Acesso Restrito</h2>
+        <p>Digite a senha para acessar o sistema Verific OS RP</p>
+        <input type="password" id="passwordInput" class="password-input" placeholder="Digite a senha...">
+        <button onclick="checkPassword()" class="login-btn">Acessar Sistema</button>
+        <div id="errorMessage" class="error-message">
+            <i class="fas fa-exclamation-triangle"></i> Senha incorreta!
+        </div>
     </div>
 </div>
 
-<div id="mainContent" class="hidden">
+<div id="appView" class="app-hidden">
+<div id="mainContent">
     <!-- SEU CONTEÚDO ATUAL AQUI -->
 
-    <header>
-        <div class="logo">
-            <i class="fas fa-shield-alt logo-icon"></i>
-        </div>
-        <h1>ONESTATE RP</h1>
-        <p class="subtitle">Sistema de Verificação de Infrações com Inteligência Artificial</p>
-        <div>
-            <span class="badge">v2.1</span>
-            <span class="badge badge-ia">IA Integrada</span>
-            <span class="badge badge-police">Módulo Policial</span>
+    <header class="collapsible" data-collapsible>
+        <button class="collapsible-trigger header-trigger" type="button" data-collapsible-trigger>
+            <span class="header-trigger-content">
+                <i class="fas fa-shield-alt logo-icon"></i>
+                <h1>ONESTATE RP</h1>
+            </span>
+            <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+        </button>
+        <div class="collapsible-panel header-panel" data-collapsible-panel>
+            <p class="subtitle">Sistema de Verificação de Infrações com Inteligência Artificial</p>
+            <div>
+                <span class="badge">v2.1</span>
+                <span class="badge badge-ia">IA Integrada</span>
+                <span class="badge badge-police">Módulo Policial</span>
+            </div>
+            <div class="header-actions">
+                <button id="logoutButton" class="btn btn-outline btn-logout" type="button">Sair</button>
+            </div>
         </div>
     </header>
 
     <div class="main-content">
         <div class="content-left">
             <!-- Card de Verificação Principal -->
-            <div class="card" id="cardVerificacao">
-                <div class="card-header">
-                    <i class="fas fa-search"></i>
-                    <div class="card-title">Verificador de Infrações</div>
-                </div>
-                
-                <textarea id="entrada" placeholder="Descreva a infração cometida ou digite o código da regra (ex: RP1, CHAT4, ABUSE3)..."></textarea>
-                
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="verificarNormal()">
-                        <i class="fas fa-search"></i> Verificar Infração
-                    </button>
-                    <button class="btn btn-ia" onclick="verificarComIA()">
-                        <i class="fas fa-robot"></i> Verificar com IA
-                    </button>
-                    <button class="btn btn-outline" onclick="limpar()">
-                        <i class="fas fa-eraser"></i> Limpar
-                    </button>
-                </div>
-                
-                <button class="btn btn-secondary toggle-ia" onclick="toggleModoIA()" style="margin-top: 15px; width: 100%;">
-                    <i class="fas fa-robot"></i> Alternar para Verificação com IA
+            <div class="card collapsible" id="cardVerificacao" data-collapsible data-collapsible-default="open">
+                <button class="card-header collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="card-header-main">
+                        <i class="fas fa-search"></i>
+                        <span class="card-title">Verificador de Infrações</span>
+                    </span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
                 </button>
+
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div class="voice-input-group">
+                        <textarea id="entrada" placeholder="Descreva a infração cometida ou digite o código da regra (ex: RP1, CHAT4, ABUSE3)..."></textarea>
+                        <button id="voiceButton" class="voice-button" type="button" aria-label="Ativar microfone" aria-pressed="false">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <div id="voiceStatus" class="voice-status" role="status" aria-live="polite"></div>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="verificarNormal()">
+                            <i class="fas fa-search"></i> Verificar Infração
+                        </button>
+                        <button id="aiButtonRules" class="btn btn-ia" onclick="verificarComIA()">
+                            <i class="fas fa-robot"></i> Verificar com IA
+                        </button>
+                        <button class="btn btn-outline" onclick="limpar()">
+                            <i class="fas fa-eraser"></i> Limpar
+                        </button>
+                    </div>
+                    
+                    <button class="btn btn-secondary toggle-ia" onclick="toggleModoIA()" style="margin-top: 15px; width: 100%;">
+                        <i class="fas fa-robot"></i> Alternar para Verificação com IA
+                    </button>
+                </div>
             </div>
 
             <!-- Estatísticas -->
-            <div class="estatisticas" id="estatisticas" style="display: none;">
-                <div class="estatistica">
-                    <div class="estatistica-numero" id="totalInfracoes">0</div>
-                    <div class="estatistica-label">Total de Infrações</div>
-                </div>
-                <div class="estatistica rp">
-                    <div class="estatistica-numero" id="infracoesRP">0</div>
-                    <div class="estatistica-label">Infrações de RP</div>
-                </div>
-                <div class="estatistica chat">
-                    <div class="estatistica-numero" id="infracoesChat">0</div>
-                    <div class="estatistica-label">Infrações de Chat</div>
-                </div>
-                <div class="estatistica ia">
-                    <div class="estatistica-numero" id="confiancaIA">0%</div>
-                    <div class="estatistica-label">Confiança da IA</div>
+            <div class="simple-section collapsible" data-collapsible>
+                <button class="collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="simple-section-title">Estatísticas</span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div class="estatisticas" id="estatisticas" style="display: none;">
+                        <div class="estatistica">
+                            <div class="estatistica-numero" id="totalInfracoes">0</div>
+                            <div class="estatistica-label">Total de Infrações</div>
+                        </div>
+                        <div class="estatistica rp">
+                            <div class="estatistica-numero" id="infracoesRP">0</div>
+                            <div class="estatistica-label">Infrações de RP</div>
+                        </div>
+                        <div class="estatistica chat">
+                            <div class="estatistica-numero" id="infracoesChat">0</div>
+                            <div class="estatistica-label">Infrações de Chat</div>
+                        </div>
+                        <div class="estatistica ia">
+                            <div class="estatistica-numero" id="confiancaIA">0%</div>
+                            <div class="estatistica-label">Confiança da IA</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Resultados -->
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-list-alt"></i>
-                    <div class="card-title">Resultados da Verificação</div>
-                </div>
-                <div id="resultado">
-                    <div class="nenhum">
-                        <i class="fas fa-clipboard-list"></i>
-                        <p>Nenhuma infração verificada ainda.<br>Descreva uma infração acima para começar.</p>
+            <div class="card collapsible" data-collapsible>
+                <button class="card-header collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="card-header-main">
+                        <i class="fas fa-list-alt"></i>
+                        <span class="card-title">Resultados da Verificação</span>
+                    </span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div id="resultado">
+                        <div class="nenhum">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p>Nenhuma infração verificada ainda.<br>Descreva uma infração acima para começar.</p>
+                        </div>
                     </div>
-                </div>
-                <div class="loading" id="iaLoading" style="display: none;">
-                    <i class="fas fa-robot fa-spin"></i>
-                    <p>Analisando a infração com IA...</p>
+                    <div class="loading" id="iaLoading" style="display: none;">
+                        <i class="fas fa-robot fa-spin"></i>
+                        <p>Analisando a infração com IA...</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Card de Verificação Policial -->
-            <div class="card" id="cardVerificacaoPolicial">
-                <div class="card-header">
-                    <i class="fas fa-balance-scale"></i>
-                    <div class="card-title">Verificador de Crimes - Módulo Policial</div>
-                </div>
-                
-                <textarea id="entradaPolicial" placeholder="Descreva o crime cometido ou digite o código do artigo (ex: 1.4, 2.5, 3.1)..."></textarea>
-                
-                <div class="button-group">
-                    <button class="btn btn-police" onclick="verificarNormalPolicial()">
-                        <i class="fas fa-search"></i> Verificar Crime
-                    </button>
-                    <button class="btn btn-ia" onclick="verificarComIAPolicial()">
-                        <i class="fas fa-robot"></i> Verificar com IA
-                    </button>
-                    <button class="btn btn-outline" onclick="limparPolicial()">
-                        <i class="fas fa-eraser"></i> Limpar
-                    </button>
-                </div>
-                
-                <button class="btn btn-secondary toggle-police" onclick="toggleModoPolicial()" style="margin-top: 15px; width: 100%;">
-                    <i class="fas fa-robot"></i> Alternar para Verificação com IA
+            <div class="card collapsible" id="cardVerificacaoPolicial" data-collapsible>
+                <button class="card-header collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="card-header-main">
+                        <i class="fas fa-balance-scale"></i>
+                        <span class="card-title">Verificador de Crimes - Módulo Policial</span>
+                    </span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
                 </button>
+                
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div class="voice-input-group">
+                        <textarea id="entradaPolicial" placeholder="Descreva o crime cometido ou digite o código do artigo (ex: 1.4, 2.5, 3.1)..."></textarea>
+                        <button id="voiceButtonPolicial" class="voice-button" type="button" aria-label="Ativar microfone" aria-pressed="false">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <div id="voiceStatusPolicial" class="voice-status" role="status" aria-live="polite"></div>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-police" onclick="verificarNormalPolicial()">
+                            <i class="fas fa-search"></i> Verificar Crime
+                        </button>
+                        <button id="aiButtonPolice" class="btn btn-ia" onclick="verificarComIAPolicial()">
+                            <i class="fas fa-robot"></i> Verificar com IA
+                        </button>
+                        <button class="btn btn-outline" onclick="limparPolicial()">
+                            <i class="fas fa-eraser"></i> Limpar
+                        </button>
+                    </div>
+                    
+                    <button class="btn btn-secondary toggle-police" onclick="toggleModoPolicial()" style="margin-top: 15px; width: 100%;">
+                        <i class="fas fa-robot"></i> Alternar para Verificação com IA
+                    </button>
+                </div>
             </div>
 
             <!-- Estatísticas Policiais -->
-            <div class="estatisticas" id="estatisticasPolicial" style="display: none;">
-                <div class="estatistica police">
-                    <div class="estatistica-numero" id="totalCrimes">0</div>
-                    <div class="estatistica-label">Total de Crimes</div>
-                </div>
-                <div class="estatistica grave">
-                    <div class="estatistica-numero" id="crimesCriminal">0</div>
-                    <div class="estatistica-label">Crimes Criminais</div>
-                </div>
-                <div class="estatistica">
-                    <div class="estatistica-numero" id="crimesCivil">0</div>
-                    <div class="estatistica-label">Crimes Civis</div>
-                </div>
-                <div class="estatistica ia">
-                    <div class="estatistica-numero" id="confiancaIAPolicial">0%</div>
-                    <div class="estatistica-label">Confiança da IA</div>
+            <div class="simple-section collapsible" data-collapsible>
+                <button class="collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="simple-section-title">Estatísticas Policiais</span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div class="estatisticas" id="estatisticasPolicial" style="display: none;">
+                        <div class="estatistica police">
+                            <div class="estatistica-numero" id="totalCrimes">0</div>
+                            <div class="estatistica-label">Total de Crimes</div>
+                        </div>
+                        <div class="estatistica grave">
+                            <div class="estatistica-numero" id="crimesCriminal">0</div>
+                            <div class="estatistica-label">Crimes Criminais</div>
+                        </div>
+                        <div class="estatistica">
+                            <div class="estatistica-numero" id="crimesCivil">0</div>
+                            <div class="estatistica-label">Crimes Civis</div>
+                        </div>
+                        <div class="estatistica ia">
+                            <div class="estatistica-numero" id="confiancaIAPolicial">0%</div>
+                            <div class="estatistica-label">Confiança da IA</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Resultados Policiais -->
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-gavel"></i>
-                    <div class="card-title">Resultados - Crimes Identificados</div>
-                </div>
-                <div id="resultadoPolicial">
-                    <div class="nenhum">
-                        <i class="fas fa-clipboard-list"></i>
-                        <p>Nenhum crime verificado ainda.<br>Descreva um crime acima para começar.</p>
+            <div class="card collapsible" data-collapsible>
+                <button class="card-header collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="card-header-main">
+                        <i class="fas fa-gavel"></i>
+                        <span class="card-title">Resultados - Crimes Identificados</span>
+                    </span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div id="resultadoPolicial">
+                        <div class="nenhum">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p>Nenhum crime verificado ainda.<br>Descreva um crime acima para começar.</p>
+                        </div>
                     </div>
-                </div>
-                <div class="loading" id="policeLoading" style="display: none;">
-                    <i class="fas fa-robot fa-spin"></i>
-                    <p>Analisando o crime com IA Policial...</p>
+                    <div class="loading" id="policeLoading" style="display: none;">
+                        <i class="fas fa-robot fa-spin"></i>
+                        <p>Analisando o crime com IA Policial...</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Regras da Polícia -->
-            <div class="card">
-                <div class="regras-policia-header" onclick="toggleRegrasPolicia()">
-                    <h3><i class="fas fa-book"></i> Regras de Conduta Policial</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div id="conteudoRegrasPolicia">
-                    <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Patrulha</h3>
-                    <p>4. É obrigatório o uso do uniforme completo durante o serviço. <strong>Penalidade:</strong> Repreensão.</p>
-                    <p>5. É proibido abandonar a viatura em locais inadequados. <strong>Penalidade:</strong> Repreensão.</p>
-                    <p>6. É proibido usar armas de fogo sem motivo plausível. <strong>Penalidade:</strong> Remoção.</p>
+            <div class="card collapsible" data-collapsible>
+                <button class="card-header collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="card-header-main">
+                        <i class="fas fa-book"></i>
+                        <span class="card-title">Regras de Conduta Policial</span>
+                    </span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div id="conteudoRegrasPolicia">
+                        <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Patrulha</h3>
+                        <p>4. É obrigatório o uso do uniforme completo durante o serviço. <strong>Penalidade:</strong> Repreensão.</p>
+                        <p>5. É proibido abandonar a viatura em locais inadequados. <strong>Penalidade:</strong> Repreensão.</p>
+                        <p>6. É proibido usar armas de fogo sem motivo plausível. <strong>Penalidade:</strong> Remoção.</p>
 
-                    <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Prisão</h3>
-                    <p>7. É proibido prender qualquer cidadão sem provas concretas. <strong>Penalidade:</strong> Remoção.</p>
-                    <p>8. É proibido agredir presos. <strong>Penalidade:</strong> Remoção.</p>
-                    <p>9. É obrigatório ler os direitos do preso no momento da prisão. <strong>Penalidade:</strong> Repreensão.</p>
+                        <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Prisão</h3>
+                        <p>7. É proibido prender qualquer cidadão sem provas concretas. <strong>Penalidade:</strong> Remoção.</p>
+                        <p>8. É proibido agredir presos. <strong>Penalidade:</strong> Remoção.</p>
+                        <p>9. É obrigatório ler os direitos do preso no momento da prisão. <strong>Penalidade:</strong> Repreensão.</p>
 
-                    <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Perseguição</h3>
-                    <p>10. É proibido perseguir veículos sem motivo. <strong>Penalidade:</strong> Repreensão.</p>
-                    <p>11. É proibido atirar em veículos em movimento sem motivo. <strong>Penalidade:</strong> Remoção.</p>
-                    <p>12. É obrigatório usar sirene durante perseguições. <strong>Penalidade:</strong> Repreensão.</p>
+                        <h3 style="color:var(--accent); margin:15px 0 10px;">Regras de Perseguição</h3>
+                        <p>10. É proibido perseguir veículos sem motivo. <strong>Penalidade:</strong> Repreensão.</p>
+                        <p>11. É proibido atirar em veículos em movimento sem motivo. <strong>Penalidade:</strong> Remoção.</p>
+                        <p>12. É obrigatório usar sirene durante perseguições. <strong>Penalidade:</strong> Repreensão.</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Caixa de Imagem do Departamento de Polícia -->
-<div class="police-image-box">
-    <h3>Direitos e Diretrizes</h3>
-    <p>Mikhael Devereux</p>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-header-main">
+                        <i class="fas fa-id-badge"></i>
+                        <span class="card-title">Direitos e Diretrizes</span>
+                    </span>
+                </div>
+                <div class="police-image-box">
+                    <p>Mikhael Devereux</p>
 
-    <div style="
-        background: #2c3e50;
-        width: 100%;
-        max-width: 300px;
-        aspect-ratio: 3 / 2; /* Mantém proporção 3:2 */
-        margin: 0 auto;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    ">
-        <img 
-            src="img.jpeg" 
-            alt="Imagem Direitos e Diretrizes" 
-            style="
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 10px;
-                transition: transform 0.3s ease;
-            "
-            onmouseover="this.style.transform='scale(1.05)'"
-            onmouseout="this.style.transform='scale(1)'"
-        >
-    </div>
-</div>
-
+                    <div class="rule-image-wrapper">
+                        <img 
+                            src="img.jpeg" 
+                            alt="Imagem Direitos e Diretrizes" 
+                            class="rule-image blinking-border"
+                        >
+                    </div>
+                </div>
 
                 <p style="margin-top: 10px; font-size: 0.9rem;">Departamento de Polícia - Onestate RP</p>
             </div>
         </div>
 
         <div class="sidebar">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-list"></i>
-                    <div class="card-title">Categorias de Regras</div>
-                </div>
-                <div class="categorias">
-                    <button class="categoria-btn active" data-categoria="todas">
-                        <i class="fas fa-layer-group"></i> Todas as Regras
-                    </button>
-                    <button class="categoria-btn" data-categoria="rp">
-                        <i class="fas fa-user-circle"></i> Regras de RP
-                    </button>
-                    <button class="categoria-btn" data-categoria="chat">
-                        <i class="fas fa-comments"></i> Regras de Chat
-                    </button>
-                    <button class="categoria-btn" data-categoria="conta">
-                        <i class="fas fa-user"></i> Regras de Conta
-                    </button>
-                    <button class="categoria-btn" data-categoria="abuso">
-                        <i class="fas fa-exclamation-circle"></i> Regras de Abuso
-                    </button>
-                    <button class="categoria-btn" data-categoria="alerta">
-                        <i class="fas fa-radiation"></i> Regras de Alerta
-                    </button>
-                    <button class="categoria-btn" data-categoria="media">
-                        <i class="fas fa-photo-video"></i> Regras de Mídia
-                    </button>
-                    <button class="categoria-btn" data-categoria="clan">
-                        <i class="fas fa-users"></i> Regras de Clan
-                    </button>
-                    <button class="categoria-btn" data-categoria="nome">
-                        <i class="fas fa-signature"></i> Regras de Nome
-                    </button>
-                    <button class="categoria-btn" data-categoria="police">
-                        <i class="fas fa-shield-alt"></i> Crimes Policiais
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-book"></i>
-                    <div class="card-title">Todas as Regras</div>
-                </div>
-                <div class="todas-regras" id="todasRegras">
-                    <!-- As regras serão carregadas aqui pelo JavaScript -->
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-lightbulb"></i>
-                    <div class="card-title">Exemplos de Infrações</div>
-                </div>
-                <div class="exemplos">
-                    <div class="exemplo" onclick="inserirExemplo('O player estava dirigindo normalmente quando outro player saiu de uma rua lateral e atropelou ele de propósito, depois fugiu rindo.')">
-                        <strong>Atropelamento Doloso</strong>
-                        <p>Atropelar outro jogador intencionalmente e fugir do local.</p>
-                        <div class="palavras-chave">Palavras-chave: atropelar, propósito, fugir, rindo</div>
-                    </div>
-                    <div class="exemplo" onclick="inserirExemplo('O player estava em um assalto e atirou em todos os reféns sem motivo, depois saiu correndo.')">
-                        <strong>Abuso de Mecânicas</strong>
-                        <p>Matar reféns durante um assalto sem justificativa.</p>
-                        <div class="palavras-chave">Palavras-chave: assalto, reféns, atirar, sem motivo</div>
+            <div class="card collapsible" data-collapsible>
+                <button class="card-header collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="card-header-main">
+                        <i class="fas fa-list"></i>
+                        <span class="card-title">Categorias de Regras</span>
+                    </span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div class="categorias">
+                        <button class="categoria-btn active" data-categoria="todas">
+                            <i class="fas fa-layer-group"></i> Todas as Regras
+                        </button>
+                        <button class="categoria-btn" data-categoria="rp">
+                            <i class="fas fa-user-circle"></i> Regras de RP
+                        </button>
+                        <button class="categoria-btn" data-categoria="chat">
+                            <i class="fas fa-comments"></i> Regras de Chat
+                        </button>
+                        <button class="categoria-btn" data-categoria="conta">
+                            <i class="fas fa-user"></i> Regras de Conta
+                        </button>
+                        <button class="categoria-btn" data-categoria="abuso">
+                            <i class="fas fa-exclamation-circle"></i> Regras de Abuso
+                        </button>
+                        <button class="categoria-btn" data-categoria="alerta">
+                            <i class="fas fa-radiation"></i> Regras de Alerta
+                        </button>
+                        <button class="categoria-btn" data-categoria="media">
+                            <i class="fas fa-photo-video"></i> Regras de Mídia
+                        </button>
+                        <button class="categoria-btn" data-categoria="clan">
+                            <i class="fas fa-users"></i> Regras de Clan
+                        </button>
+                        <button class="categoria-btn" data-categoria="nome">
+                            <i class="fas fa-signature"></i> Regras de Nome
+                        </button>
+                        <button class="categoria-btn" data-categoria="police">
+                            <i class="fas fa-shield-alt"></i> Crimes Policiais
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="busca-rapida">
-                <h4>Busca Rápida por Código</h4>
-                <div class="codigos-regras">
-                    <div class="codigo-regra" onclick="inserirCodigo('ABUSE3')">ABUSE3</div>
-                    <div class="codigo-regra" onclick="inserirCodigo('RP1')">RP1</div>
-                    <div class="codigo-regra" onclick="inserirCodigo('CHAT5')">CHAT5</div>
-                    <div class="codigo-regra" onclick="inserirCodigo('AC2')">AC2</div>
-                    <div class="codigo-regra" onclick="inserirCodigo('ALERT1')">ALERT1</div>
-                    <div class="codigo-regra" onclick="inserirCodigo('MEDIA1')">MEDIA1</div>
-                    <div class="codigo-regra" onclick="inserirCodigo('CLAN3')">CLAN3</div>
-                    <div class="codigo-regra" onclick="inserirCodigo('NAME2')">NAME2</div>
+            <div class="card collapsible" data-collapsible>
+                <button class="card-header collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="card-header-main">
+                        <i class="fas fa-book"></i>
+                        <span class="card-title">Todas as Regras</span>
+                    </span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div class="todas-regras" id="todasRegras">
+                        <!-- As regras serão carregadas aqui pelo JavaScript -->
+                    </div>
                 </div>
             </div>
 
-            <div class="busca-rapida">
-                <h4>Artigos Criminais</h4>
-                <div class="codigos-regras">
-                    <div class="codigo-regra" onclick="inserirCodigoPolicial('1.4')">1.4</div>
-                    <div class="codigo-regra" onclick="inserirCodigoPolicial('1.5')">1.5</div>
-                    <div class="codigo-regra" onclick="inserirCodigoPolicial('2.4')">2.4</div>
-                    <div class="codigo-regra" onclick="inserirCodigoPolicial('2.5')">2.5</div>
-                    <div class="codigo-regra" onclick="inserirCodigoPolicial('3.1')">3.1</div>
-                    <div class="codigo-regra" onclick="inserirCodigoPolicial('3.5')">3.5</div>
-                    <div class="codigo-regra" onclick="inserirCodigoPolicial('1.1')">1.1</div>
-                    <div class="codigo-regra" onclick="inserirCodigoPolicial('2.1')">2.1</div>
+            <div class="card collapsible" data-collapsible>
+                <button class="card-header collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="card-header-main">
+                        <i class="fas fa-lightbulb"></i>
+                        <span class="card-title">Exemplos de Infrações</span>
+                    </span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div class="exemplos">
+                        <div class="exemplo" onclick="inserirExemplo('O player estava dirigindo normalmente quando outro player saiu de uma rua lateral e atropelou ele de propósito, depois fugiu rindo.')">
+                            <strong>Atropelamento Doloso</strong>
+                            <p>Atropelar outro jogador intencionalmente e fugir do local.</p>
+                            <div class="palavras-chave">Palavras-chave: atropelar, propósito, fugir, rindo</div>
+                        </div>
+                        <div class="exemplo" onclick="inserirExemplo('O player estava em um assalto e atirou em todos os reféns sem motivo, depois saiu correndo.')">
+                            <strong>Abuso de Mecânicas</strong>
+                            <p>Matar reféns durante um assalto sem justificativa.</p>
+                            <div class="palavras-chave">Palavras-chave: assalto, reféns, atirar, sem motivo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="busca-rapida simple-section collapsible" data-collapsible>
+                <button class="collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="simple-section-title">Busca Rápida por Código</span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div class="codigos-regras">
+                        <div class="codigo-regra" onclick="inserirCodigo('ABUSE3')">ABUSE3</div>
+                        <div class="codigo-regra" onclick="inserirCodigo('RP1')">RP1</div>
+                        <div class="codigo-regra" onclick="inserirCodigo('CHAT5')">CHAT5</div>
+                        <div class="codigo-regra" onclick="inserirCodigo('AC2')">AC2</div>
+                        <div class="codigo-regra" onclick="inserirCodigo('ALERT1')">ALERT1</div>
+                        <div class="codigo-regra" onclick="inserirCodigo('MEDIA1')">MEDIA1</div>
+                        <div class="codigo-regra" onclick="inserirCodigo('CLAN3')">CLAN3</div>
+                        <div class="codigo-regra" onclick="inserirCodigo('NAME2')">NAME2</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="busca-rapida simple-section collapsible" data-collapsible>
+                <button class="collapsible-trigger" type="button" data-collapsible-trigger>
+                    <span class="simple-section-title">Artigos Criminais</span>
+                    <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+                </button>
+                <div class="collapsible-panel" data-collapsible-panel>
+                    <div class="codigos-regras">
+                        <div class="codigo-regra" onclick="inserirCodigoPolicial('1.4')">1.4</div>
+                        <div class="codigo-regra" onclick="inserirCodigoPolicial('1.5')">1.5</div>
+                        <div class="codigo-regra" onclick="inserirCodigoPolicial('2.4')">2.4</div>
+                        <div class="codigo-regra" onclick="inserirCodigoPolicial('2.5')">2.5</div>
+                        <div class="codigo-regra" onclick="inserirCodigoPolicial('3.1')">3.1</div>
+                        <div class="codigo-regra" onclick="inserirCodigoPolicial('3.5')">3.5</div>
+                        <div class="codigo-regra" onclick="inserirCodigoPolicial('1.1')">1.1</div>
+                        <div class="codigo-regra" onclick="inserirCodigoPolicial('2.1')">2.1</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer>
-        <p>ONESTATE RP - Sistema de Verificação com IA &copy; 2025</p>
-        <p>Desenvolvido para aprimorar a experiência de roleplay e garantir o cumprimento das regras
+    <footer class="collapsible" data-collapsible>
+        <button class="collapsible-trigger" type="button" data-collapsible-trigger>
+            <span>Rodapé e Créditos</span>
+            <i class="fas fa-chevron-down collapsible-chevron" aria-hidden="true"></i>
+        </button>
+        <div class="collapsible-panel" data-collapsible-panel>
+            <p>ONESTATE RP - Sistema de Verificação com IA &copy; 2025</p>
+            <p>Desenvolvido para aprimorar a experiência de roleplay e garantir o cumprimento das regras
 Desenvolvido pela Empresa Godoy Solutions in Tech : Caíque Eduardo Godoy da Silva (Cadu Godoy)</p>
+        </div>
     </footer>
 </div>
+</div>
 
+<script src="ai/geminiVerify.js"></script>
+<script src="ai/voiceInput.js"></script>
 <script>
 // DADOS COMPLETOS DAS REGRAS E CRIMES
 const regras = [
@@ -1151,11 +1443,156 @@ const regras = [
     { codigo: "3.6", nome: "Recusa a apresentar documentos", categoria: "police", descricao: "Recusa a apresentar documentos", penalidade: "5 minutos de prisão", keywords: ["recusa documentos", "negar documentos", "recusar identidade", "negar identidade", "recusar documentos", "negar documentos", "recusa identificação", "negar identificação"] }
 ];
 
+const APP_PASSWORD = "@Devereux16";
+const AUTH_STORAGE_KEY = "AUTH_OK";
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
+    iniciarAutenticacao();
     carregarTodasRegras();
     configurarCategorias();
+    configurarCollapsibles();
+    configurarEntradaVoz();
 });
+
+function iniciarAutenticacao() {
+    const autenticado = sessionStorage.getItem(AUTH_STORAGE_KEY) === '1';
+    const loginView = document.getElementById('loginView');
+    const appView = document.getElementById('appView');
+
+    if (autenticado) {
+        loginView.classList.add('hidden');
+        appView.classList.remove('app-hidden');
+    } else {
+        loginView.classList.remove('hidden');
+        appView.classList.add('app-hidden');
+    }
+
+    document.body.classList.remove('auth-pending');
+
+    const logoutButton = document.getElementById('logoutButton');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            sessionStorage.removeItem(AUTH_STORAGE_KEY);
+            loginView.classList.remove('hidden');
+            appView.classList.add('app-hidden');
+        });
+    }
+
+    const passwordInput = document.getElementById('passwordInput');
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    }
+}
+
+function configurarEntradaVoz() {
+    const configs = [
+        {
+            buttonId: 'voiceButton',
+            inputId: 'entrada',
+            statusId: 'voiceStatus'
+        },
+        {
+            buttonId: 'voiceButtonPolicial',
+            inputId: 'entradaPolicial',
+            statusId: 'voiceStatusPolicial'
+        }
+    ];
+
+    configs.forEach(({ buttonId, inputId, statusId }) => {
+        const buttonEl = document.getElementById(buttonId);
+        const inputEl = document.getElementById(inputId);
+        const statusEl = document.getElementById(statusId);
+
+        if (window.setupVoiceInput && buttonEl && inputEl && !buttonEl.dataset.voiceReady) {
+            window.setupVoiceInput({
+                buttonEl,
+                inputEl,
+                statusEl
+            });
+            buttonEl.dataset.voiceReady = 'true';
+        }
+    });
+}
+
+function configurarCollapsibles() {
+    const sections = document.querySelectorAll('[data-collapsible]');
+    sections.forEach((section, index) => {
+        const trigger = section.querySelector('[data-collapsible-trigger]');
+        const panel = section.querySelector('[data-collapsible-panel]');
+        if (!trigger || !panel) {
+            return;
+        }
+
+        if (!panel.id) {
+            panel.id = `collapsible-panel-${index + 1}`;
+        }
+
+        trigger.setAttribute('aria-controls', panel.id);
+        const isOpenByDefault = section.dataset.collapsibleDefault === 'open';
+        definirEstadoCollapsible(section, isOpenByDefault);
+
+        trigger.addEventListener('click', () => {
+            const isOpen = section.classList.contains('is-open');
+            definirEstadoCollapsible(section, !isOpen);
+        });
+    });
+
+    ajustarAlturaCollapsibles();
+    window.addEventListener('resize', ajustarAlturaCollapsibles);
+    window.addEventListener('hashchange', abrirCollapsiblePorHash);
+    abrirCollapsiblePorHash();
+}
+
+function definirEstadoCollapsible(section, abrir) {
+    const trigger = section.querySelector('[data-collapsible-trigger]');
+    const panel = section.querySelector('[data-collapsible-panel]');
+    if (!trigger || !panel) {
+        return;
+    }
+
+    section.classList.toggle('is-open', abrir);
+    trigger.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+    if (abrir) {
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+        panel.style.opacity = '1';
+    } else {
+        panel.style.maxHeight = '0px';
+        panel.style.opacity = '0';
+    }
+}
+
+function ajustarAlturaCollapsibles() {
+    document.querySelectorAll('[data-collapsible].is-open [data-collapsible-panel]').forEach(panel => {
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+    });
+}
+
+function abrirCollapsiblePorHash() {
+    if (!window.location.hash) {
+        return;
+    }
+
+    const alvo = document.querySelector(window.location.hash);
+    if (!alvo) {
+        return;
+    }
+
+    const panel = alvo.closest('[data-collapsible-panel]');
+    if (!panel) {
+        return;
+    }
+
+    const section = panel.closest('[data-collapsible]');
+    if (section) {
+        definirEstadoCollapsible(section, true);
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
 
 // Carregar todas as regras na sidebar
 function carregarTodasRegras() {
@@ -1258,23 +1695,96 @@ function toggleModoIA() {
 }
 
 // Verificação com IA
-function verificarComIA() {
-    const entrada = document.getElementById('entrada').value.trim();
+async function verificarComIA() {
+    const textarea = document.getElementById('entrada');
+    const button = document.getElementById('aiButtonRules');
+    const loading = document.getElementById('iaLoading');
+    const rulesList = regras.filter(regra => regra.categoria !== 'police');
+
+    await runAiVerify({
+        mode: 'rules',
+        textarea,
+        button,
+        loading,
+        resultContainer: document.getElementById('resultado'),
+        statsContainer: document.getElementById('estatisticas'),
+        rulesList,
+        onFallback: (texto) => coletarRegrasPorTexto(texto),
+        onSuccess: (adaptado) => exibirResultados(adaptado.regrasEncontradas, adaptado.confianca, adaptado),
+        onFallbackRender: (fallback, summary) => exibirResultados(fallback.regrasEncontradas, fallback.confianca, { summary })
+    });
+}
+
+async function runAiVerify({
+    mode,
+    textarea,
+    button,
+    loading,
+    resultContainer,
+    statsContainer,
+    rulesList,
+    onFallback,
+    onSuccess,
+    onFallbackRender
+}) {
+    if (!textarea) {
+        return;
+    }
+    const entrada = textarea.value.trim();
     if (!entrada) {
-        alert('Por favor, descreva a infração ou insira um código de regra.');
+        alert(mode === 'police'
+            ? 'Por favor, descreva o crime ou insira um código de artigo.'
+            : 'Por favor, descreva a infração ou insira um código de regra.');
         return;
     }
 
-    // Mostrar loading
-    document.getElementById('iaLoading').style.display = 'block';
-    document.getElementById('resultado').innerHTML = '';
-    document.getElementById('estatisticas').style.display = 'none';
+    if (button) {
+        if (!button.dataset.originalLabel) {
+            button.dataset.originalLabel = button.innerHTML;
+        }
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-robot"></i> Analisando...';
+    }
 
-    // Simular processamento da IA
-    setTimeout(() => {
-        processarVerificacaoIA(entrada);
-        document.getElementById('iaLoading').style.display = 'none';
-    }, 2000);
+    if (loading) {
+        loading.style.display = 'block';
+    }
+    if (resultContainer) {
+        resultContainer.innerHTML = '';
+    }
+    if (statsContainer) {
+        statsContainer.style.display = 'none';
+    }
+
+    try {
+        if (!window.geminiVerifyRules) {
+            throw new Error('Gemini indisponível.');
+        }
+        const resposta = await window.geminiVerifyRules(entrada, rulesList, mode);
+        const adaptado = adaptarRespostaIA(resposta, rulesList);
+
+        if (adaptado.regrasEncontradas.length > 0) {
+            onSuccess(adaptado);
+        } else {
+            const fallback = onFallback(entrada);
+            const resumo = resposta && resposta.summary
+                ? resposta.summary
+                : 'Nenhuma infração retornada pela IA. Usando análise local.';
+            onFallbackRender(fallback, resumo);
+        }
+    } catch (erro) {
+        console.error('[IA] Erro ao verificar:', erro);
+        const fallback = onFallback(entrada);
+        onFallbackRender(fallback, 'Falha ao consultar a IA. Usando análise local.');
+    } finally {
+        if (loading) {
+            loading.style.display = 'none';
+        }
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = button.dataset.originalLabel || '<i class="fas fa-robot"></i> Verificar com IA';
+        }
+    }
 }
 
 // Verificação normal
@@ -1289,6 +1799,11 @@ function verificarNormal() {
 
 // Processar verificação com IA
 function processarVerificacaoIA(texto) {
+    const resultado = coletarRegrasPorTexto(texto);
+    exibirResultados(resultado.regrasEncontradas, resultado.confianca);
+}
+
+function coletarRegrasPorTexto(texto) {
     let regrasEncontradas = [];
     let confianca = 85 + Math.floor(Math.random() * 15); // 85-99%
 
@@ -1300,7 +1815,6 @@ function processarVerificacaoIA(texto) {
     if (codigoRegra) {
         regrasEncontradas.push(codigoRegra);
     } else {
-        // Análise contextual com IA simulada
         const textoLower = texto.toLowerCase();
 
         // Buscar por palavras-chave em todas as regras (exceto policiais)
@@ -1327,8 +1841,7 @@ function processarVerificacaoIA(texto) {
         }
     }
 
-    // Exibir resultados
-    exibirResultados(regrasEncontradas, confianca);
+    return { regrasEncontradas, confianca };
 }
 
 // Processar verificação normal
@@ -1360,9 +1873,11 @@ function processarVerificacaoNormal(texto) {
 }
 
 // Exibir resultados da verificação
-function exibirResultados(regrasEncontradas, confianca) {
+function exibirResultados(regrasEncontradas, confianca, options = {}) {
     const resultado = document.getElementById('resultado');
     const estatisticas = document.getElementById('estatisticas');
+    const reasons = options.reasons || {};
+    const summary = options.summary;
 
     if (regrasEncontradas.length === 0) {
         resultado.innerHTML = `
@@ -1391,10 +1906,19 @@ function exibirResultados(regrasEncontradas, confianca) {
 
     // Exibir regras encontradas
     let html = '';
+    if (summary) {
+        html += `
+            <div class="explicacao-ia resumo-ia">
+                <i class="fas fa-info-circle"></i>
+                <strong>Resumo:</strong> ${summary}
+            </div>
+        `;
+    }
     regrasEncontradas.forEach(regra => {
         let classeConfianca = 'confianca';
         if (confianca < 70) classeConfianca += ' confianca-baixa';
         else if (confianca < 90) classeConfianca += ' confianca-media';
+        const motivo = reasons[regra.codigo];
 
         html += `
             <div class="regra ${regra.categoria}">
@@ -1411,8 +1935,7 @@ function exibirResultados(regrasEncontradas, confianca) {
                 ${confianca < 100 ? `
                 <div class="explicacao-ia">
                     <i class="fas fa-robot"></i>
-                    <strong>Análise da IA:</strong> Esta regra foi identificada com base no contexto descrito.
-                    A IA considerou a intenção e gravidade das ações relatadas.
+                    <strong>Análise da IA:</strong> ${motivo || 'Esta regra foi identificada com base no contexto descrito. A IA considerou a intenção e gravidade das ações relatadas.'}
                 </div>
                 ` : ''}
             </div>
@@ -1438,23 +1961,24 @@ function toggleModoPolicial() {
 }
 
 // Verificação com IA (Policial)
-function verificarComIAPolicial() {
-    const entrada = document.getElementById('entradaPolicial').value.trim();
-    if (!entrada) {
-        alert('Por favor, descreva o crime ou insira um código de artigo.');
-        return;
-    }
+async function verificarComIAPolicial() {
+    const textarea = document.getElementById('entradaPolicial');
+    const button = document.getElementById('aiButtonPolice');
+    const loading = document.getElementById('policeLoading');
+    const rulesList = regras.filter(regra => regra.categoria === 'police');
 
-    // Mostrar loading
-    document.getElementById('policeLoading').style.display = 'block';
-    document.getElementById('resultadoPolicial').innerHTML = '';
-    document.getElementById('estatisticasPolicial').style.display = 'none';
-
-    // Simular processamento da IA
-    setTimeout(() => {
-        processarVerificacaoIAPolicial(entrada);
-        document.getElementById('policeLoading').style.display = 'none';
-    }, 2000);
+    await runAiVerify({
+        mode: 'police',
+        textarea,
+        button,
+        loading,
+        resultContainer: document.getElementById('resultadoPolicial'),
+        statsContainer: document.getElementById('estatisticasPolicial'),
+        rulesList,
+        onFallback: (texto) => coletarCrimesPorTexto(texto),
+        onSuccess: (adaptado) => exibirResultadosPolicial(adaptado.regrasEncontradas, adaptado.confianca, adaptado),
+        onFallbackRender: (fallback, summary) => exibirResultadosPolicial(fallback.crimesEncontrados, fallback.confianca, { summary })
+    });
 }
 
 // Verificação normal (Policial)
@@ -1481,6 +2005,11 @@ function limparPolicial() {
 
 // Processar verificação com IA (Policial)
 function processarVerificacaoIAPolicial(texto) {
+    const resultado = coletarCrimesPorTexto(texto);
+    exibirResultadosPolicial(resultado.crimesEncontrados, resultado.confianca);
+}
+
+function coletarCrimesPorTexto(texto) {
     let crimesEncontrados = [];
     let confianca = 85 + Math.floor(Math.random() * 15); // 85-99%
 
@@ -1492,7 +2021,6 @@ function processarVerificacaoIAPolicial(texto) {
     if (codigoCrime) {
         crimesEncontrados.push(codigoCrime);
     } else {
-        // Análise contextual com IA simulada
         const textoLower = texto.toLowerCase();
 
         // Buscar por palavras-chave em crimes policiais
@@ -1519,8 +2047,60 @@ function processarVerificacaoIAPolicial(texto) {
         }
     }
 
-    // Exibir resultados
-    exibirResultadosPolicial(crimesEncontrados, confianca);
+    return { crimesEncontrados, confianca };
+}
+
+function adaptarRespostaIA(respostaIA, regrasDisponiveis) {
+    const violations = (respostaIA && Array.isArray(respostaIA.violations)) ? respostaIA.violations : [];
+    const reasons = {};
+    const confiancas = [];
+    const regrasEncontradas = [];
+
+    const mapSeverity = (severity) => {
+        switch ((severity || '').toLowerCase()) {
+        case 'high':
+            return 0.95;
+        case 'medium':
+            return 0.85;
+        case 'low':
+            return 0.75;
+        default:
+            return 0.85;
+        }
+    };
+
+    violations.forEach(violation => {
+        const codigo = violation.ruleId;
+        if (!codigo) {
+            return;
+        }
+        const regra = regrasDisponiveis.find(item => item.codigo === codigo);
+        if (regra) {
+            regrasEncontradas.push(regra);
+            const evidencias = [];
+            if (violation.explanation) {
+                evidencias.push(violation.explanation);
+            }
+            if (violation.evidence) {
+                evidencias.push(`Trecho: ${violation.evidence}`);
+            }
+            if (evidencias.length) {
+                reasons[regra.codigo] = evidencias.join(' ');
+            }
+            confiancas.push(mapSeverity(violation.severity));
+        }
+    });
+
+    const confiancaMedia = confiancas.length
+        ? Math.round((confiancas.reduce((total, valor) => total + valor, 0) / confiancas.length) * 100)
+        : (regrasEncontradas.length ? 90 : 0);
+
+    return {
+        regrasEncontradas,
+        confianca: confiancaMedia,
+        reasons,
+        summary: respostaIA ? respostaIA.summary : ''
+    };
 }
 
 // Processar verificação normal (Policial)
@@ -1552,9 +2132,11 @@ function processarVerificacaoNormalPolicial(texto) {
 }
 
 // Exibir resultados da verificação policial
-function exibirResultadosPolicial(crimesEncontrados, confianca) {
+function exibirResultadosPolicial(crimesEncontrados, confianca, options = {}) {
     const resultado = document.getElementById('resultadoPolicial');
     const estatisticas = document.getElementById('estatisticasPolicial');
+    const reasons = options.reasons || {};
+    const summary = options.summary;
 
     if (crimesEncontrados.length === 0) {
         resultado.innerHTML = `
@@ -1583,10 +2165,19 @@ function exibirResultadosPolicial(crimesEncontrados, confianca) {
 
     // Exibir crimes encontrados
     let html = '';
+    if (summary) {
+        html += `
+            <div class="explicacao-police resumo-ia">
+                <i class="fas fa-info-circle"></i>
+                <strong>Resumo:</strong> ${summary}
+            </div>
+        `;
+    }
     crimesEncontrados.forEach(crime => {
         let classeConfianca = 'confianca';
         if (confianca < 70) classeConfianca += ' confianca-baixa';
         else if (confianca < 90) classeConfianca += ' confianca-media';
+        const motivo = reasons[crime.codigo];
 
         html += `
             <div class="regra police">
@@ -1602,8 +2193,7 @@ function exibirResultadosPolicial(crimesEncontrados, confianca) {
                 ${confianca < 100 ? `
                 <div class="explicacao-police">
                     <i class="fas fa-robot"></i>
-                    <strong>Análise da IA Policial:</strong> Este crime foi identificado com base no contexto descrito.
-                    A IA considerou a intenção e gravidade das ações criminosas relatadas.
+                    <strong>Análise da IA Policial:</strong> ${motivo || 'Este crime foi identificado com base no contexto descrito. A IA considerou a intenção e gravidade das ações criminosas relatadas.'}
                 </div>
                 ` : ''}
             </div>
@@ -1613,27 +2203,18 @@ function exibirResultadosPolicial(crimesEncontrados, confianca) {
     resultado.innerHTML = html;
 }
 
-// Alternar visibilidade das regras da polícia
-function toggleRegrasPolicia() {
-    const conteudo = document.getElementById('conteudoRegrasPolicia');
-    if (conteudo.style.display === 'none') {
-        conteudo.style.display = 'block';
-    } else {
-        conteudo.style.display = 'none';
-    }
-}
 // Sistema de Proteção por Senha
-const CORRECT_PASSWORD = "@Devereux16"; // Altere para a senha que desejar
-
 function checkPassword() {
     const password = document.getElementById('passwordInput').value;
-    const loginScreen = document.getElementById('loginScreen');
-    const mainContent = document.getElementById('mainContent');
+    const loginView = document.getElementById('loginView');
+    const appView = document.getElementById('appView');
     const errorMessage = document.getElementById('errorMessage');
     
-    if (password === CORRECT_PASSWORD) {
-        loginScreen.style.display = 'none';
-        mainContent.classList.remove('hidden');
+    if (password === APP_PASSWORD) {
+        sessionStorage.setItem(AUTH_STORAGE_KEY, '1');
+        errorMessage.style.display = 'none';
+        loginView.classList.add('hidden');
+        appView.classList.remove('app-hidden');
     } else {
         errorMessage.style.display = 'block';
         document.getElementById('passwordInput').value = '';
@@ -1642,13 +2223,6 @@ function checkPassword() {
         }, 3000);
     }
 }
-
-// Enter para enviar a senha
-document.getElementById('passwordInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        checkPassword();
-    }
-});
 </script>
 </body>
 </html>
