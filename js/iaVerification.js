@@ -106,11 +106,7 @@ function adaptarResultadoGemini(resultadoGemini, regrasDisponiveis) {
         }
         const regra = regrasDisponiveis.find(item => item.codigo === codigo)
             || regrasDisponiveis.find(item => normalizeText(item.nome) === normalizeText(titulo));
-=======
-        if (!codigo) {
-            return;
-        }
-       
+
         if (regra) {
             regrasEncontradas.push(regra);
             if (match.reason) {
