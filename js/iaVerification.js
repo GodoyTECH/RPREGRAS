@@ -1,3 +1,12 @@
+function normalizeText(value) {
+    return (value || '')
+        .toString()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+}
+
 // Verificação com IA
 async function verificarComIA() {
     const entrada = document.getElementById('entrada').value.trim();
@@ -90,10 +99,18 @@ function adaptarResultadoGemini(resultadoGemini, regrasDisponiveis) {
 
     matched.forEach(match => {
         const codigo = match.id || match.codigo || match.rule_code;
+
+        const titulo = match.title || match.nome;
+        if (!codigo && !titulo) {
+            return;
+        }
+        const regra = regrasDisponiveis.find(item => item.codigo === codigo)
+            || regrasDisponiveis.find(item => normalizeText(item.nome) === normalizeText(titulo));
+=======
         if (!codigo) {
             return;
         }
-        const regra = regrasDisponiveis.find(item => item.codigo === codigo);
+       
         if (regra) {
             regrasEncontradas.push(regra);
             if (match.reason) {
