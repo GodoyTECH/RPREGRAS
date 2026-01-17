@@ -99,12 +99,18 @@ function adaptarResultadoGemini(resultadoGemini, regrasDisponiveis) {
 
     matched.forEach(match => {
         const codigo = match.id || match.codigo || match.rule_code;
+
         const titulo = match.title || match.nome;
         if (!codigo && !titulo) {
             return;
         }
         const regra = regrasDisponiveis.find(item => item.codigo === codigo)
             || regrasDisponiveis.find(item => normalizeText(item.nome) === normalizeText(titulo));
+=======
+        if (!codigo) {
+            return;
+        }
+       
         if (regra) {
             regrasEncontradas.push(regra);
             if (match.reason) {
