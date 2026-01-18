@@ -1,4 +1,4 @@
-const regras = window.regras || [];
+const regrasData = window.regras || [];
 const APP_PASSWORD = "@Devereux16";
 const AUTH_STORAGE_KEY = "AUTH_OK";
 
@@ -139,7 +139,7 @@ function carregarTodasRegras() {
     const container = document.getElementById('todasRegras');
     container.innerHTML = '';
 
-    regras.forEach(regra => {
+    regrasData.forEach(regra => {
         const div = document.createElement('div');
         div.className = `regra-item ${regra.categoria}`;
         div.innerHTML = `
@@ -255,7 +255,7 @@ function coletarRegrasPorTexto(texto) {
     let confianca = 85 + Math.floor(Math.random() * 15); // 85-99%
 
     // Verificar se é um código de regra
-    const codigoRegra = regras.find(regra =>
+    const codigoRegra = regrasData.find(regra =>
         regra.codigo.toLowerCase() === texto.toLowerCase() && regra.categoria !== 'police'
     );
 
@@ -265,7 +265,7 @@ function coletarRegrasPorTexto(texto) {
         const textoLower = texto.toLowerCase();
 
         // Buscar por palavras-chave em todas as regras (exceto policiais)
-        regras.forEach(regra => {
+        regrasData.forEach(regra => {
             if (regra.categoria !== 'police') {
                 for (const keyword of regra.keywords) {
                     if (textoLower.includes(keyword.toLowerCase())) {
@@ -280,7 +280,7 @@ function coletarRegrasPorTexto(texto) {
 
         // Se não encontrou nada, tentar busca por código
         if (regrasEncontradas.length === 0) {
-            regras.forEach(regra => {
+            regrasData.forEach(regra => {
                 if (regra.categoria !== 'police' && textoLower.includes(regra.codigo.toLowerCase())) {
                     regrasEncontradas.push(regra);
                 }
@@ -297,7 +297,7 @@ function processarVerificacaoNormal(texto) {
     const textoLower = texto.toLowerCase();
 
     // Buscar por código exato (exceto policiais)
-    const codigoExato = regras.find(regra =>
+    const codigoExato = regrasData.find(regra =>
         regra.codigo.toLowerCase() === textoLower && regra.categoria !== 'police'
     );
 
@@ -305,7 +305,7 @@ function processarVerificacaoNormal(texto) {
         regrasEncontradas.push(codigoExato);
     } else {
         // Buscar por palavras-chave no nome ou descrição (exceto policiais)
-        regras.forEach(regra => {
+        regrasData.forEach(regra => {
             if (regra.categoria !== 'police' &&
                 (regra.nome.toLowerCase().includes(textoLower) ||
                  regra.descricao.toLowerCase().includes(textoLower) ||
@@ -440,7 +440,7 @@ function coletarCrimesPorTexto(texto) {
     let confianca = 85 + Math.floor(Math.random() * 15); // 85-99%
 
     // Verificar se é um código de crime
-    const codigoCrime = regras.find(regra =>
+    const codigoCrime = regrasData.find(regra =>
         (regra.codigo === texto || regra.codigo === texto.replace('.', '')) && regra.categoria === 'police'
     );
 
@@ -450,7 +450,7 @@ function coletarCrimesPorTexto(texto) {
         const textoLower = texto.toLowerCase();
 
         // Buscar por palavras-chave em crimes policiais
-        regras.forEach(regra => {
+        regrasData.forEach(regra => {
             if (regra.categoria === 'police') {
                 for (const keyword of regra.keywords) {
                     if (textoLower.includes(keyword.toLowerCase())) {
@@ -465,7 +465,7 @@ function coletarCrimesPorTexto(texto) {
 
         // Se não encontrou nada, tentar busca por código
         if (crimesEncontrados.length === 0) {
-            regras.forEach(regra => {
+            regrasData.forEach(regra => {
                 if (regra.categoria === 'police' && textoLower.includes(regra.codigo.toLowerCase())) {
                     crimesEncontrados.push(regra);
                 }
@@ -482,7 +482,7 @@ function processarVerificacaoNormalPolicial(texto) {
     const textoLower = texto.toLowerCase();
 
     // Buscar por código exato (apenas crimes policiais)
-    const codigoExato = regras.find(regra =>
+    const codigoExato = regrasData.find(regra =>
         (regra.codigo === texto || regra.codigo === texto.replace('.', '')) && regra.categoria === 'police'
     );
 
@@ -490,7 +490,7 @@ function processarVerificacaoNormalPolicial(texto) {
         crimesEncontrados.push(codigoExato);
     } else {
         // Buscar por palavras-chave no nome ou descrição (apenas crimes policiais)
-        regras.forEach(regra => {
+        regrasData.forEach(regra => {
             if (regra.categoria === 'police' &&
                 (regra.nome.toLowerCase().includes(textoLower) ||
                  regra.descricao.toLowerCase().includes(textoLower) ||

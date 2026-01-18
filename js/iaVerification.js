@@ -7,6 +7,67 @@ function normalizeText(value) {
         .trim();
 }
 
+function normalizeSearchText(value) {
+    return normalizeText(value)
+        .replace(/[^a-z0-9]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function extractAliases(regra) {
+    const aliases = new Set();
+
+    if (regra.codigo) {
+        aliases.add(String(regra.codigo));
+        aliases.add(String(regra.codigo).replace(/\./g, ''));
+    }
+
+    if (regra.nome) {
+        aliases.add(regra.nome);
+        const matchParenteses = regra.nome.match(/\(([^)]+)\)/g);
+        if (matchParenteses) {
+            matchParenteses.forEach(item => {
+                const texto = item.replace(/[()]/g, '').trim();
+                if (texto) {
+                    aliases.add(texto);
+                }
+            });
+        }
+
+        regra.nome
+            .split(/[/-]/g)
+            .map(part => part.trim())
+            .filter(Boolean)
+            .forEach(part => aliases.add(part));
+    }
+
+    if (Array.isArray(regra.keywords)) {
+        regra.keywords.forEach(keyword => aliases.add(keyword));
+    }
+
+    return Array.from(aliases).filter(Boolean);
+}
+
+function matchRegraPorAlias(regra, referenciaNormalizada) {
+    const aliases = extractAliases(regra)
+        .map(alias => normalizeSearchText(alias))
+        .filter(Boolean);
+
+    const shortAliases = new Set(['dm', 'mg', 'rk', 'db', 'vdm', 'nrp', 'rp', 'afk']);
+
+    return aliases.some(alias => {
+        if (!alias) {
+            return false;
+        }
+
+        if (alias.length <= 2 && !shortAliases.has(alias)) {
+            return false;
+        }
+
+        return referenciaNormalizada.includes(alias);
+    });
+}
+
 // Verificação com IA
 async function verificarComIA() {
     const entrada = document.getElementById('entrada').value.trim();
@@ -96,23 +157,44 @@ function adaptarResultadoGemini(resultadoGemini, regrasDisponiveis) {
     const reasons = {};
     const confiancas = [];
     const regrasEncontradas = [];
+    const regrasMap = new Map(
+        regrasDisponiveis.map(regra => [normalizeText(regra.codigo), regra])
+    );
 
     matched.forEach(match => {
+        if (typeof match === 'string') {
+            match = { title: match };
+        }
+
         const codigo = match.id || match.codigo || match.rule_code;
 
         const titulo = match.title || match.nome;
         if (!codigo && !titulo) {
             return;
         }
-        const regra = regrasDisponiveis.find(item => item.codigo === codigo)
-            || regrasDisponiveis.find(item => normalizeText(item.nome) === normalizeText(titulo));
-=======
-        if (!codigo) {
-            return;
-        }
-       
+
+        const codigoNormalizado = normalizeText(codigo);
+        const tituloNormalizado = normalizeSearchText(titulo);
+        const codigoSemPonto = codigo ? normalizeText(codigo).replace(/\./g, '') : '';
+
+        const regra = regrasMap.get(codigoNormalizado)
+            || regrasMap.get(codigoSemPonto)
+            || regrasDisponiveis.find(item => normalizeText(item.nome) === normalizeText(titulo))
+            || regrasDisponiveis.find(item =>
+                tituloNormalizado &&
+                normalizeSearchText(item.nome) &&
+                (normalizeSearchText(item.nome).includes(tituloNormalizado) ||
+                    tituloNormalizado.includes(normalizeSearchText(item.nome)))
+            )
+            || regrasDisponiveis.find(item =>
+                (tituloNormalizado && matchRegraPorAlias(item, tituloNormalizado)) ||
+                (match.reason && matchRegraPorAlias(item, normalizeSearchText(match.reason)))
+            );
+
         if (regra) {
-            regrasEncontradas.push(regra);
+            if (!regrasEncontradas.some(item => item.codigo === regra.codigo)) {
+                regrasEncontradas.push(regra);
+            }
             if (match.reason) {
                 reasons[regra.codigo] = match.reason;
             }
