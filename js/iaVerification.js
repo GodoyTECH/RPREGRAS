@@ -237,7 +237,6 @@ function adaptarResultadoGemini(resultadoGemini, regrasDisponiveis) {
     };
 }
 
-
         if (regra) {
             if (!regrasEncontradas.some(item => item.codigo === regra.codigo)) {
                 regrasEncontradas.push(regra);
