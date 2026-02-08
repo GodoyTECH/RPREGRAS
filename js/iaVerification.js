@@ -172,26 +172,6 @@ function adaptarResultadoGemini(resultadoGemini, regrasDisponiveis) {
         if (!codigo && !titulo) {
             return;
         }
-function adaptarResultadoGemini(resultadoGemini, regrasDisponiveis) {
-    const matched = (resultadoGemini && resultadoGemini.matched_rules) ? resultadoGemini.matched_rules : [];
-    const reasons = {};
-    const confiancas = [];
-    const regrasEncontradas = [];
-    const regrasMap = new Map(
-        regrasDisponiveis.map(regra => [normalizeText(regra.codigo), regra])
-    );
-
-    matched.forEach(match => {
-        if (typeof match === 'string') {
-            match = { title: match };
-        }
-
-        const codigo = match.id || match.codigo || match.rule_code;
-
-        const titulo = match.title || match.nome;
-        if (!codigo && !titulo) {
-            return;
-        }
 
         const codigoNormalizado = normalizeText(codigo);
         const tituloNormalizado = normalizeSearchText(titulo);
@@ -215,28 +195,6 @@ function adaptarResultadoGemini(resultadoGemini, regrasDisponiveis) {
             if (!regrasEncontradas.some(item => item.codigo === regra.codigo)) {
                 regrasEncontradas.push(regra);
             }
-            if (match.reason) {
-                reasons[regra.codigo] = match.reason;
-            }
-            if (typeof match.confidence === 'number') {
-                const valor = match.confidence > 1 ? match.confidence / 100 : match.confidence;
-                confiancas.push(valor);
-            }
-        }
-    });
-
-    const confiancaMedia = confiancas.length
-        ? Math.round((confiancas.reduce((total, valor) => total + valor, 0) / confiancas.length) * 100)
-        : (regrasEncontradas.length ? 90 : 0);
-
-    return {
-        regrasEncontradas,
-        confianca: confiancaMedia,
-        reasons,
-        summary: resultadoGemini ? resultadoGemini.summary : ''
-    };
-}
-
             if (match.reason) {
                 reasons[regra.codigo] = match.reason;
             }
