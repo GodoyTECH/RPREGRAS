@@ -78,6 +78,7 @@ async function verificarComIA() {
 
     if (typeof abrirPainelResultados === 'function') {
         abrirPainelResultados('resultado');
+        abrirPainelResultados('estatisticas');
     }
 
     // Mostrar loading
@@ -124,6 +125,7 @@ async function verificarComIAPolicial() {
 
     if (typeof abrirPainelResultados === 'function') {
         abrirPainelResultados('resultadoPolicial');
+        abrirPainelResultados('estatisticasPolicial');
     }
 
     // Mostrar loading

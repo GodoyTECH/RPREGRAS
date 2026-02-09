@@ -260,6 +260,7 @@ function verificarNormal() {
         return;
     }
     abrirPainelResultados('resultado');
+    abrirPainelResultados('estatisticas');
     processarVerificacaoNormal(entrada);
 }
 
@@ -434,6 +435,7 @@ function verificarNormalPolicial() {
         return;
     }
     abrirPainelResultados('resultadoPolicial');
+    abrirPainelResultados('estatisticasPolicial');
     processarVerificacaoNormalPolicial(entrada);
 }
 
