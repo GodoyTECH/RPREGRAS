@@ -1,4 +1,10 @@
 const GEMINI_MODEL = "gemini-1.5-flash";
+const DEFAULT_HEADERS = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS"
+};
 
 function buildPrompt(relato, regras) {
   const regrasCompactas = regras.map(regra => ({
@@ -52,22 +58,30 @@ function extractJson(texto) {
 }
 
 exports.handler = async function handler(event) {
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 204,
+      headers: DEFAULT_HEADERS,
+      body: ""
+    };
+  }
+
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      headers: { "Content-Type": "application/json" },
+      headers: DEFAULT_HEADERS,
       body: JSON.stringify({ error: "Method not allowed" })
     };
   }
 
-  const apiKey = process.env.IA_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.IA_KEY;
   if (!apiKey) {
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: DEFAULT_HEADERS,
       body: JSON.stringify({
         matched_rules: [],
-        summary: "IA_KEY não configurada no Netlify.",
+        summary: "IA_KEY/GEMINI_API_KEY não configurada no Netlify.",
         error: "missing_api_key"
       })
     };
@@ -79,7 +93,7 @@ exports.handler = async function handler(event) {
   } catch (error) {
     return {
       statusCode: 400,
-      headers: { "Content-Type": "application/json" },
+      headers: DEFAULT_HEADERS,
       body: JSON.stringify({ error: "Invalid JSON body" })
     };
   }
@@ -90,7 +104,7 @@ exports.handler = async function handler(event) {
   if (!relato || regras.length === 0) {
     return {
       statusCode: 400,
-      headers: { "Content-Type": "application/json" },
+      headers: DEFAULT_HEADERS,
       body: JSON.stringify({
         matched_rules: [],
         summary: "Relato ou regras ausentes.",
@@ -123,7 +137,7 @@ exports.handler = async function handler(event) {
       const errorText = await response.text();
       return {
         statusCode: response.status,
-        headers: { "Content-Type": "application/json" },
+        headers: DEFAULT_HEADERS,
         body: JSON.stringify({
           matched_rules: [],
           summary: "Falha na IA.",
@@ -139,7 +153,7 @@ exports.handler = async function handler(event) {
     if (!parsed) {
       return {
         statusCode: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: DEFAULT_HEADERS,
         body: JSON.stringify({
           matched_rules: [],
           summary: "Resposta da IA inválida.",
@@ -150,7 +164,7 @@ exports.handler = async function handler(event) {
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: DEFAULT_HEADERS,
       body: JSON.stringify({
         matched_rules: Array.isArray(parsed.matched_rules) ? parsed.matched_rules : [],
         summary: parsed.summary || ""
@@ -159,7 +173,7 @@ exports.handler = async function handler(event) {
   } catch (error) {
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: DEFAULT_HEADERS,
       body: JSON.stringify({
         matched_rules: [],
         summary: "Erro ao consultar IA.",
