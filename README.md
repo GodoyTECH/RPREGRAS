@@ -6,7 +6,7 @@ Este repositório contém uma SPA estática para verificação de infrações e 
 
 O projeto usa uma função Netlify (`/.netlify/functions/gemini-verify`) para consultar o Gemini e manter a chave fora do front-end.
 
-1. Configure a variável de ambiente `IA_KEY` no Netlify (ou no ambiente local).
+1. Configure a variável de ambiente `IA_KEY` (ou `GEMINI_API_KEY`) no Netlify (ou no ambiente local).
 2. Suba o projeto normalmente; o front-end chama a função serverless com o relato e as regras.
 
 > **Atenção:** se você abrir apenas o `index.html` sem a função Netlify rodando, a IA não responderá. Use Netlify CLI (`netlify dev`) ou hospede em um ambiente com suporte a funções.

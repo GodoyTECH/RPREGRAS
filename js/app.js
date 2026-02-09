@@ -134,6 +134,24 @@ function abrirCollapsiblePorHash() {
     }
 }
 
+function abrirPainelResultados(resultadoId) {
+    const alvo = document.getElementById(resultadoId);
+    if (!alvo) {
+        return;
+    }
+
+    const panel = alvo.closest('[data-collapsible-panel]');
+    const section = panel ? panel.closest('[data-collapsible]') : null;
+
+    if (section) {
+        definirEstadoCollapsible(section, true);
+    }
+
+    if (panel) {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
 // Carregar todas as regras na sidebar
 function carregarTodasRegras() {
     const container = document.getElementById('todasRegras');
@@ -241,6 +259,7 @@ function verificarNormal() {
         alert('Por favor, descreva a infração ou insira um código de regra.');
         return;
     }
+    abrirPainelResultados('resultado');
     processarVerificacaoNormal(entrada);
 }
 
@@ -414,6 +433,7 @@ function verificarNormalPolicial() {
         alert('Por favor, descreva o crime ou insira um código de artigo.');
         return;
     }
+    abrirPainelResultados('resultadoPolicial');
     processarVerificacaoNormalPolicial(entrada);
 }
 

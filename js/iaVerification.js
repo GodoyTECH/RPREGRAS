@@ -76,6 +76,10 @@ async function verificarComIA() {
         return;
     }
 
+    if (typeof abrirPainelResultados === 'function') {
+        abrirPainelResultados('resultado');
+    }
+
     // Mostrar loading
     document.getElementById('iaLoading').style.display = 'block';
     document.getElementById('resultado').innerHTML = '';
@@ -116,6 +120,10 @@ async function verificarComIAPolicial() {
     if (!entrada) {
         alert('Por favor, descreva o crime ou insira um código de artigo.');
         return;
+    }
+
+    if (typeof abrirPainelResultados === 'function') {
+        abrirPainelResultados('resultadoPolicial');
     }
 
     // Mostrar loading
