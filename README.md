@@ -4,11 +4,12 @@ Este repositório contém uma SPA estática para verificação de infrações e 
 
 ## Configuração da IA (Gemini)
 
-Como o projeto é 100% front-end, a chave do Gemini precisa ficar no arquivo abaixo (visível no navegador):
+O projeto usa uma função Netlify (`/.netlify/functions/gemini-verify`) para consultar o Gemini e manter a chave fora do front-end.
 
-- `ai/geminiVerify.js` → edite a constante `GEMINI_API_KEY`.
+1. Configure a variável de ambiente `IA_KEY` (ou `GEMINI_API_KEY`) no Netlify (ou no ambiente local).
+2. Suba o projeto normalmente; o front-end chama a função serverless com o relato e as regras.
 
-> **Atenção:** em apps somente front-end não há como esconder a chave. Para produção, o ideal é usar um backend que injete a chave via variável de ambiente e faça a chamada do Gemini no servidor.
+> **Atenção:** se você abrir apenas o `index.html` sem a função Netlify rodando, a IA não responderá. Use Netlify CLI (`netlify dev`) ou hospede em um ambiente com suporte a funções.
 
 ## Execução local
 
@@ -19,6 +20,12 @@ python -m http.server 8000
 ```
 
 Depois acesse `http://localhost:8000`.
+
+Para testar a IA localmente, prefira:
+
+```bash
+IA_KEY="sua-chave" netlify dev
+```
 
 ## Voz → Texto
 
